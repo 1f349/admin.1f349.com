@@ -1,0 +1,46 @@
+$theme-text: rgba(255, 255, 255, 0.87);
+$theme-bg: #242424;
+
+@media (prefers-color-scheme: light) {
+  $theme-text: #213547;
+  $theme-bg: #ffffff;
+}
+
+:root {
+  font-family: Ubuntu, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: normal;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: $theme-text;
+  background-color: $theme-bg;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+}
+
+a {
+  font-weight: 500;
+  color: tomato;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: tomato;
+}
+
+body {
+  margin: 0;
+}
