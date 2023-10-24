@@ -9,5 +9,6 @@
   "bracketSameLine": false,
   "arrowParens": "avoid",
   "requirePragma": false,
-  "insertPragma": false
+  "insertPragma": false,
+  "htmlWhitespaceSensitivity": "ignore"
 }

@@ -1,4 +1,4 @@
-import {writable} from "svelte/store";
+import {get, writable} from "svelte/store";
 
 export interface LoginStore {
   userinfo: {
@@ -26,3 +26,7 @@ export const loginStore = writable<LoginStore | null>(
 loginStore.subscribe(x => {
   localStorage.setItem("login-session", JSON.stringify(x));
 });
+
+export function getBearer() {
+  return "Bearer " + (get(loginStore) as LoginStore).tokens.access;
+}

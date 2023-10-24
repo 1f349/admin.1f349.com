@@ -43,19 +43,19 @@
   {/if}
 </header>
 <main>
-  <div id="sidebar">
-    {#each sidebarOptions as item (item.name)}
-      <button class="sidebar-item" on:click={() => (sidebarSelection = item)} class:selected={item == sidebarSelection}>{item.name}</button>
-    {/each}
-  </div>
-  <div id="option-view">
-    <h2>{sidebarSelection.name}</h2>
-    {#if $loginStore == null}
-      <div>Please login to continue</div>
-    {:else}
+  {#if $loginStore == null}
+    <div id="option-view">Please login to continue</div>
+  {:else}
+    <div id="sidebar">
+      {#each sidebarOptions as item (item.name)}
+        <button class="sidebar-item" on:click={() => (sidebarSelection = item)} class:selected={item == sidebarSelection}>{item.name}</button>
+      {/each}
+    </div>
+    <div id="option-view">
+      <h2>{sidebarSelection.name}</h2>
       <svelte:component this={sidebarSelection.view} />
-    {/if}
-  </div>
+    </div>
+  {/if}
 </main>
 
 <style lang="scss">
