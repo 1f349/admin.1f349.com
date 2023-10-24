@@ -1,6 +1,6 @@
 <script lang="ts">
   import Flags from "../components/Flags.svelte";
-  import {getBearer, loginStore, type LoginStore} from "../stores/login";
+  import {getBearer} from "../stores/login";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
@@ -34,19 +34,17 @@
     active: boolean;
   }
 
-  let serverRoutes: Route[];
-  let serverRedirects: Redirect[];
+  type CSPair<T> = {client: T; server: T} | CSPairNotC<T> | CSPairNotS<T>;
+  type CSPairNotC<T> = {client: null; server: T};
+  type CSPairNotS<T> = {client: T; server: null};
 
-  let clientRoutes: Route[];
-  let clientRedirects: Redirect[];
+  let routeData: Map<string, CSPair<Route>> = new Map();
+  let redirectData: Map<string, CSPair<Redirect>> = new Map();
 
-  function getServerRoute(src: string) {
-    return serverRoutes.find(v => v.src === src);
-  }
+  let routeSrcs: Set<string> = new Set();
+  let redirectSrcs: Set<string> = new Set();
 
-  function getServerRedirect(src: string) {
-    return serverRedirects.find(v => v.src === src);
-  }
+  $: console.log(routeData);
 
   function routeEqual(a: Route, b: Route): boolean {
     return a.src === b.src && a.dst === b.dst && a.flags === b.flags && a.active === b.active;
@@ -56,14 +54,12 @@
     return a.src === b.src && a.dst === b.dst && a.flags === b.flags && a.active === b.active;
   }
 
-  function resetRoute(i: number, route: Route) {
-    clientRoutes[i] = JSON.parse(JSON.stringify(route));
-    clientRoutes = clientRoutes;
+  function noCPair<T>(pair: CSPair<T>): pair is CSPairNotC<T> {
+    return pair.client == null;
   }
 
-  function resetRedirect(i: number, redirect: Redirect) {
-    clientRedirects[i] = JSON.parse(JSON.stringify(redirect));
-    clientRedirects = clientRedirects;
+  function noSPair<T>(pair: CSPair<T>): pair is CSPairNotS<T> {
+    return pair.server == null;
   }
 
   let promiseForRoutes = new Promise<void>((res, rej) => {
@@ -73,8 +69,10 @@
         return x.json();
       })
       .then(x => {
-        serverRoutes = x as Route[];
-        clientRoutes = JSON.parse(JSON.stringify(serverRoutes));
+        let routes = x as Route[];
+        routes.forEach(x => {
+          routeData.set(x.src, {client: JSON.parse(JSON.stringify(x)), server: x});
+        });
         res();
       })
       .catch(x => rej(x));
@@ -86,8 +84,10 @@
         return x.json();
       })
       .then(x => {
-        serverRedirects = x as Redirect[];
-        clientRedirects = JSON.parse(JSON.stringify(serverRedirects));
+        let redirects = x as Redirect[];
+        redirects.forEach(x => {
+          redirectData.set(x.src, {client: JSON.parse(JSON.stringify(x)), server: x});
+        });
         res();
       })
       .catch(x => rej(x));
@@ -105,21 +105,31 @@
       <th>Flags</th>
       <th>Active</th>
     </tr>
-    {#each clientRoutes as route, i (route.src)}
-      {@const serverRoute = getServerRoute(route.src)}
-      {@const isNew = serverRoute == undefined}
-      <tr class:created={isNew} class:modified={isNew || !routeEqual(route, serverRoute)}>
-        <td>{route.src}</td>
-        <td>{route.dst}</td>
-        <td><Flags bind:value={route.flags} editable keys={routeKeys} /></td>
-        <td><input type="checkbox" bind:checked={route.active} /></td>
-        <td>{route.active}</td>
-        <td>
-          {#if !isNew}
-            <button on:click={() => resetRoute(i, serverRoute)}>Reset</button>
-          {/if}
-        </td>
-      </tr>
+    {#each routeSrcs as src (src)}
+      {@const route = routeData.get(src)}
+      {#if route}
+        {#if noCPair(route)}
+          <tr class="deleted">
+            <td>{route.server.src}</td>
+            <td>{route.server.dst}</td>
+            <td><Flags bind:value={route.flags} editable keys={routeKeys} /></td>
+            <td><input type="checkbox" bind:checked={route.active} /></td>
+          </tr>
+        {/if}
+        {@const isCreated = !route.server}
+        {@const isDeleted = !route.client}
+        <tr class:created={isCreated} class:modified={isCreated || !routeEqual(route.client, route.server)} class:deleted={isDeleted}>
+          <td>{route.client.src}</td>
+          <td>{route.client.dst}</td>
+          <td><Flags bind:value={route.flags} editable keys={routeKeys} /></td>
+          <td><input type="checkbox" bind:checked={route.active} /></td>
+          <td>
+            {#if !isCreated}
+              <button on:click={() => resetRoute(i, serverRoute)}>Reset</button>
+            {/if}
+          </td>
+        </tr>
+      {/if}
     {/each}
   </table>
 {:catch err}
@@ -158,10 +168,13 @@
 {/await}
 
 <style lang="scss">
-  table > tr.created {
-    background-color: #1a5100;
-  }
-  table > tr.modified {
-    background-color: #515100;
+  table {
+    > tr.created {
+      background-color: #1a5100;
+    }
+
+    > tr.modified {
+      background-color: #515100;
+    }
   }
 </style>
