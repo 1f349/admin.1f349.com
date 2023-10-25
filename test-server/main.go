@@ -110,14 +110,51 @@ func apiServer(verify mjwt.Verifier) {
 				"flags":  181,
 				"active": true,
 			},
+			{
+				"src":    "b.example.test",
+				"dst":    "127.0.0.1:8081",
+				"flags":  17,
+				"active": true,
+			},
+			{
+				"src":    "c.example.test",
+				"dst":    "127.0.0.1:8082",
+				"flags":  16,
+				"active": true,
+			},
+			{
+				"src":    "d.example.test",
+				"dst":    "127.0.0.1:8083",
+				"flags":  15,
+				"active": true,
+			},
+
 		})
 	}))
 	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(rw).Encode([]map[string]any{
 			{
-				"src":    "b.example.test",
-				"dst":    "127.0.0.1:8080",
+				"src":    "e.example.test",
+				"dst":    "127.0.0.1:8084",
 				"flags":  181,
+				"active": true,
+			},
+			{
+				"src":    "f.example.test",
+				"dst":    "127.0.0.1:8085",
+				"flags":  17,
+				"active": true,
+			},
+			{
+				"src":    "g.example.test",
+				"dst":    "127.0.0.1:8086",
+				"flags":  16,
+				"active": true,
+			},
+			{
+				"src":    "h.example.test",
+				"dst":    "127.0.0.1:8087",
+				"flags":  15,
 				"active": true,
 			},
 		})

@@ -12,15 +12,15 @@
 
 {#if noCPair(route)}
   <tr class="deleted">
-    <td class="code-font">{route.server.src}</td>
+    <td class="code-font"><a href="https://{route.server.src}" target="_blank">{route.server.src}</a></td>
     <td><input type="text" class="code-font" disabled bind:value={route.server.dst} size={route.server.dst.length + 2} /></td>
     <td><Flags value={route.server.flags} keys={routeKeys} /></td>
     <td><input type="checkbox" disabled checked={false} /></td>
     <td><button on:click={() => resetRoute()}>Restore</button></td>
   </tr>
 {:else}
-  <tr class:created={noSPair(route)} class:modified={noSPair(route) || !routeEqual(route.client, route.server)}>
-    <td class="code-font">{route.client.src}</td>
+  <tr class:created={noSPair(route)} class:modified={!noSPair(route) && !routeEqual(route.client, route.server)}>
+    <td class="code-font"><a href="https://{route.client.src}" target="_blank">{route.client.src}</a></td>
     <td><input type="text" class="code-font" bind:value={route.client.dst} size={route.client.dst.length + 2} /></td>
     <td><Flags bind:value={route.client.flags} editable keys={routeKeys} /></td>
     <td><input type="checkbox" bind:checked={route.client.active} /></td>
@@ -34,16 +34,32 @@
 {/if}
 
 <style lang="scss">
+  tr:nth-child(2n) {
+    background-color: #293138;
+  }
+
   tr.created {
     background-color: #1a5100;
+
+    &:nth-child(2n) {
+      background-color: #103300;
+    }
   }
 
   tr.modified {
     background-color: #515100;
+
+    &:nth-child(2n) {
+      background-color: #333300;
+    }
   }
 
   tr.deleted {
     background-color: #510000;
+
+    &:nth-child(2n) {
+      background-color: #330000;
+    }
   }
 
   td input[type="text"] {

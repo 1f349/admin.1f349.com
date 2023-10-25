@@ -1,10 +1,11 @@
 <script lang="ts">
-  import Flags from "../components/Flags.svelte";
+  import RedirectCreator from "../components/RedirectCreator.svelte";
+  import RouteCreator from "../components/RouteCreator.svelte";
   import RedirectRow from "../components/RedirectRow.svelte";
   import RouteRow from "../components/RouteRow.svelte";
   import {getBearer} from "../stores/login";
   import type {CSPair} from "../types/cspair";
-  import {type Route, type Redirect, redirectEqual, redirectKeys} from "../types/target";
+  import {type Route, type Redirect} from "../types/target";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
@@ -84,6 +85,16 @@
         {/if}
       {/each}
     </tbody>
+    <tfoot>
+      <RouteCreator
+        on:make={e => {
+          const x = e.detail;
+          routeData[x.src] = {client: x, server: null};
+          routeSrcs.push(x.src);
+          routeSrcs = routeSrcs;
+        }}
+      />
+    </tfoot>
   </table>
 {:catch err}
   <div>{err}</div>
@@ -112,6 +123,16 @@
         {/if}
       {/each}
     </tbody>
+    <tfoot>
+      <RedirectCreator
+        on:make={e => {
+          const x = e.detail;
+          redirectData[x.src] = {client: x, server: null};
+          redirectSrcs.push(x.src);
+          redirectSrcs = redirectSrcs;
+        }}
+      />
+    </tfoot>
   </table>
 {:catch err}
   <div>{err}</div>
@@ -131,10 +152,6 @@
     :global(td) {
       padding: 11px 8px 11px 8px;
       text-align: center;
-    }
-
-    td:nth-child(2n) {
-      background-color: #38444d;
     }
   }
 </style>
