@@ -1,0 +1,52 @@
+<script lang="ts">
+  import {type CSPair, noCPair, noSPair} from "../types/cspair";
+  import {type Route, routeKeys, routeEqual} from "../types/target";
+  import Flags from "./Flags.svelte";
+
+  export let route: CSPair<Route>;
+
+  function resetRoute(): any {
+    route.client = JSON.parse(JSON.stringify(route.server));
+  }
+</script>
+
+{#if noCPair(route)}
+  <tr class="deleted">
+    <td class="code-font">{route.server.src}</td>
+    <td><input type="text" class="code-font" disabled bind:value={route.server.dst} size={route.server.dst.length + 2} /></td>
+    <td><Flags value={route.server.flags} keys={routeKeys} /></td>
+    <td><input type="checkbox" disabled checked={false} /></td>
+    <td><button on:click={() => resetRoute()}>Restore</button></td>
+  </tr>
+{:else}
+  <tr class:created={noSPair(route)} class:modified={noSPair(route) || !routeEqual(route.client, route.server)}>
+    <td class="code-font">{route.client.src}</td>
+    <td><input type="text" class="code-font" bind:value={route.client.dst} size={route.client.dst.length + 2} /></td>
+    <td><Flags bind:value={route.client.flags} editable keys={routeKeys} /></td>
+    <td><input type="checkbox" bind:checked={route.client.active} /></td>
+    <td>
+      {#if !noSPair(route)}
+        <button on:click={() => resetRoute()}>Reset</button>
+      {/if}
+      <button on:click={() => (route.client = null)}>Delete</button>
+    </td>
+  </tr>
+{/if}
+
+<style lang="scss">
+  tr.created {
+    background-color: #1a5100;
+  }
+
+  tr.modified {
+    background-color: #515100;
+  }
+
+  tr.deleted {
+    background-color: #510000;
+  }
+
+  td input[type="text"] {
+    padding: 4px;
+  }
+</style>

@@ -37,8 +37,10 @@
         on:click={() => {
           $loginStore = null;
           localStorage.removeItem("login-session");
-        }}>Logout</button
+        }}
       >
+        Logout
+      </button>
     </div>
   {/if}
 </header>
@@ -52,7 +54,6 @@
       {/each}
     </div>
     <div id="option-view">
-      <h2>{sidebarSelection.name}</h2>
       <svelte:component this={sidebarSelection.view} />
     </div>
   {/if}
@@ -120,7 +121,8 @@
     height: calc(100% - 70px);
 
     #sidebar {
-      width: 200px;
+      width: 150px;
+      min-width: 150px;
 
       button {
         background-color: #2c2c2c;

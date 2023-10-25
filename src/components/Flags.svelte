@@ -1,6 +1,6 @@
 <script lang="ts">
   export let value: number = 0;
-  export let editable: boolean;
+  export let editable: boolean = false;
   export let keys: Key[];
   let isEditing: boolean;
 
