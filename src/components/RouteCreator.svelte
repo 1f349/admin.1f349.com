@@ -8,8 +8,8 @@
 </script>
 
 <tr class="created">
-  <td><input type="text" class="code-font" bind:value={route.src} size={route.src.length + 2} /></td>
-  <td><input type="text" class="code-font" bind:value={route.dst} size={route.dst.length + 2} /></td>
+  <td><input type="text" class="code-font" bind:value={route.src} size={Math.max(20, route.src.length + 2)} /></td>
+  <td><input type="text" class="code-font" bind:value={route.dst} size={Math.max(20, route.dst.length + 2)} /></td>
   <td><Flags value={route.flags} editable keys={routeKeys} /></td>
   <td><input type="checkbox" bind:checked={route.active} /></td>
   <td>

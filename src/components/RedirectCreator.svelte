@@ -8,8 +8,8 @@
 </script>
 
 <tr class="created">
-  <td><input type="text" class="code-font" bind:value={redirect.src} size={redirect.src.length + 2} /></td>
-  <td><input type="text" class="code-font" bind:value={redirect.dst} size={redirect.dst.length + 2} /></td>
+  <td><input type="text" class="code-font" bind:value={redirect.src} size={Math.max(20, redirect.src.length + 2)} /></td>
+  <td><input type="text" class="code-font" bind:value={redirect.dst} size={Math.max(20, redirect.dst.length + 2)} /></td>
   <td><Flags value={redirect.flags} editable keys={redirectKeys} /></td>
   <td><input type="checkbox" bind:checked={redirect.active} /></td>
   <td>
