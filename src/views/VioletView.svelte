@@ -82,6 +82,7 @@
         <th>Source</th>
         <th>Destination</th>
         <th>Flags</th>
+        <th>Description</th>
         <th>Active</th>
         <th>Option</th>
       </tr>
@@ -119,6 +120,7 @@
         <th>Source</th>
         <th>Destination</th>
         <th>Flags</th>
+        <th>Description</th>
         <th>Active</th>
         <th>Option</th>
       </tr>

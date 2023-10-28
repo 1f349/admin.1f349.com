@@ -8,6 +8,8 @@
   function resetRoute(): any {
     route.client = JSON.parse(JSON.stringify(route.server));
   }
+
+  const descCols = 50;
 </script>
 
 {#if noCPair(route)}
@@ -15,6 +17,7 @@
     <td class="code-font"><a href="https://{route.server.src}" target="_blank">{route.server.src}</a></td>
     <td><input type="text" class="code-font" disabled bind:value={route.server.dst} size={Math.max(20, route.server.dst.length + 2)} /></td>
     <td><Flags value={route.server.flags} keys={routeKeys} /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} disabled value={route.server.desc} /></td>
     <td><input type="checkbox" disabled checked={false} /></td>
     <td><button on:click={() => resetRoute()}>Restore</button></td>
   </tr>
@@ -23,6 +26,7 @@
     <td class="code-font"><a href="https://{route.client.src}" target="_blank">{route.client.src}</a></td>
     <td><input type="text" class="code-font" bind:value={route.client.dst} size={Math.max(20, route.client.dst.length + 2)} /></td>
     <td><Flags bind:value={route.client.flags} editable keys={routeKeys} /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} bind:value={route.client.desc} /></td>
     <td><input type="checkbox" bind:checked={route.client.active} /></td>
     <td>
       {#if !noSPair(route)}
@@ -64,5 +68,9 @@
 
   td input[type="text"] {
     padding: 4px;
+  }
+
+  .desc textarea {
+    resize: none;
   }
 </style>

@@ -4,19 +4,22 @@
   import Flags from "./Flags.svelte";
 
   const dispatch = createEventDispatcher();
-  let redirect: Redirect = {src: "", dst: "", flags: 0, active: true};
+  let redirect: Redirect = {src: "", dst: "", desc: "", flags: 0, active: true};
+
+  const descCols = 50;
 </script>
 
 <tr class="created">
   <td><input type="text" class="code-font" bind:value={redirect.src} size={Math.max(20, redirect.src.length + 2)} /></td>
   <td><input type="text" class="code-font" bind:value={redirect.dst} size={Math.max(20, redirect.dst.length + 2)} /></td>
   <td><Flags value={redirect.flags} editable keys={redirectKeys} /></td>
+  <td class="desc"><textarea rows="3" cols={descCols} bind:value={redirect.desc} /></td>
   <td><input type="checkbox" bind:checked={redirect.active} /></td>
   <td>
     <button
       on:click={() => {
         dispatch("make", redirect);
-        redirect = {src: "", dst: "", flags: 0, active: true};
+        redirect = {src: "", dst: "", desc: "", flags: 0, active: true};
       }}
     >
       Create

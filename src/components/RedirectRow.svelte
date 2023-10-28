@@ -8,6 +8,8 @@
   function resetRedirect(): any {
     redirect.client = JSON.parse(JSON.stringify(redirect.server));
   }
+
+  const descCols = 50;
 </script>
 
 {#if noCPair(redirect)}
@@ -15,6 +17,7 @@
     <td class="code-font"><a href="https://{redirect.server.src}" target="_blank">{redirect.server.src}</a></td>
     <td><input type="text" class="code-font" disabled bind:value={redirect.server.dst} size={Math.max(20, redirect.server.dst.length + 2)} /></td>
     <td><Flags value={redirect.server.flags} keys={redirectKeys} /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} disabled value={redirect.server.desc} /></td>
     <td><input type="checkbox" disabled checked={false} /></td>
     <td><button on:click={() => resetRedirect()}>Restore</button></td>
   </tr>
@@ -23,6 +26,7 @@
     <td class="code-font"><a href="https://{redirect.client.src}" target="_blank">{redirect.client.src}</a></td>
     <td><input type="text" class="code-font" bind:value={redirect.client.dst} size={Math.max(20, redirect.client.dst.length + 2)} /></td>
     <td><Flags bind:value={redirect.client.flags} editable keys={redirectKeys} /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} bind:value={redirect.client.desc} /></td>
     <td><input type="checkbox" bind:checked={redirect.client.active} /></td>
     <td>
       {#if !noSPair(redirect)}
