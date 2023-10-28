@@ -23,3 +23,9 @@
     </button>
   </td>
 </tr>
+
+<style lang="scss">
+  tr:nth-child(2n) {
+    background-color: #2a2a2a;
+  }
+</style>

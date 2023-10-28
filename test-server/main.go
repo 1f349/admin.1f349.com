@@ -36,6 +36,8 @@ func ssoServer(signer mjwt.Signer) {
 		ps := claims.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
+		ps.Set("domain:owns=example.com")
+		ps.Set("domain:owns=example.org")
 		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 15*time.Minute, auth.AccessTokenClaims{
 			Perms: ps,
 		})
@@ -105,54 +107,53 @@ func apiServer(verify mjwt.Verifier) {
 	r.Handle("/v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(rw).Encode([]map[string]any{
 			{
-				"src":    "a.example.test",
+				"src":    "example.com",
 				"dst":    "127.0.0.1:8080",
 				"flags":  181,
 				"active": true,
 			},
 			{
-				"src":    "b.example.test",
+				"src":    "test.example.com",
 				"dst":    "127.0.0.1:8081",
 				"flags":  17,
 				"active": true,
 			},
 			{
-				"src":    "c.example.test",
+				"src":    "example.org/hello",
 				"dst":    "127.0.0.1:8082",
 				"flags":  16,
 				"active": true,
 			},
 			{
-				"src":    "d.example.test",
+				"src":    "test.example.org/hello",
 				"dst":    "127.0.0.1:8083",
 				"flags":  15,
 				"active": true,
 			},
-
 		})
 	}))
 	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(rw).Encode([]map[string]any{
 			{
-				"src":    "e.example.test",
+				"src":    "example.org",
 				"dst":    "127.0.0.1:8084",
 				"flags":  181,
 				"active": true,
 			},
 			{
-				"src":    "f.example.test",
+				"src":    "test.example.org",
 				"dst":    "127.0.0.1:8085",
 				"flags":  17,
 				"active": true,
 			},
 			{
-				"src":    "g.example.test",
+				"src":    "example.org/hello",
 				"dst":    "127.0.0.1:8086",
 				"flags":  16,
 				"active": true,
 			},
 			{
-				"src":    "h.example.test",
+				"src":    "test.example.org/hello",
 				"dst":    "127.0.0.1:8087",
 				"flags":  15,
 				"active": true,

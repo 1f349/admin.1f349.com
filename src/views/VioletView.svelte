@@ -3,9 +3,10 @@
   import RouteCreator from "../components/RouteCreator.svelte";
   import RedirectRow from "../components/RedirectRow.svelte";
   import RouteRow from "../components/RouteRow.svelte";
-  import {getBearer} from "../stores/login";
+  import {getBearer, loginStore, parseJwt, type LoginStore} from "../stores/login";
   import type {CSPair} from "../types/cspair";
   import {type Route, type Redirect} from "../types/target";
+  import {domainOption} from "../stores/domain-option";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
@@ -18,13 +19,22 @@
   $: routeSrcs = Object.entries(routeData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
+    .filter(x => domainFilter(x, $domainOption))
     .sort((a, b) => a.localeCompare(b));
   $: redirectSrcs = Object.entries(redirectData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
+    .filter(x => domainFilter(x, $domainOption))
     .sort((a, b) => a.localeCompare(b));
 
-  $: console.log(routeData);
+  function domainFilter(src: string, domain: string) {
+    if (domain == "*") return true;
+    let n = src.indexOf("/");
+    if (n == -1) n = src.length;
+    let p = src.slice(0, n);
+    if (p == domain) return true;
+    return p.endsWith(domain);
+  }
 
   let promiseForRoutes = new Promise<void>((res, rej) => {
     fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
@@ -84,8 +94,7 @@
           <tr><td colspan="5">Error loading row for {src}</td></tr>
         {/if}
       {/each}
-    </tbody>
-    <tfoot>
+
       <RouteCreator
         on:make={e => {
           const x = e.detail;
@@ -94,7 +103,7 @@
           routeSrcs = routeSrcs;
         }}
       />
-    </tfoot>
+    </tbody>
   </table>
 {:catch err}
   <div>{err}</div>
@@ -122,8 +131,7 @@
           <tr><td colspan="5">Error loading row for {src}</td></tr>
         {/if}
       {/each}
-    </tbody>
-    <tfoot>
+
       <RedirectCreator
         on:make={e => {
           const x = e.detail;
@@ -132,7 +140,7 @@
           redirectSrcs = redirectSrcs;
         }}
       />
-    </tfoot>
+    </tbody>
   </table>
 {:catch err}
   <div>{err}</div>

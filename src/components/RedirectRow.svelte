@@ -34,20 +34,35 @@
 {/if}
 
 <style lang="scss">
+  tr:nth-child(2n) {
+    background-color: #2a2a2a;
+  }
+
   tr.created {
     background-color: #1a5100;
+
+    &:nth-child(2n) {
+      background-color: #103300;
+    }
   }
 
   tr.modified {
     background-color: #515100;
+
+    &:nth-child(2n) {
+      background-color: #333300;
+    }
   }
 
   tr.deleted {
     background-color: #510000;
+
+    &:nth-child(2n) {
+      background-color: #330000;
+    }
   }
 
   td input[type="text"] {
-    font-family: "Fira Code";
     padding: 4px;
   }
 </style>

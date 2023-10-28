@@ -3,8 +3,9 @@
   import GeneralView from "./views/GeneralView.svelte";
   import VioletView from "./views/VioletView.svelte";
   import OrchidView from "./views/OrchidView.svelte";
-  import {loginStore} from "./stores/login";
+  import {loginStore, parseJwt, type LoginStore} from "./stores/login";
   import {openLoginPopup} from "./utils/login-popup";
+  import {domainOption} from "./stores/domain-option";
 
   let sidebarOptions: Array<{name: string; view: typeof SvelteComponent<{}>}> = [
     {name: "General", view: GeneralView},
@@ -15,13 +16,34 @@
 
   let tokenPerms: string[] = [];
   $: tokenPerms = [];
+
+  let domainOptions: string[];
+  $: domainOptions = getDomainOptions($loginStore);
+
+  function getDomainOptions(login: LoginStore | null) {
+    let accessToken = login?.tokens?.access;
+    if (accessToken == null) return [];
+    let jwt = parseJwt(accessToken);
+    return jwt.per.filter((x: string) => x.startsWith("domain:owns=")).map((x: string) => x.slice("domain:owns=".length));
+  }
 </script>
 
 <header>
   <div>
-    <h1>🍉 - 1f349 Admin Dashboard</h1>
+    <h1>🍉 Admin Panel</h1>
   </div>
   <div class="flex-gap" />
+  <div>
+    <label>
+      <span>Domain:</span>
+      <select bind:value={$domainOption}>
+        <option value="*">All</option>
+        {#each domainOptions as domain}
+          <option value={domain}>{domain}</option>
+        {/each}
+      </select>
+    </label>
+  </div>
   <div class="nav-link">
     <a href="https://status.1f349.net" target="_blank">Status</a>
   </div>

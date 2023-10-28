@@ -35,7 +35,7 @@
 
 <style lang="scss">
   tr:nth-child(2n) {
-    background-color: #293138;
+    background-color: #2a2a2a;
   }
 
   tr.created {
