@@ -5,7 +5,7 @@
   import RouteRow from "../components/RouteRow.svelte";
   import {getBearer, loginStore, parseJwt, type LoginStore} from "../stores/login";
   import type {CSPair} from "../types/cspair";
-  import {type Route, type Redirect} from "../types/target";
+  import {type Route, type Redirect, routeEqual, redirectEqual} from "../types/target";
   import {domainOption} from "../stores/domain-option";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
@@ -36,41 +36,107 @@
     return p.endsWith(domain);
   }
 
-  let promiseForRoutes = new Promise<void>((res, rej) => {
-    fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
-      .then(x => {
-        if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-        return x.json();
+  let promiseForRoutes: Promise<void>;
+  let promiseForRedirects: Promise<void>;
+
+  reloadRoutes();
+  reloadRedirects();
+
+  function reloadRoutes() {
+    promiseForRoutes = new Promise<void>((res, rej) => {
+      fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
+        .then(x => {
+          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
+          return x.json();
+        })
+        .then(x => {
+          let routes = x as Route[];
+          routes.forEach(x => {
+            routeData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+          });
+          res();
+        })
+        .catch(x => rej(x));
+    });
+  }
+
+  function reloadRedirects() {
+    promiseForRedirects = new Promise<void>((res, rej) => {
+      fetch(apiViolet + "/redirect", {headers: {Authorization: getBearer()}})
+        .then(x => {
+          if (x.status != 200) throw new Error("Unexpected status code: " + x.status);
+          return x.json();
+        })
+        .then(x => {
+          let redirects = x as Redirect[];
+          redirects.forEach(x => {
+            redirectData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+          });
+          res();
+        })
+        .catch(x => rej(x));
+    });
+  }
+
+  interface Savable<T> {
+    type: "del" | "ins";
+    v: T;
+    p?: Promise<void>;
+  }
+
+  function saveChanges() {
+    let routePromises = routeSrcs
+      .map(x => routeData[x])
+      .filter(x => x.client != null || x.server != null)
+      .filter(x => !routeEqual(x.client, x.server))
+      .map((x: CSPair<Route>): Savable<CSPair<Route>> => {
+        if (x.client == null && x.server != null) return {type: "del", v: x};
+        return {type: "ins", v: x};
       })
-      .then(x => {
-        let routes = x as Route[];
-        routes.forEach(x => {
-          routeData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+      .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
+      .map(x => {
+        x.p = fetch(apiViolet + "/route", {
+          method: x.type == "del" ? "DELETE" : "POST",
+          headers: {Authorization: getBearer()},
+          body: JSON.stringify(x.type == "del" ? {src: (x.v.server as Route).src} : x.v.client),
+        }).then(x => {
+          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
         });
-        res();
+      });
+
+    let redirectPromises = redirectSrcs
+      .map(x => redirectData[x])
+      .filter(x => x.client != null || x.server != null)
+      .filter(x => !redirectEqual(x.client, x.server))
+      .map((x: CSPair<Redirect>): Savable<CSPair<Redirect>> => {
+        if (x.client == null && x.server != null) return {type: "del", v: x};
+        return {type: "ins", v: x};
       })
-      .catch(x => rej(x));
-  });
-  let promiseForRedirects = new Promise<void>((res, rej) => {
-    fetch(apiViolet + "/redirect", {headers: {Authorization: getBearer()}})
-      .then(x => {
-        if (x.status != 200) throw new Error("Unexpected status code: " + x.status);
-        return x.json();
-      })
-      .then(x => {
-        let redirects = x as Redirect[];
-        redirects.forEach(x => {
-          redirectData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+      .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
+      .map(x => {
+        x.p = fetch(apiViolet + "/route", {
+          method: x.type == "del" ? "DELETE" : "POST",
+          headers: {Authorization: getBearer()},
+          body: JSON.stringify(x.type == "del" ? {src: (x.v.server as Redirect).src} : x.v.client),
+        }).then(x => {
+          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
         });
-        res();
-      })
-      .catch(x => rej(x));
-  });
+      });
+
+    Promise.all(routePromises).then(_ => {
+      reloadRoutes();
+    });
+    Promise.all(redirectPromises).then(_ => {
+      reloadRedirects();
+    });
+  }
 </script>
 
 <div style="padding:8px;background-color:#bb7900;">
   Warning: This is currently still under development and does not update the routes and redirects on the server
 </div>
+
+<button on:click={() => saveChanges()}>Save Changes</button>
 
 <h2>Routes</h2>
 {#await promiseForRoutes}
@@ -99,7 +165,7 @@
       <RouteCreator
         on:make={e => {
           const x = e.detail;
-          routeData[x.src] = {client: x, server: null};
+          routeData[x.src] = {client: x, server: routeData[x.src]?.server};
           routeSrcs.push(x.src);
           routeSrcs = routeSrcs;
         }}
@@ -137,7 +203,7 @@
       <RedirectCreator
         on:make={e => {
           const x = e.detail;
-          redirectData[x.src] = {client: x, server: null};
+          redirectData[x.src] = {client: x, server: redirectData[x.src]?.server};
           redirectSrcs.push(x.src);
           redirectSrcs = redirectSrcs;
         }}

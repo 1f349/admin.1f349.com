@@ -14,13 +14,13 @@ export interface Redirect {
   active: boolean;
 }
 
-export function routeEqual(a: Route, b: Route): boolean {
-  if (b == null) return false;
+export function routeEqual(a: Route | null, b: Route | null): boolean {
+  if (a == null || b == null) return false;
   return a.src === b.src && a.dst === b.dst && a.desc === b.desc && a.flags === b.flags && a.active === b.active;
 }
 
-export function redirectEqual(a: Redirect, b: Redirect): boolean {
-  if (b == null) return false;
+export function redirectEqual(a: Redirect | null, b: Redirect | null): boolean {
+  if (a == null || b == null) return false;
   return a.src === b.src && a.dst === b.dst && a.desc === b.desc && a.flags === b.flags && a.active === b.active;
 }
 
