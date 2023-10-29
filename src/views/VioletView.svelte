@@ -51,9 +51,11 @@
         })
         .then(x => {
           let routes = x as Route[];
+          let y: {[key: string]: CSPair<Route>} = {};
           routes.forEach(x => {
-            routeData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+            y[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
           });
+          routeData = y;
           res();
         })
         .catch(x => rej(x));
@@ -69,9 +71,11 @@
         })
         .then(x => {
           let redirects = x as Redirect[];
+          let y: {[key: string]: CSPair<Redirect>} = {};
           redirects.forEach(x => {
-            redirectData[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+            y[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
           });
+          redirectData = y;
           res();
         })
         .catch(x => rej(x));
@@ -133,7 +137,7 @@
 </script>
 
 <div style="padding:8px;background-color:#bb7900;">
-  Warning: This is currently still under development and does not update the routes and redirects on the server
+  Warning: This is currently still under development, however it DOES update the real server routes and redirects
 </div>
 
 <button on:click={() => saveChanges()}>Save Changes</button>

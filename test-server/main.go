@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MrMelon54/mjwt"
-	"github.com/MrMelon54/mjwt/auth"
-	"github.com/MrMelon54/mjwt/claims"
+	"github.com/1f349/mjwt"
+	"github.com/1f349/mjwt/auth"
+	"github.com/1f349/mjwt/claims"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
