@@ -136,92 +136,110 @@
   }
 </script>
 
-<div style="padding:8px;background-color:#bb7900;">
-  Warning: This is currently still under development, however it DOES update the real server routes and redirects
+<div class="wrapper">
+  <div style="padding:8px;background-color:#bb7900;">
+    Warning: This is currently still under development, however it DOES update the real server routes and redirects
+  </div>
+
+  <div class="scrolling-area">
+    {#await promiseForRoutes}
+      <div class="text-padding">
+        <h2>Routes</h2>
+        <div>Loading...</div>
+      </div>
+    {:then}
+      <table>
+        <thead>
+          <tr>
+            <th colspan="6"><h2>Routes</h2></th>
+          </tr>
+          <tr>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Flags</th>
+            <th>Description</th>
+            <th>Active</th>
+            <th>Option</th>
+          </tr>
+          <RouteCreator
+            on:make={e => {
+              const x = e.detail;
+              routeData[x.src] = {client: x, server: routeData[x.src]?.server};
+              routeSrcs.push(x.src);
+              routeSrcs = routeSrcs;
+            }}
+          />
+        </thead>
+        <tbody>
+          {#each routeSrcs as src (src)}
+            {#if routeData[src]}
+              <RouteRow bind:route={routeData[src]} />
+            {:else}
+              <tr><td colspan="5">Error loading row for {src}</td></tr>
+            {/if}
+          {/each}
+        </tbody>
+      </table>
+    {:catch err}
+      <div class="text-padding">
+        <h2>Routes</h2>
+        <div>Administrator... I hardly know her?</div>
+        <div>{err}</div>
+      </div>
+    {/await}
+
+    {#await promiseForRedirects}
+      <div class="text-padding">
+        <h2>Redirects</h2>
+        <div>Loading...</div>
+      </div>
+    {:then}
+      <table>
+        <thead>
+          <tr>
+            <th colspan="8"><h2>Redirects</h2></th>
+          </tr>
+          <tr>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Flags</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Active</th>
+            <th>Option</th>
+          </tr>
+          <RedirectCreator
+            on:make={e => {
+              const x = e.detail;
+              redirectData[x.src] = {client: x, server: redirectData[x.src]?.server};
+              redirectSrcs.push(x.src);
+              redirectSrcs = redirectSrcs;
+            }}
+          />
+        </thead>
+        <tbody>
+          {#each redirectSrcs as src (src)}
+            {#if redirectData[src]}
+              <RedirectRow bind:redirect={redirectData[src]} />
+            {:else}
+              <tr><td colspan="5">Error loading row for {src}</td></tr>
+            {/if}
+          {/each}
+        </tbody>
+      </table>
+    {:catch err}
+      <div class="text-padding">
+        <h2>Redirects</h2>
+        <div>Administrator... I hardly know her?</div>
+        <div>{err}</div>
+      </div>
+    {/await}
+  </div>
+
+  <div class="footer">
+    <button on:click={() => saveChanges()}>Save Changes</button>
+  </div>
 </div>
-
-<h2>Routes</h2>
-{#await promiseForRoutes}
-  <div>Loading...</div>
-{:then}
-  <table>
-    <thead>
-      <tr>
-        <th>Source</th>
-        <th>Destination</th>
-        <th>Flags</th>
-        <th>Description</th>
-        <th>Active</th>
-        <th>Option</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each routeSrcs as src (src)}
-        {#if routeData[src]}
-          <RouteRow bind:route={routeData[src]} />
-        {:else}
-          <tr><td colspan="5">Error loading row for {src}</td></tr>
-        {/if}
-      {/each}
-
-      <RouteCreator
-        on:make={e => {
-          const x = e.detail;
-          routeData[x.src] = {client: x, server: routeData[x.src]?.server};
-          routeSrcs.push(x.src);
-          routeSrcs = routeSrcs;
-        }}
-      />
-    </tbody>
-  </table>
-{:catch err}
-  <div>{err}</div>
-{/await}
-
-<h2>Redirects</h2>
-{#await promiseForRedirects}
-  <div>Loading...</div>
-{:then}
-  <table>
-    <thead>
-      <tr>
-        <th>Source</th>
-        <th>Destination</th>
-        <th>Flags</th>
-        <th>Code</th>
-        <th>Description</th>
-        <th>Active</th>
-        <th>Option</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each redirectSrcs as src (src)}
-        {#if redirectData[src]}
-          <RedirectRow bind:redirect={redirectData[src]} />
-        {:else}
-          <tr><td colspan="5">Error loading row for {src}</td></tr>
-        {/if}
-      {/each}
-
-      <RedirectCreator
-        on:make={e => {
-          const x = e.detail;
-          redirectData[x.src] = {client: x, server: redirectData[x.src]?.server};
-          redirectSrcs.push(x.src);
-          redirectSrcs = redirectSrcs;
-        }}
-      />
-    </tbody>
-  </table>
-{:catch err}
-  <div>{err}</div>
-{/await}
-
-<div class="footer-fake" />
-
-<footer>
-  <button on:click={() => saveChanges()}>Save Changes</button>
-</footer>
 
 <style lang="scss">
   table {
@@ -230,7 +248,25 @@
     width: 100%;
 
     thead {
-      background-color: #04aa6d;
+      background-color: #333333;
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      box-shadow: 0 4px 8px #0003, 0 6px 20px #00000030;
+
+      th h2 {
+        margin: 0;
+      }
+    }
+
+    tbody :global(tr) {
+      &:nth-child(2n) {
+        background-color: #2a2a2a;
+      }
+
+      &:nth-child(2n + 1) {
+        background-color: #242424;
+      }
     }
 
     :global(th),
@@ -240,16 +276,26 @@
     }
   }
 
-  .footer-fake {
-    height: 50px;
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .scrolling-area {
+      overflow: auto;
+      height: 100%;
+    }
   }
 
-  footer {
-    position: absolute;
-    bottom: 0;
+  .text-padding {
+    padding: 4px 16px;
+  }
+
+  .footer {
     height: 50px;
     background-color: #2c2c2c;
-    width: calc(100% - 150px - 32px);
     box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
 
     button {
@@ -262,8 +308,8 @@
       font-size: 20px;
       font-weight: 700;
       line-height: 24px;
-      width: calc(100%);
       height: 50px;
+      padding: 4px 16px;
     }
   }
 </style>

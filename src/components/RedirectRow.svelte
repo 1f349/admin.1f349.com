@@ -41,10 +41,6 @@
 {/if}
 
 <style lang="scss">
-  tr:nth-child(2n) {
-    background-color: #2a2a2a;
-  }
-
   tr.created {
     background-color: #1a5100;
 

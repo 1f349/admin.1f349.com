@@ -105,72 +105,50 @@ var serveApiCors = cors.New(cors.Options{
 func apiServer(verify mjwt.Verifier) {
 	r := http.NewServeMux()
 	r.Handle("/v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request) {
-		json.NewEncoder(rw).Encode([]map[string]any{
-			{
-				"src":    "example.com",
+		m := make([]map[string]any, 0, 40)
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"src":    uuid.NewString() + ".example.com",
 				"dst":    "127.0.0.1:8080",
 				"desc":   "This is a test description",
 				"flags":  181,
 				"active": true,
-			},
-			{
-				"src":    "test.example.com",
-				"dst":    "127.0.0.1:8081",
-				"desc":   "This is a test description",
-				"flags":  17,
-				"active": true,
-			},
-			{
-				"src":    "example.org/hello",
-				"dst":    "127.0.0.1:8082",
-				"desc":   "This is a test description",
-				"flags":  16,
-				"active": true,
-			},
-			{
-				"src":    "test.example.org/hello",
-				"dst":    "127.0.0.1:8083",
-				"desc":   "This is a test description",
-				"flags":  15,
-				"active": true,
-			},
-		})
-	}))
-	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
-		json.NewEncoder(rw).Encode([]map[string]any{
-			{
-				"src":    "example.org",
-				"dst":    "127.0.0.1:8084",
-				"desc":   "This is a test description",
-				"flags":  181,
-				"code":   307,
-				"active": true,
-			},
-			{
-				"src":    "test.example.org",
+			})
+		}
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"src":    uuid.NewString() + ".example.org",
 				"dst":    "127.0.0.1:8085",
 				"desc":   "This is a test description",
 				"flags":  17,
-				"code":   302,
 				"active": true,
-			},
-			{
-				"src":    "example.org/hello",
-				"dst":    "127.0.0.1:8086",
+			})
+		}
+		json.NewEncoder(rw).Encode(m)
+	}))
+	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
+		m := make([]map[string]any, 0, 40)
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"src":    uuid.NewString() + ".example.com",
+				"dst":    "test1.example.com",
 				"desc":   "This is a test description",
-				"flags":  16,
+				"flags":  1,
 				"code":   308,
 				"active": true,
-			},
-			{
-				"src":    "test.example.org/hello",
-				"dst":    "127.0.0.1:8087",
+			})
+		}
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"src":    uuid.NewString() + ".example.org",
+				"dst":    "test2.example.org",
 				"desc":   "This is a test description",
-				"flags":  15,
-				"code":   301,
+				"flags":  3,
+				"code":   307,
 				"active": true,
-			},
-		})
+			})
+		}
+		json.NewEncoder(rw).Encode(m)
 	}))
 
 	logger := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {

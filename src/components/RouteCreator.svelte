@@ -28,8 +28,9 @@
 </tr>
 
 <style lang="scss">
-  tr:nth-child(2n) {
-    background-color: #2a2a2a;
+  tr.created {
+    position: sticky;
+    top: 0;
   }
 
   .desc textarea {

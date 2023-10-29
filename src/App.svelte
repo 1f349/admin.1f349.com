@@ -171,7 +171,6 @@
 
     #option-view {
       box-sizing: border-box;
-      padding: 16px;
       overflow-y: auto;
       height: 100%;
       flex-grow: 1;
