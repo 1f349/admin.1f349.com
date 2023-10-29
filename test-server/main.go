@@ -143,6 +143,7 @@ func apiServer(verify mjwt.Verifier) {
 				"dst":    "127.0.0.1:8084",
 				"desc":   "This is a test description",
 				"flags":  181,
+				"code":   307,
 				"active": true,
 			},
 			{
@@ -150,6 +151,7 @@ func apiServer(verify mjwt.Verifier) {
 				"dst":    "127.0.0.1:8085",
 				"desc":   "This is a test description",
 				"flags":  17,
+				"code":   302,
 				"active": true,
 			},
 			{
@@ -157,6 +159,7 @@ func apiServer(verify mjwt.Verifier) {
 				"dst":    "127.0.0.1:8086",
 				"desc":   "This is a test description",
 				"flags":  16,
+				"code":   308,
 				"active": true,
 			},
 			{
@@ -164,6 +167,7 @@ func apiServer(verify mjwt.Verifier) {
 				"dst":    "127.0.0.1:8087",
 				"desc":   "This is a test description",
 				"flags":  15,
+				"code":   301,
 				"active": true,
 			},
 		})

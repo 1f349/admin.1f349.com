@@ -140,8 +140,6 @@
   Warning: This is currently still under development, however it DOES update the real server routes and redirects
 </div>
 
-<button on:click={() => saveChanges()}>Save Changes</button>
-
 <h2>Routes</h2>
 {#await promiseForRoutes}
   <div>Loading...</div>
@@ -190,6 +188,7 @@
         <th>Source</th>
         <th>Destination</th>
         <th>Flags</th>
+        <th>Code</th>
         <th>Description</th>
         <th>Active</th>
         <th>Option</th>
@@ -218,6 +217,12 @@
   <div>{err}</div>
 {/await}
 
+<div class="footer-fake" />
+
+<footer>
+  <button on:click={() => saveChanges()}>Save Changes</button>
+</footer>
+
 <style lang="scss">
   table {
     border-collapse: collapse;
@@ -232,6 +237,33 @@
     :global(td) {
       padding: 11px 8px 11px 8px;
       text-align: center;
+    }
+  }
+
+  .footer-fake {
+    height: 50px;
+  }
+
+  footer {
+    position: absolute;
+    bottom: 0;
+    height: 50px;
+    background-color: #2c2c2c;
+    width: calc(100% - 150px - 32px);
+    box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
+
+    button {
+      background-color: #04aa6d;
+      border: none;
+      box-shadow: none;
+      box-sizing: border-box;
+      color: black;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      width: calc(100%);
+      height: 50px;
     }
   }
 </style>

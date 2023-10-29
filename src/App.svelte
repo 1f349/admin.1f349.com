@@ -175,11 +175,6 @@
       overflow-y: auto;
       height: 100%;
       flex-grow: 1;
-
-      h2 {
-        margin: 0;
-        margin-bottom: 16px;
-      }
     }
   }
 </style>
