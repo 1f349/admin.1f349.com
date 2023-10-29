@@ -118,7 +118,7 @@
       })
       .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
       .map(x => {
-        x.p = fetch(apiViolet + "/route", {
+        x.p = fetch(apiViolet + "/redirect", {
           method: x.type == "del" ? "DELETE" : "POST",
           headers: {Authorization: getBearer()},
           body: JSON.stringify(x.type == "del" ? {src: (x.v.server as Redirect).src} : x.v.client),
