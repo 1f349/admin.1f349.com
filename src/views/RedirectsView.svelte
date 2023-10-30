@@ -9,9 +9,9 @@
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
   let tableData: {[key: string]: CSPair<Redirect>} = {};
-  let redirectSrcs: string[] = [];
+  let tableKeys: string[] = [];
 
-  $: redirectSrcs = Object.entries(tableData)
+  $: tableKeys = Object.entries(tableData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
     .filter(x => domainFilter(x, $domainOption))
@@ -26,19 +26,18 @@
     return p.endsWith(domain);
   }
 
-  let promiseForRedirects: Promise<void> = reloadRedirects(true);
+  let promiseForTable: Promise<void> = reloadTable(true);
 
-  function reloadRedirects(firstLoad: boolean = false): Promise<void> {
+  function reloadTable(firstLoad: boolean = false): Promise<void> {
     return new Promise<void>((res, rej) => {
       fetch(apiViolet + "/redirect", {headers: {Authorization: getBearer()}})
         .then(x => {
-          if (x.status != 200) throw new Error("Unexpected status code: " + x.status);
+          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
           return x.json();
         })
         .then(x => {
-          let redirects = x as Redirect[];
-          let y: {[key: string]: CSPair<Redirect>} = {};
-          redirects.forEach(x => {
+          let rows = x as Redirect[];
+          rows.forEach(x => {
             tableData[x.src] = {
               client: firstLoad || !tableData[x.src] ? JSON.parse(JSON.stringify(x)) : tableData[x.src]?.client,
               server: x,
@@ -57,7 +56,7 @@
   }
 
   function saveChanges() {
-    let redirectPromises = redirectSrcs
+    let tableProm = tableKeys
       .map(x => tableData[x])
       .filter(x => x.client != null || x.server != null)
       .filter(x => !redirectEqual(x.client, x.server))
@@ -77,8 +76,8 @@
         return x.v.p;
       });
 
-    Promise.all(redirectPromises)
-      .then(_ => reloadRedirects())
+    Promise.all(tableProm)
+      .then(_ => reloadTable())
       .catch(_ => {
         alert("Some rows failed to save changes");
       });
@@ -91,7 +90,7 @@
   </div>
 
   <div class="scrolling-area">
-    {#await promiseForRedirects}
+    {#await promiseForTable}
       <div class="text-padding">
         <div>Loading...</div>
       </div>
@@ -111,13 +110,13 @@
             on:make={e => {
               const x = e.detail;
               tableData[x.src] = {client: x, server: tableData[x.src]?.server, p: Promise.resolve()};
-              redirectSrcs.push(x.src);
-              redirectSrcs = redirectSrcs;
+              tableKeys.push(x.src);
+              tableKeys = tableKeys;
             }}
           />
         </thead>
         <tbody>
-          {#each redirectSrcs as src (src)}
+          {#each tableKeys as src (src)}
             {#await tableData[src].p}
               <tr><td colspan="5">Loading...</td></tr>
             {:then _}

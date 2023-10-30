@@ -26,9 +26,9 @@
     return p.endsWith(domain);
   }
 
-  let promiseForRoutes: Promise<void> = reloadRoutes(true);
+  let promiseForTable: Promise<void> = reloadTable(true);
 
-  function reloadRoutes(firstLoad: boolean = false): Promise<void> {
+  function reloadTable(firstLoad: boolean = false): Promise<void> {
     return new Promise<void>((res, rej) => {
       fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
         .then(x => {
@@ -36,9 +36,8 @@
           return x.json();
         })
         .then(x => {
-          let routes = x as Route[];
-          let y: {[key: string]: CSPair<Route>} = {};
-          routes.forEach(x => {
+          let rows = x as Route[];
+          rows.forEach(x => {
             tableData[x.src] = {
               client: firstLoad || !tableData[x.src] ? JSON.parse(JSON.stringify(x)) : tableData[x.src]?.client,
               server: x,
@@ -57,7 +56,7 @@
   }
 
   function saveChanges() {
-    let routePromises = tableKeys
+    let tableProm = tableKeys
       .map(x => tableData[x])
       .filter(x => x.client != null || x.server != null)
       .filter(x => !routeEqual(x.client, x.server))
@@ -77,8 +76,8 @@
         return x.v.p;
       });
 
-    Promise.all(routePromises)
-      .then(_ => reloadRoutes())
+    Promise.all(tableProm)
+      .then(_ => reloadTable())
       .catch(_ => {
         alert("Some rows failed to save changes");
       });
@@ -91,7 +90,7 @@
   </div>
 
   <div class="scrolling-area">
-    {#await promiseForRoutes}
+    {#await promiseForTable}
       <div class="text-padding">
         <div>Loading...</div>
       </div>
