@@ -1,16 +1,18 @@
 <script lang="ts">
   import type {SvelteComponent} from "svelte";
   import GeneralView from "./views/GeneralView.svelte";
-  import VioletView from "./views/VioletView.svelte";
-  import OrchidView from "./views/OrchidView.svelte";
+  import RoutesView from "./views/RoutesView.svelte";
+  import RedirectsView from "./views/RedirectsView.svelte";
+  import CertificatesView from "./views/CertificatesView.svelte";
   import {loginStore, parseJwt, type LoginStore} from "./stores/login";
   import {openLoginPopup} from "./utils/login-popup";
   import {domainOption} from "./stores/domain-option";
 
   let sidebarOptions: Array<{name: string; view: typeof SvelteComponent<{}>}> = [
     {name: "General", view: GeneralView},
-    {name: "Violet", view: VioletView},
-    {name: "Orchid", view: OrchidView},
+    {name: "Routes", view: RoutesView},
+    {name: "Redirects", view: RedirectsView},
+    {name: "Certificates", view: CertificatesView},
   ];
   let sidebarSelection: {name: string; view: typeof SvelteComponent<{}>} = sidebarOptions[0];
 
@@ -68,7 +70,7 @@
 </header>
 <main>
   {#if $loginStore == null}
-    <div id="option-view">Please login to continue</div>
+    <div id="login-view">Please login to continue</div>
   {:else}
     <div id="sidebar">
       {#each sidebarOptions as item (item.name)}
@@ -167,6 +169,10 @@
           background-color: #1c1c1c;
         }
       }
+    }
+
+    #login-view {
+      padding: 16px;
     }
 
     #option-view {

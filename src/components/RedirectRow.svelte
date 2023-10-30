@@ -4,38 +4,38 @@
   import Flags from "./Flags.svelte";
   import RedirectCode from "./RedirectCode.svelte";
 
-  export let redirect: CSPair<Redirect>;
+  export let value: CSPair<Redirect>;
 
   function resetRedirect(): any {
-    redirect.client = JSON.parse(JSON.stringify(redirect.server));
+    value.client = JSON.parse(JSON.stringify(value.server));
   }
 
   const descCols = 50;
 </script>
 
-{#if noCPair(redirect)}
+{#if noCPair(value)}
   <tr class="deleted">
-    <td class="code-font"><a href="https://{redirect.server.src}" target="_blank">{redirect.server.src}</a></td>
-    <td><input type="text" class="code-font" disabled bind:value={redirect.server.dst} size={Math.max(20, redirect.server.dst.length + 2)} /></td>
-    <td><Flags value={redirect.server.flags} keys={redirectKeys} /></td>
-    <td><RedirectCode bind:code={redirect.server.code} /></td>
-    <td class="desc"><textarea rows="3" cols={descCols} disabled value={redirect.server.desc} /></td>
+    <td class="code-font"><a href="https://{value.server.src}" target="_blank">{value.server.src}</a></td>
+    <td><input type="text" class="code-font" disabled bind:value={value.server.dst} size={Math.max(20, value.server.dst.length + 2)} /></td>
+    <td><Flags value={value.server.flags} keys={redirectKeys} /></td>
+    <td><RedirectCode bind:code={value.server.code} /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} disabled value={value.server.desc} /></td>
     <td><input type="checkbox" disabled checked={false} /></td>
     <td><button on:click={() => resetRedirect()}>Restore</button></td>
   </tr>
 {:else}
-  <tr class:created={noSPair(redirect)} class:modified={!noSPair(redirect) && !redirectEqual(redirect.client, redirect.server)}>
-    <td class="code-font"><a href="https://{redirect.client.src}" target="_blank">{redirect.client.src}</a></td>
-    <td><input type="text" class="code-font" bind:value={redirect.client.dst} size={Math.max(20, redirect.client.dst.length + 2)} /></td>
-    <td><Flags bind:value={redirect.client.flags} editable keys={redirectKeys} /></td>
-    <td><RedirectCode bind:code={redirect.client.code} editable /></td>
-    <td class="desc"><textarea rows="3" cols={descCols} bind:value={redirect.client.desc} /></td>
-    <td><input type="checkbox" bind:checked={redirect.client.active} /></td>
+  <tr class:created={noSPair(value)} class:modified={!noSPair(value) && !redirectEqual(value.client, value.server)}>
+    <td class="code-font"><a href="https://{value.client.src}" target="_blank">{value.client.src}</a></td>
+    <td><input type="text" class="code-font" bind:value={value.client.dst} size={Math.max(20, value.client.dst.length + 2)} /></td>
+    <td><Flags bind:value={value.client.flags} editable keys={redirectKeys} /></td>
+    <td><RedirectCode bind:code={value.client.code} editable /></td>
+    <td class="desc"><textarea rows="3" cols={descCols} bind:value={value.client.desc} /></td>
+    <td><input type="checkbox" bind:checked={value.client.active} /></td>
     <td>
-      {#if !noSPair(redirect)}
+      {#if !noSPair(value)}
         <button on:click={() => resetRedirect()}>Reset</button>
       {/if}
-      <button on:click={() => (redirect.client = null)}>Delete</button>
+      <button on:click={() => (value.client = null)}>Delete</button>
     </td>
   </tr>
 {/if}
