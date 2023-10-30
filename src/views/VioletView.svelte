@@ -259,16 +259,6 @@
       }
     }
 
-    tbody :global(tr) {
-      &:nth-child(2n) {
-        background-color: #2a2a2a;
-      }
-
-      &:nth-child(2n + 1) {
-        background-color: #242424;
-      }
-    }
-
     :global(th),
     :global(td) {
       padding: 11px 8px 11px 8px;

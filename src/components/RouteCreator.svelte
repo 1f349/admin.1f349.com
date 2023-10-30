@@ -28,6 +28,14 @@
 </tr>
 
 <style lang="scss">
+  tr:nth-child(2n) {
+    background-color: #2a2a2a;
+  }
+
+  tr:nth-child(2n + 1) {
+    background-color: #242424;
+  }
+
   tr.created {
     position: sticky;
     top: 0;
