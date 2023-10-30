@@ -8,10 +8,10 @@
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
-  let redirectData: {[key: string]: CSPair<Redirect>} = {};
+  let tableData: {[key: string]: CSPair<Redirect>} = {};
   let redirectSrcs: string[] = [];
 
-  $: redirectSrcs = Object.entries(redirectData)
+  $: redirectSrcs = Object.entries(tableData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
     .filter(x => domainFilter(x, $domainOption))
@@ -26,12 +26,10 @@
     return p.endsWith(domain);
   }
 
-  let promiseForRedirects: Promise<void>;
+  let promiseForRedirects: Promise<void> = reloadRedirects(true);
 
-  reloadRedirects();
-
-  function reloadRedirects() {
-    promiseForRedirects = new Promise<void>((res, rej) => {
+  function reloadRedirects(firstLoad: boolean = false): Promise<void> {
+    return new Promise<void>((res, rej) => {
       fetch(apiViolet + "/redirect", {headers: {Authorization: getBearer()}})
         .then(x => {
           if (x.status != 200) throw new Error("Unexpected status code: " + x.status);
@@ -41,9 +39,12 @@
           let redirects = x as Redirect[];
           let y: {[key: string]: CSPair<Redirect>} = {};
           redirects.forEach(x => {
-            y[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+            tableData[x.src] = {
+              client: firstLoad || !tableData[x.src] ? JSON.parse(JSON.stringify(x)) : tableData[x.src]?.client,
+              server: x,
+              p: Promise.resolve(),
+            };
           });
-          redirectData = y;
           res();
         })
         .catch(x => rej(x));
@@ -52,33 +53,35 @@
 
   interface Savable<T> {
     type: "del" | "ins";
-    v: T;
-    p?: Promise<void>;
+    v: CSPair<T>;
   }
 
   function saveChanges() {
     let redirectPromises = redirectSrcs
-      .map(x => redirectData[x])
+      .map(x => tableData[x])
       .filter(x => x.client != null || x.server != null)
       .filter(x => !redirectEqual(x.client, x.server))
-      .map((x: CSPair<Redirect>): Savable<CSPair<Redirect>> => {
+      .map((x: CSPair<Redirect>): Savable<Redirect> => {
         if (x.client == null && x.server != null) return {type: "del", v: x};
         return {type: "ins", v: x};
       })
       .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
       .map(x => {
-        x.p = fetch(apiViolet + "/redirect", {
+        x.v.p = fetch(apiViolet + "/redirect", {
           method: x.type == "del" ? "DELETE" : "POST",
           headers: {Authorization: getBearer()},
           body: JSON.stringify(x.type == "del" ? {src: (x.v.server as Redirect).src} : x.v.client),
         }).then(x => {
           if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
         });
+        return x.v.p;
       });
 
-    Promise.all(redirectPromises).then(_ => {
-      reloadRedirects();
-    });
+    Promise.all(redirectPromises)
+      .then(_ => reloadRedirects())
+      .catch(_ => {
+        alert("Some rows failed to save changes");
+      });
   }
 </script>
 
@@ -107,7 +110,7 @@
           <RedirectCreator
             on:make={e => {
               const x = e.detail;
-              redirectData[x.src] = {client: x, server: redirectData[x.src]?.server};
+              tableData[x.src] = {client: x, server: tableData[x.src]?.server, p: Promise.resolve()};
               redirectSrcs.push(x.src);
               redirectSrcs = redirectSrcs;
             }}
@@ -115,11 +118,13 @@
         </thead>
         <tbody>
           {#each redirectSrcs as src (src)}
-            {#if redirectData[src]}
-              <RedirectRow bind:value={redirectData[src]} />
-            {:else}
-              <tr><td colspan="5">Error loading row for {src}</td></tr>
-            {/if}
+            {#await tableData[src].p}
+              <tr><td colspan="5">Loading...</td></tr>
+            {:then _}
+              <RedirectRow bind:value={tableData[src]} />
+            {:catch err}
+              <tr><td colspan="5">Error loading row for {src}: {err}</td></tr>
+            {/await}
           {/each}
         </tbody>
       </table>

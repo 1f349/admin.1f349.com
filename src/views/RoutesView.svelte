@@ -26,12 +26,10 @@
     return p.endsWith(domain);
   }
 
-  let promiseForRoutes: Promise<void>;
+  let promiseForRoutes: Promise<void> = reloadRoutes(true);
 
-  reloadRoutes();
-
-  function reloadRoutes() {
-    promiseForRoutes = new Promise<void>((res, rej) => {
+  function reloadRoutes(firstLoad: boolean = false): Promise<void> {
+    return new Promise<void>((res, rej) => {
       fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
         .then(x => {
           if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
@@ -41,9 +39,12 @@
           let routes = x as Route[];
           let y: {[key: string]: CSPair<Route>} = {};
           routes.forEach(x => {
-            y[x.src] = {client: JSON.parse(JSON.stringify(x)), server: x};
+            tableData[x.src] = {
+              client: firstLoad || !tableData[x.src] ? JSON.parse(JSON.stringify(x)) : tableData[x.src]?.client,
+              server: x,
+              p: Promise.resolve(),
+            };
           });
-          tableData = y;
           res();
         })
         .catch(x => rej(x));
@@ -52,8 +53,7 @@
 
   interface Savable<T> {
     type: "del" | "ins";
-    v: T;
-    p?: Promise<void>;
+    v: CSPair<T>;
   }
 
   function saveChanges() {
@@ -61,24 +61,27 @@
       .map(x => tableData[x])
       .filter(x => x.client != null || x.server != null)
       .filter(x => !routeEqual(x.client, x.server))
-      .map((x: CSPair<Route>): Savable<CSPair<Route>> => {
+      .map((x: CSPair<Route>): Savable<Route> => {
         if (x.client == null && x.server != null) return {type: "del", v: x};
         return {type: "ins", v: x};
       })
       .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
       .map(x => {
-        x.p = fetch(apiViolet + "/route", {
+        x.v.p = fetch(apiViolet + "/route", {
           method: x.type == "del" ? "DELETE" : "POST",
           headers: {Authorization: getBearer()},
           body: JSON.stringify(x.type == "del" ? {src: (x.v.server as Route).src} : x.v.client),
         }).then(x => {
           if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
         });
+        return x.v.p;
       });
 
-    Promise.all(routePromises).then(_ => {
-      reloadRoutes();
-    });
+    Promise.all(routePromises)
+      .then(_ => reloadRoutes())
+      .catch(_ => {
+        alert("Some rows failed to save changes");
+      });
   }
 </script>
 
@@ -106,7 +109,7 @@
           <RouteCreator
             on:make={e => {
               const x = e.detail;
-              tableData[x.src] = {client: x, server: tableData[x.src]?.server};
+              tableData[x.src] = {client: x, server: tableData[x.src]?.server, p: Promise.resolve()};
               tableKeys.push(x.src);
               tableKeys = tableKeys;
             }}
@@ -114,11 +117,13 @@
         </thead>
         <tbody>
           {#each tableKeys as src (src)}
-            {#if tableData[src]}
+            {#await tableData[src].p}
+              <tr><td colspan="5">Loading...</td></tr>
+            {:then _}
               <RouteRow bind:value={tableData[src]} />
-            {:else}
-              <tr><td colspan="5">Error loading row for {src}</td></tr>
-            {/if}
+            {:catch err}
+              <tr><td colspan="5">Error loading row for {src}: {err}</td></tr>
+            {/await}
           {/each}
         </tbody>
       </table>
