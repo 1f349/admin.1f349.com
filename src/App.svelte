@@ -4,6 +4,7 @@
   import RoutesView from "./views/RoutesView.svelte";
   import RedirectsView from "./views/RedirectsView.svelte";
   import CertificatesView from "./views/CertificatesView.svelte";
+  import SitesView from "./views/SitesView.svelte";
   import {loginStore, parseJwt, type LoginStore} from "./stores/login";
   import {openLoginPopup} from "./utils/login-popup";
   import {domainOption} from "./stores/domain-option";
@@ -13,6 +14,7 @@
     {name: "Routes", view: RoutesView},
     {name: "Redirects", view: RedirectsView},
     {name: "Certificates", view: CertificatesView},
+    {name: "Sites", view: SitesView},
   ];
   let sidebarSelection: {name: string; view: typeof SvelteComponent<{}>} = sidebarOptions[0];
 
