@@ -26,7 +26,7 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = reloadTable();
+  let promiseForTable: Promise<void> = Object.keys($redirectsTable).length === 0 ? reloadTable() : Promise.resolve();
 
   function reloadTable(): Promise<void> {
     return new Promise<void>((res, rej) => {
@@ -37,12 +37,17 @@
         })
         .then(x => {
           let rows = x as Redirect[];
+          let srcs = new Set(Object.keys($redirectsTable));
           rows.forEach(x => {
             $redirectsTable[x.src] = {
               client: !$redirectsTable[x.src] ? JSON.parse(JSON.stringify(x)) : $redirectsTable[x.src]?.client,
               server: x,
               p: Promise.resolve(),
             };
+            srcs.delete(x.src);
+          });
+          srcs.forEach(x => {
+            $redirectsTable[x].server = null;
           });
           res();
         })

@@ -26,7 +26,7 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = reloadTable();
+  let promiseForTable: Promise<void> = Object.keys($routesTable).length === 0 ? reloadTable() : Promise.resolve();
 
   function reloadTable(): Promise<void> {
     return new Promise<void>((res, rej) => {
