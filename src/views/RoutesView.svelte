@@ -5,13 +5,13 @@
   import type {CSPair} from "../types/cspair";
   import {type Route, routeEqual} from "../types/target";
   import {domainOption} from "../stores/domain-option";
+  import {routesTable} from "../stores/target";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
-  let tableData: {[key: string]: CSPair<Route>} = {};
   let tableKeys: string[] = [];
 
-  $: tableKeys = Object.entries(tableData)
+  $: tableKeys = Object.entries($routesTable)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
     .filter(x => domainFilter(x, $domainOption))
@@ -26,9 +26,9 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = reloadTable(true);
+  let promiseForTable: Promise<void> = reloadTable();
 
-  function reloadTable(firstLoad: boolean = false): Promise<void> {
+  function reloadTable(): Promise<void> {
     return new Promise<void>((res, rej) => {
       fetch(apiViolet + "/route", {headers: {Authorization: getBearer()}})
         .then(x => {
@@ -37,12 +37,17 @@
         })
         .then(x => {
           let rows = x as Route[];
+          let srcs = new Set(Object.keys($routesTable));
           rows.forEach(x => {
-            tableData[x.src] = {
-              client: firstLoad || !tableData[x.src] ? JSON.parse(JSON.stringify(x)) : tableData[x.src]?.client,
+            $routesTable[x.src] = {
+              client: !$routesTable[x.src] ? JSON.parse(JSON.stringify(x)) : $routesTable[x.src]?.client,
               server: x,
               p: Promise.resolve(),
             };
+            srcs.delete(x.src);
+          });
+          srcs.forEach(x => {
+            $routesTable[x].server = null;
           });
           res();
         })
@@ -57,7 +62,7 @@
 
   function saveChanges() {
     let tableProm = tableKeys
-      .map(x => tableData[x])
+      .map(x => $routesTable[x])
       .filter(x => x.client != null || x.server != null)
       .filter(x => !routeEqual(x.client, x.server))
       .map((x: CSPair<Route>): Savable<Route> => {
@@ -108,7 +113,7 @@
           <RouteCreator
             on:make={e => {
               const x = e.detail;
-              tableData[x.src] = {client: x, server: tableData[x.src]?.server, p: Promise.resolve()};
+              $routesTable[x.src] = {client: x, server: $routesTable[x.src]?.server, p: Promise.resolve()};
               tableKeys.push(x.src);
               tableKeys = tableKeys;
             }}
@@ -116,10 +121,10 @@
         </thead>
         <tbody>
           {#each tableKeys as src (src)}
-            {#await tableData[src].p}
+            {#await $routesTable[src].p}
               <tr><td colspan="5">Loading...</td></tr>
             {:then _}
-              <RouteRow bind:value={tableData[src]} />
+              <RouteRow bind:value={$routesTable[src]} />
             {:catch err}
               <tr><td colspan="5">Error loading row for {src}: {err}</td></tr>
             {/await}
