@@ -3,7 +3,7 @@
 </script>
 
 <div class="sites-panel">
-  <iframe src="https://sites.1f349.net/panel.php?token={getBearer()}" title="" />
+  <iframe src="https://sites.1f349.net/panel?token={getBearer()}" title="" />
 </div>
 
 <style lang="scss">
