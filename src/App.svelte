@@ -49,7 +49,7 @@
     </label>
   </div>
   <div class="nav-link">
-    <a href="https://status.1f349.net" target="_blank">Status</a>
+    <a href="https://status.1f349.com" target="_blank">Status</a>
   </div>
   {#if $loginStore == null}
     <div class="login-view">
