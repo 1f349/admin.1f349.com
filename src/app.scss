@@ -65,3 +65,29 @@ code,
 .code-font {
   font-family: 'Fira Code', monospace;
 }
+
+.btn-green,
+.btn-red,
+.btn-blue,
+.btn-yellow {
+  display: inline-block;
+  border: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: black;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  height: 50px;
+  padding: 4px 16px;
+  vertical-align: middle;
+
+  &:hover {
+    color: black;
+  }
+}
+
+.btn-green {
+  background-color: #04aa6d;
+}

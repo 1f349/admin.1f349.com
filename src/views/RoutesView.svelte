@@ -140,7 +140,7 @@
   </div>
 
   <div class="footer">
-    <button on:click={() => saveChanges()}>Save Changes</button>
+    <button class="btn-green" on:click={() => saveChanges()}>Save Changes</button>
   </div>
 </div>
 
@@ -186,19 +186,5 @@
     height: 50px;
     background-color: #2c2c2c;
     box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
-
-    button {
-      background-color: #04aa6d;
-      border: none;
-      box-shadow: none;
-      box-sizing: border-box;
-      color: black;
-      cursor: pointer;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 24px;
-      height: 50px;
-      padding: 4px 16px;
-    }
   }
 </style>
