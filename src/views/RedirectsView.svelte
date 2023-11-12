@@ -5,7 +5,7 @@
   import type {CSPair} from "../types/cspair";
   import {type Redirect, redirectEqual} from "../types/target";
   import {domainOption} from "../stores/domain-option";
-  import {redirectsTable} from "../stores/target";
+  import {redirectsTable, type CountStats, tableCountStats} from "../stores/target";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
@@ -16,6 +16,10 @@
     .map(x => x[0])
     .filter(x => domainFilter(x, $domainOption))
     .sort((a, b) => a.localeCompare(b));
+
+  let rowStats: CountStats = {created: 0, modified: 0, removed: 0};
+
+  $: rowStats = tableCountStats($redirectsTable, tableKeys, redirectEqual);
 
   function domainFilter(src: string, domain: string) {
     if (domain == "*") return true;
@@ -141,7 +145,16 @@
   </div>
 
   <div class="footer">
-    <button on:click={() => saveChanges()}>Save Changes</button>
+    <button class="btn-green" on:click={() => saveChanges()}>Save Changes</button>
+    {#if rowStats.created > 0}
+      <div class="meta-info">{rowStats.created} new redirect{rowStats.created > 1 ? "s" : ""}</div>
+    {/if}
+    {#if rowStats.modified > 0}
+      <div class="meta-info">{rowStats.modified} unsaved change{rowStats.modified > 1 ? "s" : ""}</div>
+    {/if}
+    {#if rowStats.removed > 0}
+      <div class="meta-info">{rowStats.removed} removed redirect{rowStats.removed > 1 ? "s" : ""}</div>
+    {/if}
   </div>
 </div>
 
@@ -187,19 +200,12 @@
     height: 50px;
     background-color: #2c2c2c;
     box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
+    display: flex;
+    flex-direction: row;
 
-    button {
-      background-color: #04aa6d;
-      border: none;
-      box-shadow: none;
-      box-sizing: border-box;
-      color: black;
-      cursor: pointer;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 24px;
-      height: 50px;
-      padding: 4px 16px;
+    .meta-info {
+      line-height: 50px;
+      padding-inline: 16px;
     }
   }
 </style>
