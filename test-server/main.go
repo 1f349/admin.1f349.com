@@ -173,13 +173,13 @@ func apiServer(verify mjwt.Verifier) {
 		for i := 0; i < 20; i++ {
 			m = append(m, map[string]any{
 				"domain":   uuid.NewString() + ".example.com",
-				"branches": []string{"@", "@beta"},
+				"branches": []string{"", "beta"},
 			})
 		}
 		for i := 0; i < 20; i++ {
 			m = append(m, map[string]any{
 				"domain":   uuid.NewString() + ".example.org",
-				"branches": []string{"@", "@alpha"},
+				"branches": []string{"", "alpha"},
 			})
 		}
 		json.NewEncoder(rw).Encode(m)

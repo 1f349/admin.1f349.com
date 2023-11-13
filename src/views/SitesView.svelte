@@ -91,15 +91,21 @@
         </thead>
         <tbody class="invert-rows">
           {#each tableKeys as key (key)}
+            {@const site = $sitesTable[key]}
+            {@const domain = site.domain.replace(/[^0-9a-z-]/gi, "-")}
             <tr>
-              <td><a href="https://{$sitesTable[key].domain}" target="_blank">{$sitesTable[key].domain}</a></td>
+              <td><a href="https://{site.domain}" target="_blank">{site.domain}</a></td>
               <td class="branch-cell">
-                {#each $sitesTable[key].branches as branch}
-                  <div>{branch}</div>
-                  <div><button on:click={() => deleteBranch($sitesTable[key], branch)}>Delete Branch</button></div>
+                {#each site.branches as branch}
+                  {#if branch == ""}
+                    <div><a href="https://{domain}_main.sites.1f349.com" target="_blank" class="main-or-master">main or master</a></div>
+                  {:else}
+                    <div><a href="https://{domain}_{branch}.sites.1f349.com" target="_blank">{branch}</a></div>
+                  {/if}
+                  <div><button on:click={() => deleteBranch(site, branch)}>Delete Branch</button></div>
                 {/each}
               </td>
-              <td><button on:click={() => resetSiteSecret($sitesTable[key])}>Reset Secret</button></td>
+              <td><button on:click={() => resetSiteSecret(site)}>Reset Secret</button></td>
             </tr>
           {/each}
         </tbody>
@@ -117,5 +123,12 @@
   .branch-cell {
     display: grid;
     grid-template-columns: repeat(2, auto);
+
+    width: fit-content;
+    gap: 8px;
+  }
+
+  .main-or-master {
+    color: lightgreen;
   }
 </style>
