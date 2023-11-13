@@ -37,17 +37,6 @@
     <h1>🍉 Admin Panel</h1>
   </div>
   <div class="flex-gap" />
-  <div>
-    <label>
-      <span>Domain:</span>
-      <select bind:value={$domainOption}>
-        <option value="*">All</option>
-        {#each domainOptions as domain}
-          <option value={domain}>{domain}</option>
-        {/each}
-      </select>
-    </label>
-  </div>
   <div class="nav-link">
     <a href="https://status.1f349.com" target="_blank">Status</a>
   </div>
@@ -84,6 +73,26 @@
     </div>
   {/if}
 </main>
+<footer>
+  <div class="meta-version">
+    Version: <code>{import.meta.env.VITE_APP_VERSION}</code>
+    , {import.meta.env.VITE_APP_LASTMOD}
+  </div>
+  <div>
+    <a href="https://github.com/1f349/admin.1f349.com" target="_blank">Source</a>
+  </div>
+  <div>
+    <label>
+      <span>Domain:</span>
+      <select bind:value={$domainOption}>
+        <option value="*">All</option>
+        {#each domainOptions as domain}
+          <option value={domain}>{domain}</option>
+        {/each}
+      </select>
+    </label>
+  </div>
+</footer>
 
 <style lang="scss">
   header {
@@ -144,7 +153,7 @@
     display: flex;
     flex-grow: 1;
     align-items: stretch;
-    height: calc(100% - 70px);
+    height: 0;
 
     #sidebar {
       width: 150px;
@@ -183,5 +192,14 @@
       height: 100%;
       flex-grow: 1;
     }
+  }
+
+  footer {
+    padding: 8px;
+    background-color: #2c2c2c;
+    box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 </style>

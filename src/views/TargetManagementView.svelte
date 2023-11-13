@@ -19,7 +19,6 @@
   export let equality: (a: T | null, b: T | null) => boolean;
 
   let tableKeys: string[] = [];
-
   $: tableKeys = Object.entries($tableData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
@@ -27,7 +26,6 @@
     .sort((a, b) => a.localeCompare(b));
 
   let rowStats: CountStats = {created: 0, modified: 0, removed: 0};
-
   $: rowStats = tableCountStats($tableData, tableKeys, equality);
 
   function domainFilter(src: string, domain: string) {
@@ -177,7 +175,7 @@
 
     :global(th),
     :global(td) {
-      padding: 11px 8px 11px 8px;
+      padding: 6px 8px 6px 8px;
       text-align: center;
     }
   }
