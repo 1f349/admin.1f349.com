@@ -150,6 +150,40 @@ func apiServer(verify mjwt.Verifier) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
+	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request) {
+		if req.Method == http.MethodPost {
+			defer req.Body.Close()
+			dec := json.NewDecoder(req.Body)
+			var m map[string]string
+			if err := dec.Decode(&m); err != nil {
+				http.Error(rw, err.Error(), http.StatusBadRequest)
+				return
+			}
+			switch m["submit"] {
+			case "secret":
+				rw.WriteHeader(http.StatusOK)
+				fmt.Fprintf(rw, "{\"secret\":\"%s\"}\n", uuid.NewString())
+				return
+			case "delete-branch":
+				rw.WriteHeader(http.StatusOK)
+			}
+			return
+		}
+		m := make([]any, 0, 40)
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"domain":   uuid.NewString() + ".example.com",
+				"branches": []string{"@", "@beta"},
+			})
+		}
+		for i := 0; i < 20; i++ {
+			m = append(m, map[string]any{
+				"domain":   uuid.NewString() + ".example.org",
+				"branches": []string{"@", "@alpha"},
+			})
+		}
+		json.NewEncoder(rw).Encode(m)
+	}))
 
 	logger := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		log.Println("[API Server]", req.URL.String())

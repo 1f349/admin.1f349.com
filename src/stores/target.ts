@@ -1,14 +1,10 @@
 import {writable} from "svelte/store";
 import type {CSPair} from "../types/cspair";
+import type {Pair} from "../utils/pair";
 import type {Redirect, Route} from "../types/target";
 
 export const routesTable = writable<{[key: string]: CSPair<Route>}>({});
 export const redirectsTable = writable<{[key: string]: CSPair<Redirect>}>({});
-
-export interface Pair<A, B> {
-  a: A;
-  b: B;
-}
 
 function getTableArray<T>(table: {[key: string]: CSPair<T>}, keys: Array<string>): Array<Pair<string, CSPair<T>>> {
   return keys.map(x => ({a: x, b: table[x]}));

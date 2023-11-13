@@ -118,7 +118,7 @@
         <div>Loading...</div>
       </div>
     {:then}
-      <table>
+      <table class="main-table">
         <thead>
           <tr>
             <slot name="headers" />
@@ -158,55 +158,3 @@
     {/if}
   </div>
 </div>
-
-<style lang="scss">
-  table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
-
-    thead {
-      background-color: #333333;
-      position: sticky;
-      top: 0;
-      z-index: 9999;
-      box-shadow: 0 4px 8px #0003, 0 6px 20px #00000030;
-    }
-
-    :global(th),
-    :global(td) {
-      padding: 6px 8px 6px 8px;
-      text-align: center;
-    }
-  }
-
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    .scrolling-area {
-      overflow: auto;
-      height: 100%;
-    }
-  }
-
-  .text-padding {
-    padding: 4px 16px;
-  }
-
-  .footer {
-    height: 50px;
-    background-color: #2c2c2c;
-    box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
-    display: flex;
-    flex-direction: row;
-
-    .meta-info {
-      line-height: 50px;
-      padding-inline: 16px;
-    }
-  }
-</style>
