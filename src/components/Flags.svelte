@@ -1,4 +1,6 @@
 <script lang="ts">
+  import {clickOutside} from "../directive/click_outside";
+
   export let value: number = 0;
   export let editable: boolean = false;
   export let keys: Key[];
@@ -33,7 +35,7 @@
   }
 </script>
 
-<div class="dropdown-check-list" class:dropdown-open={isEditing}>
+<div class="dropdown-check-list" class:dropdown-open={isEditing} use:clickOutside on:click_outside={() => (isEditing = false)}>
   <button on:click={() => (isEditing = !isEditing)}>
     <span class="text"><code>{flagStr}</code></span>
     <span class="arrow" />
@@ -126,59 +128,4 @@
       display: block;
     }
   }
-
-  // .dropdown-check-list:focus {
-  //   outline: 0;
-  // }
-
-  // .dropdown-check-list .anchor {
-  //   width: 98%;
-  //   position: relative;
-  //   cursor: pointer;
-  //   display: inline-block;
-  //   padding-top: 5px;
-  //   padding-left: 5px;
-  //   padding-bottom: 5px;
-  //   border: 1px #ccc solid;
-  // }
-
-  // .dropdown-check-list .anchor:after {
-  //   position: absolute;
-  //   content: "";
-  //   border-left: 2px solid black;
-  //   border-top: 2px solid black;
-  //   padding: 5px;
-  //   right: 10px;
-  //   top: 20%;
-  //   -moz-transform: rotate(-135deg);
-  //   -ms-transform: rotate(-135deg);
-  //   -o-transform: rotate(-135deg);
-  //   -webkit-transform: rotate(-135deg);
-  //   transform: rotate(-135deg);
-  // }
-
-  // .dropdown-check-list .anchor:active:after {
-  //   right: 8px;
-  //   top: 21%;
-  // }
-
-  // .dropdown-check-list ul.items {
-  //   padding: 2px;
-  //   display: none;
-  //   margin: 0;
-  //   border: 1px solid #ccc;
-  //   border-top: none;
-  // }
-
-  // .dropdown-check-list ul.items li {
-  //   list-style: none;
-  // }
-
-  // .dropdown-check-list.visible .anchor {
-  //   color: #0094ff;
-  // }
-
-  // .dropdown-check-list.visible .items {
-  //   display: block;
-  // }
 </style>
