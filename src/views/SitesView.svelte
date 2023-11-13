@@ -123,8 +123,7 @@
   .branch-cell {
     display: grid;
     grid-template-columns: repeat(2, auto);
-
-    width: fit-content;
+    justify-content: center;
     gap: 8px;
   }
 
