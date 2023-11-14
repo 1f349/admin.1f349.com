@@ -150,6 +150,56 @@ func apiServer(verify mjwt.Verifier) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
+	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request) {
+		m := make(map[int]any, 41)
+		for i := 0; i < 20; i++ {
+			u := uuid.NewString()
+			m[i] = map[string]any{
+				"id":           i + 1,
+				"auto_renew":   true,
+				"active":       true,
+				"renewing":     false,
+				"renew_failed": false,
+				"not_after":    "2024-02-06T11:52:05Z",
+				"updated_at":   "2023-11-08T07:32:08Z",
+				"domains": []string{
+					u + ".example.com",
+					"*." + u + ".example.com",
+				},
+			}
+		}
+		for i := 0; i < 20; i++ {
+			u := uuid.NewString()
+			m[i+20] = map[string]any{
+				"id":           i + 21,
+				"auto_renew":   false,
+				"active":       false,
+				"renewing":     false,
+				"renew_failed": false,
+				"not_after":    "2024-02-06T11:52:05Z",
+				"updated_at":   "2023-11-08T07:32:08Z",
+				"domains": []string{
+					u + ".example.org",
+					"*." + u + ".example.org",
+				},
+			}
+		}
+		u := uuid.NewString()
+		m[40] = map[string]any{
+			"id":           41,
+			"auto_renew":   false,
+			"active":       false,
+			"renewing":     false,
+			"renew_failed": true,
+			"not_after":    "2024-02-06T11:52:05Z",
+			"updated_at":   "2023-11-08T07:32:08Z",
+			"domains": []string{
+				u + ".example.org",
+				"*." + u + ".example.org",
+			},
+		}
+		json.NewEncoder(rw).Encode(m)
+	}))
 	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodPost {
 			defer req.Body.Close()
