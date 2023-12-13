@@ -29,7 +29,7 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = Object.entries($certsTable).length === 0 ? reloadTable() : reloadTable();
+  let promiseForTable: Promise<void> = reloadTable();
 
   async function reloadTable(): Promise<void> {
     let f = await apiRequest(apiOrchid + "/owned");

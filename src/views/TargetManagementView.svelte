@@ -39,7 +39,7 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = Object.keys($tableData).length === 0 ? reloadTable() : Promise.resolve();
+  let promiseForTable: Promise<void> = reloadTable();
 
   async function reloadTable(): Promise<void> {
     let f = await apiRequest(apiUrl);
