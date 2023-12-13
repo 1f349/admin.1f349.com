@@ -5,6 +5,8 @@
 </script>
 
 <script lang="ts">
+  import {apiRequest} from "../utils/api-request";
+
   import {writable, type Writable} from "svelte/store";
 
   import {getBearer} from "../stores/login";
@@ -39,30 +41,23 @@
 
   let promiseForTable: Promise<void> = Object.keys($tableData).length === 0 ? reloadTable() : Promise.resolve();
 
-  function reloadTable(): Promise<void> {
-    return new Promise<void>((res, rej) => {
-      fetch(apiUrl, {headers: {Authorization: getBearer()}})
-        .then(x => {
-          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-          return x.json();
-        })
-        .then(x => {
-          let rows = x as T[];
-          let srcs = new Set(Object.keys($tableData));
-          rows.forEach(x => {
-            $tableData[x.src] = {
-              client: !$tableData[x.src] ? JSON.parse(JSON.stringify(x)) : $tableData[x.src]?.client,
-              server: x,
-              p: Promise.resolve(),
-            };
-            srcs.delete(x.src);
-          });
-          srcs.forEach(x => {
-            $tableData[x].server = null;
-          });
-          res();
-        })
-        .catch(x => rej(x));
+  async function reloadTable(): Promise<void> {
+    let f = await apiRequest(apiUrl);
+    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+
+    let rows = fJson as T[];
+    let srcs = new Set(Object.keys($tableData));
+    rows.forEach(x => {
+      $tableData[x.src] = {
+        client: !$tableData[x.src] ? JSON.parse(JSON.stringify(x)) : $tableData[x.src]?.client,
+        server: x,
+        p: Promise.resolve(),
+      };
+      srcs.delete(x.src);
+    });
+    srcs.forEach(x => {
+      $tableData[x].server = null;
     });
   }
 

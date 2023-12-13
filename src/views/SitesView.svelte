@@ -2,6 +2,7 @@
   import {domainOption} from "../stores/domain-option";
   import {getBearer} from "../stores/login";
   import {type Site, sitesTable} from "../stores/sites";
+  import {apiRequest} from "../utils/api-request";
 
   const apiSiteHosting = import.meta.env.VITE_API_SITE_HOSTING;
 
@@ -22,51 +23,33 @@
 
   let promiseForTable: Promise<void> = Object.entries($sitesTable).length === 0 ? reloadTable() : Promise.resolve();
 
-  function reloadTable(): Promise<void> {
-    return new Promise<void>((res, rej) => {
-      fetch(apiSiteHosting, {headers: {Authorization: getBearer()}})
-        .then(x => {
-          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-          return x.json();
-        })
-        .then(x => {
-          let rows = x as Site[];
-          rows.forEach(x => {
-            $sitesTable[x.domain] = x;
-          });
-          res();
-        })
-        .catch(x => rej(x));
+  async function reloadTable(): Promise<void> {
+    let f = await apiRequest(apiSiteHosting);
+    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    let rows = fJson as Site[];
+    rows.forEach(x => {
+      $sitesTable[x.domain] = x;
     });
   }
 
-  function deleteBranch(site: Site, branch: string) {
-    fetch(apiSiteHosting, {
+  async function deleteBranch(site: Site, branch: string) {
+    let f = await apiRequest(apiSiteHosting, {
       method: "POST",
-      headers: {Authorization: getBearer()},
       body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
-    })
-      .then(x => {
-        if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-        promiseForTable = reloadTable();
-      })
-      .catch(x => alert("Error deleting branch: " + x));
+    });
+    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
+    promiseForTable = reloadTable();
   }
 
-  function resetSiteSecret(site: Site) {
-    fetch(apiSiteHosting, {
+  async function resetSiteSecret(site: Site) {
+    let f = await apiRequest(apiSiteHosting, {
       method: "POST",
-      headers: {Authorization: getBearer()},
       body: JSON.stringify({submit: "secret", site: site.domain}),
-    })
-      .then(x => {
-        if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-        return x.json();
-      })
-      .then(x => {
-        alert("New secret: " + x.secret);
-      })
-      .catch(x => alert("Error resetting secret: " + x));
+    });
+    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    alert("New secret: " + fJson.secret);
   }
 </script>
 

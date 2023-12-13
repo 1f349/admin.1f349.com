@@ -2,6 +2,8 @@
   import {domainOption} from "../stores/domain-option";
   import {getBearer} from "../stores/login";
   import {type Cert, certsTable} from "../stores/certs";
+  import {apiRequest} from "../utils/api-request";
+  import {onMount} from "svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -27,25 +29,17 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = Object.entries($certsTable).length === 0 ? reloadTable() : Promise.resolve();
+  let promiseForTable: Promise<void> = Object.entries($certsTable).length === 0 ? reloadTable() : reloadTable();
 
-  function reloadTable(): Promise<void> {
-    return new Promise<void>((res, rej) => {
-      fetch(apiOrchid + "/owned", {headers: {Authorization: getBearer()}})
-        .then(x => {
-          if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-          return x.json();
-        })
-        .then(x => {
-          let rows = x as Map<number, Cert>;
-          Object.values(rows).forEach(x => {
-            $certsTable[Object(x.id).toString()] = x;
-          });
-          console.log($certsTable);
-          res();
-        })
-        .catch(x => rej(x));
+  async function reloadTable(): Promise<void> {
+    let f = await apiRequest(apiOrchid + "/owned");
+    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    let rows = fJson as Map<number, Cert>;
+    Object.values(rows).forEach(x => {
+      $certsTable[Object(x.id).toString()] = x;
     });
+    console.log($certsTable);
   }
 </script>
 

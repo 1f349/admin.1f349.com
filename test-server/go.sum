@@ -1,5 +1,7 @@
 github.com/1f349/mjwt v0.2.0 h1:1c3+J05RRBsClGxA91SzT3I2DkwasGA4OgLcIeXWmq4=
 github.com/1f349/mjwt v0.2.0/go.mod h1:KEs6jd9JjWrQW+8feP2pGAU7pdA3aYTqjkT/YQr73PU=
+github.com/1f349/mjwt v0.2.1 h1:REdiM/MaNjYQwHvI39LaMPhlvMg4Vy9SgomWMsKTNz8=
+github.com/1f349/mjwt v0.2.1/go.mod h1:KEs6jd9JjWrQW+8feP2pGAU7pdA3aYTqjkT/YQr73PU=
 github.com/MrMelon54/mjwt v0.1.1 h1:m+aTpxbhQCrOPKHN170DQMFR5r938LkviU38unob5Jw=
 github.com/MrMelon54/mjwt v0.1.1/go.mod h1:oYrDBWK09Hju98xb+bRQ0wy+RuAzacxYvKYOZchR2Tk=
 github.com/becheran/wildmatch-go v1.0.0 h1:mE3dGGkTmpKtT4Z+88t8RStG40yN9T+kFEGj2PZFSzA=

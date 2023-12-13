@@ -38,7 +38,7 @@ func ssoServer(signer mjwt.Signer) {
 		ps.Set("violet:redirect")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
-		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 15*time.Minute, auth.AccessTokenClaims{
+		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 10*time.Second, auth.AccessTokenClaims{
 			Perms: ps,
 		})
 		if err != nil {
@@ -83,6 +83,49 @@ func ssoServer(signer mjwt.Signer) {
 </body>
 </html>
 `, accessToken, "")
+	})
+	var corsAccessControl = cors.New(cors.Options{
+		AllowOriginFunc: func(origin string) bool {
+			println(origin)
+			return origin == "http://localhost:5173"
+		},
+		AllowedMethods:   []string{http.MethodPost, http.MethodOptions},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+	r.HandleFunc("/refresh", func(w http.ResponseWriter, r *http.Request) {
+		corsAccessControl.ServeHTTP(w, r, func(w http.ResponseWriter, r *http.Request) {
+			ps := claims.NewPermStorage()
+			ps.Set("violet:route")
+			ps.Set("violet:redirect")
+			ps.Set("domain:owns=example.com")
+			ps.Set("domain:owns=example.org")
+			accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 10*time.Second, auth.AccessTokenClaims{
+				Perms: ps,
+			})
+			if err != nil {
+				http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"target": "http://localhost:5173",
+				"tokens": map[string]any{
+					"access":  accessToken,
+					"refresh": "",
+				},
+				"userinfo": map[string]any{
+					"aud":                "d0555671-df9d-42d0-a4d6-94b694251f0b",
+					"email":              "admin@localhost",
+					"email_verified":     true,
+					"name":               "Admin",
+					"preferred_username": "admin",
+					"sub":                "81b99bd7-bf74-4cc2-9133-80ed2393dfe6",
+					"picture":            "http://localhost:5173/1f349.svg",
+					"updated_at":         0,
+				},
+			})
+		})
 	})
 	log.Println("[SSO Server]", http.ListenAndServe(":9090", r))
 }

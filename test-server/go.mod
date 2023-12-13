@@ -12,7 +12,7 @@ require (
 require github.com/becheran/wildmatch-go v1.0.0 // indirect
 
 require (
-	github.com/1f349/mjwt v0.2.0
+	github.com/1f349/mjwt v0.2.1
 	github.com/pkg/errors v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
