@@ -28,6 +28,7 @@
     let accessToken = login?.tokens?.access;
     if (accessToken == null) return [];
     let jwt = parseJwt(accessToken);
+    if(!jwt) return [];
     return jwt.per.filter((x: string) => x.startsWith("domain:owns=")).map((x: string) => x.slice("domain:owns=".length));
   }
 </script>

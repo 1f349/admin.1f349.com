@@ -32,7 +32,9 @@ export function getBearer() {
 }
 
 export function parseJwt(token: string) {
-  const base64Url = token.split(".")[1];
+  const tokenParts = token.split(".");
+  if(tokenParts.length !== 2) return null;
+  const base64Url = tokenParts[1];
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
   const jsonPayload = decodeURIComponent(
     window
