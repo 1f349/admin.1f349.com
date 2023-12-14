@@ -36,5 +36,9 @@ export async function apiRequest(url: string, init?: RequestInit): Promise<Respo
 }
 
 export async function apiVerify() {
-  return await apiRequest(TOKEN_VERIFY_API);
+  return await apiRequest(TOKEN_VERIFY_API, {
+    method: "POST",
+    mode: "cors",
+    cache: "no-cache",
+  });
 }
