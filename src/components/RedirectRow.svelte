@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {Writable} from "svelte/store";
-  import {type CSPair, noCPair, noSPair, noPair, yesCPair} from "../types/cspair";
+  import {type CSPair, noCPair, noSPair, yesCPair} from "../types/cspair";
   import {redirectKeys, redirectEqual, type Redirect} from "../types/target";
   import Flags from "./Flags.svelte";
   import RedirectCode from "./RedirectCode.svelte";

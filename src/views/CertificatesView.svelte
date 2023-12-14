@@ -1,9 +1,7 @@
 <script lang="ts">
   import {domainOption} from "../stores/domain-option";
-  import {getBearer} from "../stores/login";
   import {type Cert, certsTable} from "../stores/certs";
   import {apiRequest} from "../utils/api-request";
-  import {onMount} from "svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 

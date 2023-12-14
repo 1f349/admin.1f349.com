@@ -6,10 +6,7 @@
 
 <script lang="ts">
   import {apiRequest} from "../utils/api-request";
-
   import {writable, type Writable} from "svelte/store";
-
-  import {getBearer} from "../stores/login";
   import type {CSPair} from "../types/cspair";
   import {domainOption} from "../stores/domain-option";
   import {type CountStats, tableCountStats} from "../stores/target";
@@ -77,9 +74,8 @@
       })
       .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
       .map(x => {
-        x.v.p = fetch(apiUrl, {
+        x.v.p = apiRequest(apiUrl, {
           method: x.type == "del" ? "DELETE" : "POST",
-          headers: {Authorization: getBearer()},
           body: JSON.stringify(x.type == "del" ? {src: (x.v.server as T).src} : x.v.client),
         }).then(x => {
           if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);

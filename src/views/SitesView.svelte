@@ -1,6 +1,5 @@
 <script lang="ts">
   import {domainOption} from "../stores/domain-option";
-  import {getBearer} from "../stores/login";
   import {type Site, sitesTable} from "../stores/sites";
   import {apiRequest} from "../utils/api-request";
 

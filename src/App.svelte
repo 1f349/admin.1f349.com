@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {SvelteComponent} from "svelte";
+  import {onMount, type SvelteComponent} from "svelte";
   import GeneralView from "./views/GeneralView.svelte";
   import RoutesView from "./views/RoutesView.svelte";
   import RedirectsView from "./views/RedirectsView.svelte";
@@ -8,6 +8,7 @@
   import {loginStore, parseJwt, type LoginStore} from "./stores/login";
   import {openLoginPopup} from "./utils/login-popup";
   import {domainOption} from "./stores/domain-option";
+  import {apiVerify} from "./utils/api-request";
 
   let sidebarOptions: Array<{name: string; view: typeof SvelteComponent<{}>}> = [
     {name: "General", view: GeneralView},
@@ -28,9 +29,13 @@
     let accessToken = login?.tokens?.access;
     if (accessToken == null) return [];
     let jwt = parseJwt(accessToken);
-    if(!jwt) return [];
+    if (!jwt) return [];
     return jwt.per.filter((x: string) => x.startsWith("domain:owns=")).map((x: string) => x.slice("domain:owns=".length));
   }
+
+  onMount(() => {
+    apiVerify().catch(() => {});
+  });
 </script>
 
 <header>
@@ -103,7 +108,9 @@
     height: 70px;
     padding: 0 32px;
     background-color: #2c2c2c;
-    box-shadow: 0 4px 8px #0003, 0 6px 20px #00000030;
+    box-shadow:
+      0 4px 8px #0003,
+      0 6px 20px #00000030;
     gap: 16px;
     z-index: 1;
     position: relative;
@@ -198,7 +205,9 @@
   footer {
     padding: 8px;
     background-color: #2c2c2c;
-    box-shadow: 0 -4px 8px #0003, 0 -6px 20px #00000030;
+    box-shadow:
+      0 -4px 8px #0003,
+      0 -6px 20px #00000030;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

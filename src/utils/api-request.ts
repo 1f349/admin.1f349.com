@@ -1,6 +1,7 @@
 import {get} from "svelte/store";
 import {getBearer, loginStore} from "../stores/login";
 
+const TOKEN_VERIFY_API = import.meta.env.VITE_SSO_ORIGIN + "/refresh";
 const TOKEN_REFRESH_API = import.meta.env.VITE_SSO_ORIGIN + "/refresh";
 
 export async function apiRequest(url: string, init?: RequestInit): Promise<Response> {
@@ -32,4 +33,8 @@ export async function apiRequest(url: string, init?: RequestInit): Promise<Respo
   // update current authorization header
   init.headers = {...init.headers, Authorization: getBearer()};
   return await fetch(url, init);
+}
+
+export async function apiVerify() {
+  return await apiRequest(TOKEN_VERIFY_API);
 }
