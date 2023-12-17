@@ -17,11 +17,14 @@
   export let tableData: Writable<{[key: string]: CSPair<T>}>;
   export let equality: (a: T | null, b: T | null) => boolean;
 
+  let tableSearch: string = "";
+
   let tableKeys: string[] = [];
   $: tableKeys = Object.entries($tableData)
     .filter(x => x[1].client != null || x[1].server != null)
     .map(x => x[0])
     .filter(x => domainFilter(x, $domainOption))
+    .filter(x => x.includes(tableSearch))
     .sort((a, b) => a.localeCompare(b));
 
   let rowStats: CountStats = {created: 0, modified: 0, removed: 0};
@@ -109,6 +112,11 @@
         <div>Loading...</div>
       </div>
     {:then}
+      <div id="search-wrapper">
+        <label>
+          Search: <input type="search" name="table-search" bind:value={tableSearch} />
+        </label>
+      </div>
       <table class="main-table">
         <thead>
           <tr>
@@ -149,3 +157,9 @@
     {/if}
   </div>
 </div>
+
+<style>
+  #search-wrapper {
+    padding: 16px;
+  }
+</style>
