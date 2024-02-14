@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-  import {apiRequest} from "../utils/api-request";
+  import {LOGIN} from "../utils/login";
   import {writable, type Writable} from "svelte/store";
   import type {CSPair} from "../types/cspair";
   import {domainOption} from "../stores/domain-option";
@@ -42,7 +42,7 @@
   let promiseForTable: Promise<void> = reloadTable();
 
   async function reloadTable(): Promise<void> {
-    let f = await apiRequest(apiUrl);
+    let f = await LOGIN.clientRequest(apiUrl, {}, false);
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
 
@@ -77,10 +77,14 @@
       })
       .sort((a, _) => (a.type === "del" ? -1 : a.type === "ins" ? 1 : 0))
       .map(x => {
-        x.v.p = apiRequest(apiUrl, {
-          method: x.type == "del" ? "DELETE" : "POST",
-          body: JSON.stringify(x.type == "del" ? {src: (x.v.server as T).src} : x.v.client),
-        }).then(x => {
+        x.v.p = LOGIN.clientRequest(
+          apiUrl,
+          {
+            method: x.type == "del" ? "DELETE" : "POST",
+            body: JSON.stringify(x.type == "del" ? {src: (x.v.server as T).src} : x.v.client),
+          },
+          false,
+        ).then(x => {
           if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
         });
         return x.v.p;

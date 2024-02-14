@@ -1,7 +1,7 @@
 <script lang="ts">
   import {domainOption} from "../stores/domain-option";
   import {type Site, sitesTable} from "../stores/sites";
-  import {apiRequest} from "../utils/api-request";
+  import {LOGIN} from "../utils/login";
 
   const apiSiteHosting = import.meta.env.VITE_API_SITE_HOSTING;
 
@@ -23,7 +23,7 @@
   let promiseForTable: Promise<void> = reloadTable();
 
   async function reloadTable(): Promise<void> {
-    let f = await apiRequest(apiSiteHosting);
+    let f = await LOGIN.clientRequest(apiSiteHosting, {}, false);
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
     let rows = fJson as Site[];
@@ -33,19 +33,27 @@
   }
 
   async function deleteBranch(site: Site, branch: string) {
-    let f = await apiRequest(apiSiteHosting, {
-      method: "POST",
-      body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
-    });
+    let f = await LOGIN.clientRequest(
+      apiSiteHosting,
+      {
+        method: "POST",
+        body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
+      },
+      false,
+    );
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     promiseForTable = reloadTable();
   }
 
   async function resetSiteSecret(site: Site) {
-    let f = await apiRequest(apiSiteHosting, {
-      method: "POST",
-      body: JSON.stringify({submit: "secret", site: site.domain}),
-    });
+    let f = await LOGIN.clientRequest(
+      apiSiteHosting,
+      {
+        method: "POST",
+        body: JSON.stringify({submit: "secret", site: site.domain}),
+      },
+      false,
+    );
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
     alert("New secret: " + fJson.secret);

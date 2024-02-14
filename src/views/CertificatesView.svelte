@@ -1,7 +1,7 @@
 <script lang="ts">
   import {domainOption} from "../stores/domain-option";
   import {type Cert, certsTable} from "../stores/certs";
-  import {apiRequest} from "../utils/api-request";
+  import {LOGIN} from "../utils/login";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -30,7 +30,7 @@
   let promiseForTable: Promise<void> = reloadTable();
 
   async function reloadTable(): Promise<void> {
-    let f = await apiRequest(apiOrchid + "/owned");
+    let f = await LOGIN.clientRequest(apiOrchid + "/owned", {}, false);
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
     let rows = fJson as Map<number, Cert>;

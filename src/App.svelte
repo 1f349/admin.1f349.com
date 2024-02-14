@@ -6,9 +6,8 @@
   import CertificatesView from "./views/CertificatesView.svelte";
   import SitesView from "./views/SitesView.svelte";
   import {loginStore, parseJwt, type LoginStore} from "./stores/login";
-  import {openLoginPopup} from "./utils/login-popup";
   import {domainOption} from "./stores/domain-option";
-  import {apiVerify} from "./utils/api-request";
+  import {LOGIN} from "./utils/login";
 
   let sidebarOptions: Array<{name: string; view: typeof SvelteComponent<{}>}> = [
     {name: "General", view: GeneralView},
@@ -34,7 +33,8 @@
   }
 
   onMount(() => {
-    apiVerify().catch(() => {});
+    LOGIN.init();
+    LOGIN.userinfo(false);
   });
 </script>
 
@@ -48,7 +48,7 @@
   </div>
   {#if $loginStore == null}
     <div class="login-view">
-      <button on:click={() => openLoginPopup()}>Login</button>
+      <button on:click={() => LOGIN.userinfo(true)}>Login</button>
     </div>
   {:else}
     <div class="user-view">
@@ -58,6 +58,7 @@
         on:click={() => {
           $loginStore = null;
           localStorage.removeItem("login-session");
+          localStorage.removeItem("pop2_access_token");
         }}
       >
         Logout
