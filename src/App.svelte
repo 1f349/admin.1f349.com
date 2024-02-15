@@ -58,7 +58,7 @@
         on:click={() => {
           $loginStore = null;
           localStorage.removeItem("login-session");
-          localStorage.removeItem("pop2_access_token");
+          LOGIN.logout();
         }}
       >
         Logout

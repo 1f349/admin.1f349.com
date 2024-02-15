@@ -128,6 +128,10 @@ export const POP2 = (function (w) {
         return true;
       }
     },
+    logout: function () {
+      access_token = "";
+      localStorage.removeItem("pop2_access_token");
+    },
     clientRequest: function (resource, options, refresh = false) {
       const sendRequest = function () {
         options.credentials = "include";

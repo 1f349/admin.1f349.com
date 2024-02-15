@@ -10,6 +10,9 @@ export const LOGIN = {
   init: () => {
     POP2.init(TOKEN_AUTHORIZE_API, OAUTH2_CLIENT_ID, "openid profile name", 500, 600);
   },
+  logout: () => {
+    POP2.logout();
+  },
   clientRequest: (resource: string, options: RequestInit, refresh: boolean) => {
     return POP2.clientRequest(resource, options, refresh);
   },
