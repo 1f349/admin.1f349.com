@@ -19,6 +19,8 @@
 
 "use strict";
 
+import type {RequestInfo} from "undici-types";
+
 export const POP2 = (function (w) {
   const windowName = "pop2_oauth2_login_popup";
 
@@ -37,45 +39,45 @@ export const POP2 = (function (w) {
     window.close();
   }
 
-  function popupCenterScreen(url, title, w, h) {
+  function popupCenterScreen(url: string | URL, title: string, w: number, h: number) {
     const top = (screen.availHeight - h) / 4,
       left = (screen.availWidth - w) / 2;
     return openWindow(url, title, `scrollbars=yes,width=${w},height=${h},top=${top},left=${left}`);
   }
 
-  function openWindow(url, winnm, options) {
+  function openWindow(url: string | URL, winnm: string | undefined, options: string) {
     const wTop = firstAvailableValue([window.screen.availTop, window.screenY, window.screenTop, 0]);
     const wLeft = firstAvailableValue([window.screen.availLeft, window.screenX, window.screenLeft, 0]);
-    let top = "0",
-      left = "0",
+    let top = 0,
+      left = 0,
       result;
     if ((result = /top=(\d+)/g.exec(options))) top = parseInt(result[1]);
     if ((result = /left=(\d+)/g.exec(options))) left = parseInt(result[1]);
     let w;
     if (options) {
-      options = options.replace("top=" + top, "top=" + (parseInt(top) + wTop));
-      options = options.replace("left=" + left, "left=" + (parseInt(left) + wLeft));
+      options = options.replace("top=" + top, "top=" + (top + wTop));
+      options = options.replace("left=" + left, "left=" + (left + wLeft));
       w = window.open(url, winnm, options);
     } else w = window.open(url, winnm);
     return w;
   }
 
-  function firstAvailableValue(arr) {
+  function firstAvailableValue(arr: any[]) {
     for (let i = 0; i < arr.length; i++) if (typeof arr[i] != "undefined") return arr[i];
   }
 
-  let client_endpoint,
-    client_id,
+  let client_endpoint: string,
+    client_id: string,
     scope = "",
-    redirect_uri = window.location.href.substr(0, window.location.href.length - window.location.hash.length).replace(/#$/, ""),
-    access_token = localStorage.getItem("pop2_access_token"),
-    callbackWaitForToken,
+    redirect_uri = window.location.href.slice(0, window.location.href.length - window.location.hash.length).replace(/#$/, ""),
+    access_token: string | null = localStorage.getItem("pop2_access_token"),
+    callbackWaitForToken: ((access_token: string) => void) | undefined,
     w_width = 400,
     w_height = 360;
 
   const POP2 = {
     // init
-    init: function (f_client_endpoint, f_client_id, f_scope, width, height) {
+    init: function (f_client_endpoint: string, f_client_id: string, f_scope: string, width: number, height: number) {
       if (!f_client_endpoint) return false;
       if (!f_client_id) return false;
       client_endpoint = f_client_endpoint;
@@ -85,13 +87,13 @@ export const POP2 = (function (w) {
       if (height) w_height = height;
     },
     // receive token from popup
-    receiveToken: function (token, expires_in) {
-      if (token !== "ERROR") {
+    receiveToken: function (token: string | boolean | null, expires_in: number) {
+      if (typeof token === "string" && token !== "ERROR") {
         access_token = token;
         localStorage.setItem("pop2_access_token", access_token);
         if (callbackWaitForToken) callbackWaitForToken(access_token);
         setTimeout(function () {
-          access_token = undefined;
+          access_token = null;
           localStorage.removeItem("pop2_access_token");
         }, expires_in * 1000);
       } else if (token === false) {
@@ -101,7 +103,7 @@ export const POP2 = (function (w) {
     // pass the access token to callback
     // if not logged in this triggers login popup;
     // use isLoggedIn to check login first to prevent popup blocker
-    getToken: function (callback, popup = true) {
+    getToken: function (callback: (access_token: string) => void, popup = true) {
       if (!client_id || !redirect_uri || !scope) {
         alert("You need init() first. Check the program flow.");
         return false;
@@ -132,7 +134,7 @@ export const POP2 = (function (w) {
       access_token = "";
       localStorage.removeItem("pop2_access_token");
     },
-    clientRequest: function (resource, options, refresh = false) {
+    clientRequest: function (resource: RequestInfo, options: RequestInit, refresh = false) {
       const sendRequest = function () {
         options.credentials = "include";
         if (!options.headers) options.headers = {};
@@ -150,7 +152,7 @@ export const POP2 = (function (w) {
       };
       const resendRequest = function () {
         return new Promise(function (res, rej) {
-          access_token = undefined;
+          access_token = null;
           POP2.getToken(function () {
             sendRequest()
               .then(function (x) {

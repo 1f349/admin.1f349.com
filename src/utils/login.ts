@@ -1,5 +1,4 @@
-import {get} from "svelte/store";
-import {getBearer, loginStore} from "../stores/login";
+import {loginStore} from "../stores/login";
 import {POP2} from "./pop2";
 
 const TOKEN_AUTHORIZE_API = import.meta.env.VITE_SSO_ORIGIN + "/authorize";
