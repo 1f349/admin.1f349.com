@@ -16,12 +16,10 @@ export const LOGIN = {
     return POP2.clientRequest(resource, options, refresh);
   },
   userinfo: (popup: boolean) => {
-    console.info("userinfo", popup);
     POP2.getToken((token: string) => {
       POP2.clientRequest(TOKEN_USERINFO_API, {}, popup)
         .then(x => x.json())
         .then(x => {
-          console.log(token, x);
           loginStore.set({
             userinfo: x,
             tokens: {access: token, refresh: ""},

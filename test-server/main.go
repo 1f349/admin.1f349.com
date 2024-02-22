@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -32,106 +33,62 @@ func main() {
 
 func ssoServer(signer mjwt.Signer) {
 	r := http.NewServeMux()
-	r.HandleFunc("/popup", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
+		// request url: http://localhost:9090/authorize?response_type=token&redirect_uri=http://localhost:5173/&scope=openid%20profile%20name&client_id=b5a9a8df-827c-4925-b1c1-1940abcf356b
+		// redirect url: http://localhost:5173/#access_token=<token>&scope=openid%20profile%20name&token_type=Bearer
+		if r.FormValue("response_type") != "token" {
+			panic("invalid response_type")
+		}
+		if r.FormValue("redirect_uri") != "http://localhost:5173/" {
+			panic("invalid redirect_uri")
+		}
+		if r.FormValue("scope") != "openid profile name" {
+			panic("invalid scope")
+		}
+		if r.FormValue("client_id") != "b5a9a8df-827c-4925-b1c1-1940abcf356b" {
+			panic("invalid client_id")
+		}
+
 		ps := claims.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
-		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 10*time.Second, auth.AccessTokenClaims{
+		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
 			Perms: ps,
 		})
 		if err != nil {
 			http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Test SSO Service</title>
-  <script>
-    let loginData = {
-      target: "http://localhost:5173",
-      userinfo: {
-        "aud": "d0555671-df9d-42d0-a4d6-94b694251f0b",
-        "email": "admin@localhost",
-        "email_verified": true,
-        "name": "Admin",
-        "preferred_username": "admin",
-        "sub": "81b99bd7-bf74-4cc2-9133-80ed2393dfe6",
-        "picture": "http://localhost:5173/1f349.svg",
-        "updated_at": 0
-      },
-      tokens: {
-        access: "%s",
-        refresh: "%s",
-      },
-    };
-    window.addEventListener("load", function () {
-      setTimeout(function() {
-        window.opener.postMessage(loginData, loginData.target);
-      },2000);
-    });
-  </script>
-</head>
-<body>
-<header>
-  <h1>Test SSO Service</h1>
-</header>
-<main id="mainBody">Loading...</main>
-</body>
-</html>
-`, accessToken, "")
+		v := url.Values{}
+		v.Set("access_token", accessToken)
+		v.Set("scope", "openid profile name")
+		v.Set("token_type", "Bearer")
+		v.Set("expires_in", "900")
+		http.Redirect(w, r, "http://localhost:5173/#"+v.Encode(), http.StatusFound)
 	})
 	var corsAccessControl = cors.New(cors.Options{
 		AllowOriginFunc: func(origin string) bool {
-			println(origin)
 			return origin == "http://localhost:5173"
 		},
-		AllowedMethods:   []string{http.MethodPost, http.MethodOptions},
-		AllowedHeaders:   []string{"Content-Type"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodOptions},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	})
-	r.HandleFunc("/refresh", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
 		corsAccessControl.ServeHTTP(w, r, func(w http.ResponseWriter, r *http.Request) {
-			ps := claims.NewPermStorage()
-			ps.Set("violet:route")
-			ps.Set("violet:redirect")
-			ps.Set("domain:owns=example.com")
-			ps.Set("domain:owns=example.org")
-			accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"d0555671-df9d-42d0-a4d6-94b694251f0b"}, 10*time.Second, auth.AccessTokenClaims{
-				Perms: ps,
-			})
-			if err != nil {
-				http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
-				return
-			}
 			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"target": "http://localhost:5173",
-				"tokens": map[string]any{
-					"access":  accessToken,
-					"refresh": "",
-				},
-				"userinfo": map[string]any{
-					"aud":                "d0555671-df9d-42d0-a4d6-94b694251f0b",
-					"email":              "admin@localhost",
-					"email_verified":     true,
-					"name":               "Admin",
-					"preferred_username": "admin",
-					"sub":                "81b99bd7-bf74-4cc2-9133-80ed2393dfe6",
-					"picture":            "http://localhost:5173/1f349.svg",
-					"updated_at":         0,
-				},
-			})
+			w.Write([]byte(`{"aud":"b5a9a8df-827c-4925-b1c1-1940abcf356b","name":"Test User","picture":"","profile":"http://localhost:9090/user/test-user","sub":"b429562a-20e9-4466-9e8e-bdeb55f2f4a3@localhost","updated_at":1572278406,"website":""}`))
 		})
 	})
 	log.Println("[SSO Server]", http.ListenAndServe(":9090", r))
 }
 
 var serveApiCors = cors.New(cors.Options{
-	AllowedOrigins: []string{"*"}, // allow all origins for api requests
+	AllowOriginFunc: func(origin string) bool {
+		return origin == "http://localhost:5173"
+	}, // allow all origins for api requests
 	AllowedHeaders: []string{"Content-Type", "Authorization"},
 	AllowedMethods: []string{
 		http.MethodGet,

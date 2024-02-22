@@ -32,7 +32,7 @@ export const POP2 = (function (w) {
           parseInt(window.location.hash.replace(/^.*expires_in=([^&]+).*$/, "$1")),
         );
       }
-      if (window.location.search.indexOf("error=")) {
+      if (window.location.search.indexOf("error=") !== -1) {
         window.opener.POP2.receiveToken("ERROR");
       }
     }
@@ -108,8 +108,8 @@ export const POP2 = (function (w) {
         alert("You need init() first. Check the program flow.");
         return false;
       }
-      if (!popup) throw Error("missing access token");
-      if (!access_token) {
+      if (access_token == null) {
+        if (!popup) throw Error("missing access token");
         callbackWaitForToken = callback;
         popupCenterScreen(
           client_endpoint +
@@ -131,7 +131,7 @@ export const POP2 = (function (w) {
       }
     },
     logout: function () {
-      access_token = "";
+      access_token = null;
       localStorage.removeItem("pop2_access_token");
     },
     clientRequest: function (resource: RequestInfo, options: RequestInit, refresh = false) {
@@ -166,7 +166,7 @@ export const POP2 = (function (w) {
       };
 
       if (!refresh) {
-        if (!access_token) return Promise.reject("missing access token");
+        if (access_token == null) return Promise.reject("missing access token");
         return sendRequest();
       } else {
         return new Promise(function (res, rej) {

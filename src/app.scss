@@ -82,6 +82,7 @@ code,
   height: 50px;
   padding: 4px 16px;
   vertical-align: middle;
+  box-shadow: 0 4px 8px #0003, 0 6px 20px #00000030;
 
   &:hover {
     color: black;
@@ -89,7 +90,7 @@ code,
 }
 
 .btn-green {
-  background-color: #04aa6d;
+  background-color: #209c6f;
 }
 
 table.main-table {
