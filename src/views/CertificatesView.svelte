@@ -104,11 +104,11 @@
   // css please explain yourself
   tr.cert-error.cert-error {
     &:nth-child(2n + 1) {
-      background-color: #510000;
+      background-color: #51000055;
     }
 
     &:nth-child(2n) {
-      background-color: #330000;
+      background-color: #33000055;
     }
   }
 </style>

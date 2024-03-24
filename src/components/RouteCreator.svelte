@@ -29,11 +29,11 @@
 
 <style lang="scss">
   tr:nth-child(2n) {
-    background-color: #2a2a2a;
+    background-color: #2a2a2a55;
   }
 
   tr:nth-child(2n + 1) {
-    background-color: #242424;
+    background-color: #24242455;
   }
 
   tr.created {

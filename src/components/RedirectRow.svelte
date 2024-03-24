@@ -48,26 +48,26 @@
 
 <style lang="scss">
   tr.created {
-    background-color: #1a5100;
+    background-color: #1a510077;
 
     &:nth-child(2n) {
-      background-color: #103300;
+      background-color: #10330077;
     }
   }
 
   tr.modified {
-    background-color: #515100;
+    background-color: #51510077;
 
     &:nth-child(2n) {
-      background-color: #333300;
+      background-color: #33330077;
     }
   }
 
   tr.deleted {
-    background-color: #510000;
+    background-color: #51000077;
 
     &:nth-child(2n) {
-      background-color: #330000;
+      background-color: #33000077;
     }
   }
 

@@ -43,6 +43,10 @@
     <h1>🍉 Admin Panel</h1>
   </div>
   <div class="flex-gap" />
+  {#each sidebarOptions as item (item.name)}
+    <button class="header-tab" on:click={() => (sidebarSelection = item)} class:selected={item == sidebarSelection}>{item.name}</button>
+  {/each}
+  <div class="flex-gap" />
   <div class="nav-link">
     <a href="https://status.1f349.com" target="_blank">Status</a>
   </div>
@@ -70,11 +74,6 @@
   {#if $loginStore == null}
     <div id="login-view">Please login to continue</div>
   {:else}
-    <div id="sidebar">
-      {#each sidebarOptions as item (item.name)}
-        <button class="sidebar-item" on:click={() => (sidebarSelection = item)} class:selected={item == sidebarSelection}>{item.name}</button>
-      {/each}
-    </div>
     <div id="option-view">
       <svelte:component this={sidebarSelection.view} />
     </div>
@@ -155,22 +154,8 @@
       line-height: 24px;
       padding: 8px;
       border-radius: 0.375rem;
-    }
-  }
 
-  main {
-    display: flex;
-    flex-grow: 1;
-    align-items: stretch;
-    height: 0;
-
-    #sidebar {
-      width: 150px;
-      min-width: 150px;
-
-      button {
-        background-color: #2c2c2c;
-        border: none;
+      &.header-tab {
         box-shadow: none;
         box-sizing: border-box;
         color: tomato;
@@ -178,8 +163,6 @@
         font-size: 20px;
         font-weight: 700;
         line-height: 24px;
-        width: 100%;
-        height: 70px;
 
         &:hover {
           background-color: #1c1c1c;
@@ -190,6 +173,13 @@
         }
       }
     }
+  }
+
+  main {
+    display: flex;
+    flex-grow: 1;
+    align-items: stretch;
+    height: 0;
 
     #login-view {
       padding: 16px;
@@ -205,7 +195,7 @@
 
   footer {
     padding: 8px;
-    background-color: #2c2c2c;
+    background-color: #2c2c2c55;
     box-shadow:
       0 -4px 8px #0003,
       0 -6px 20px #00000030;
