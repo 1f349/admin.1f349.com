@@ -82,16 +82,15 @@
         <tbody class="invert-rows">
           {#each tableKeys as key (key)}
             {@const site = $sitesTable[key]}
-            {@const domain = site.domain.replace(/[^0-9a-z-]/gi, "-")}
             <tr>
               <td><a href="https://{site.domain}" target="_blank">{site.domain}</a></td>
               <td>
                 <div class="branch-cell">
                   {#each site.branches as branch}
                     {#if branch == ""}
-                      <div><a href="https://{domain}_main.sites.1f349.com" target="_blank" class="main-or-master">main or master</a></div>
+                      <div><a href="https://{site.domain}/?git_branch=main" target="_blank" class="main-or-master">main or master</a></div>
                     {:else}
-                      <div><a href="https://{domain}_{branch}.sites.1f349.com" target="_blank">{branch}</a></div>
+                      <div><a href="https://{site.domain}/?git_branch={branch}" target="_blank">{branch}</a></div>
                     {/if}
                     <div><button on:click={() => deleteBranch(site, branch)}>Delete Branch</button></div>
                   {/each}
