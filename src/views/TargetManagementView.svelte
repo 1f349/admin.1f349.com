@@ -110,17 +110,18 @@
     Warning: This is currently still under development, however it DOES send updates to the real server
   </div>
 
+  <div id="search-wrapper">
+    <label>
+      Search: <input type="search" name="table-search" bind:value={tableSearch} />
+    </label>
+  </div>
+
   <div class="scrolling-area">
     {#await promiseForTable}
       <div class="text-padding">
         <div>Loading...</div>
       </div>
     {:then}
-      <div id="search-wrapper">
-        <label>
-          Search: <input type="search" name="table-search" bind:value={tableSearch} />
-        </label>
-      </div>
       <table class="main-table">
         <thead>
           <tr>
