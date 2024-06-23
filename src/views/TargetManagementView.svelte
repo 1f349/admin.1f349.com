@@ -5,8 +5,10 @@
 </script>
 
 <script lang="ts">
+  import {TargetTable} from "../utils/target-table";
+
   import {domainOption} from "../stores/domain-option";
-  import {RestItem, RestTable} from "../utils/rest-table";
+  import {RestItem} from "../utils/rest-table";
   import PromiseTable from "../components/PromiseTable.svelte";
   import PromiseLike from "../components/PromiseLike.svelte";
 
@@ -14,10 +16,10 @@
 
   export let apiUrl: string;
 
-  let table = new RestTable<T>(apiUrl, (item: T) => item.src);
+  let table = new TargetTable<T>(apiUrl, (item: T) => item.src);
 
-  function rowsDomainFilter(rows: RestItem<T>[], domain: string): RestItem<T>[] {
-    return rows.filter(x => domainFilter(x.data, domain));
+  function rowOrdering(rows: RestItem<T>[], domain: string): RestItem<T>[] {
+    return rows.filter(x => domainFilter(x.data, domain)).sort((a, b) => a.data.src.localeCompare(b.data.src));
   }
 
   function domainFilter(item: T, domain: string): boolean {
@@ -41,7 +43,7 @@
   </tr>
 
   <svelte:fragment slot="rows" let:value>
-    {#each rowsDomainFilter(value.rows, $domainOption) as item}
+    {#each rowOrdering(value.rows, $domainOption) as item}
       <PromiseLike value={item}>
         <tr slot="loading" class="empty-row">
           <td colspan="100">

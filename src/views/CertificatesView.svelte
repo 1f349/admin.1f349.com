@@ -1,9 +1,7 @@
 <script lang="ts">
   import PromiseLike from "../components/PromiseLike.svelte";
   import PromiseTable from "../components/PromiseTable.svelte";
-  import X from "../icons/X.svelte";
   import {domainOption} from "../stores/domain-option";
-  import {LOGIN} from "../utils/login";
   import {RestItem, RestTable} from "../utils/rest-table";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;

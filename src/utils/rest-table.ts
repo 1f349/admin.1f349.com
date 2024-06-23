@@ -28,6 +28,10 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
     return this.errorReason;
   }
 
+  makeItem(x: T): RestItem<T> {
+    return new RestItem(this, x);
+  }
+
   reload() {
     (async () => {
       try {
@@ -37,7 +41,7 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
         if (f.status != 200) throw new Error("Unexpected status code: " + f.status);
         let fJson = await f.json();
         let rows = fJson as T[];
-        this.rows = rows.map(x => new RestItem(this, x));
+        this.rows = rows.map(x => this.makeItem(x));
         this.loading = false;
         this.updateSubs();
       } catch (err) {
@@ -82,8 +86,23 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     this.subs.forEach(x => x(this));
   }
 
+  setLoading(loading: boolean) {
+    this.loading = loading;
+    this.updateSubs();
+  }
+
+  setErrorReason(errorReason: string) {
+    this.errorReason = errorReason;
+  }
+
   key(): string {
     return this.table.keyFunc(this.data);
+  }
+
+  keyUrl(): string {
+    let keyPath = "/" + this.key();
+    if (keyPath === "/") keyPath = "";
+    return this.table.apiUrl + keyPath;
   }
 
   isLoading(): boolean {
@@ -94,40 +113,36 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     return this.errorReason;
   }
 
-  update(data: T): Promise<void> {
-    this.loading = true;
-    this.updateSubs();
-    return LOGIN.clientRequest(this.table.apiUrl + "/" + this.key(), {
-      method: "PUT",
-      body: JSON.stringify(this.data),
-    })
-      .then(x => {
-        if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-        this.data = data;
-        this.loading = false;
-        this.updateSubs();
-      })
-      .catch(x => {
-        this.loading = false;
-        this.updateSubs();
-      });
+  async update(data: T, options?: RequestInit): Promise<void> {
+    this.setLoading(true);
+    if (!options)
+      options = {
+        method: "PUT",
+        body: JSON.stringify(this.data),
+      };
+    try {
+      const x = await LOGIN.clientRequest(this.keyUrl(), options);
+      if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
+      this.data = data;
+      this.setLoading(false);
+    } catch (err) {
+      this.setErrorReason("Failed to update item " + this.key());
+      this.setLoading(false);
+    }
   }
 
-  remove(): Promise<void> {
-    this.loading = true;
-    this.updateSubs();
-    return LOGIN.clientRequest(this.table.apiUrl + "/" + this.key(), {method: "DELETE"})
-      .then(x => {
-        if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-        this.table.rows = this.table.rows.filter(x => this.table.keyFunc(x.data) !== this.key());
-        this.loading = false;
-        this.updateSubs();
-      })
-      .catch(x => {
-        this.errorReason = "Failed to remove item " + this.table.keyFunc(this.data);
-        this.loading = false;
-        this.updateSubs();
-      });
+  async remove(options?: RequestInit): Promise<void> {
+    this.setLoading(true);
+    if (!options) options = {method: "DELETE"};
+    try {
+      const x = await LOGIN.clientRequest(this.keyUrl(), options);
+      if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
+      this.table.rows = this.table.rows.filter(x_1 => this.table.keyFunc(x_1.data) !== this.key());
+      this.setLoading(false);
+    } catch (err) {
+      this.setErrorReason("Failed to remove item " + this.key());
+      this.setLoading(false);
+    }
   }
 
   subscribe(run: Subscriber<RestItem<T>>): Unsubscriber {

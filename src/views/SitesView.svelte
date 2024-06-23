@@ -15,8 +15,8 @@
     branches: string[];
   }
 
-  function rowsDomainFilter(rows: RestItem<Site>[], domain: string): RestItem<Site>[] {
-    return rows.filter(x => domainFilter(x.data.domain, domain));
+  function rowOrdering(rows: RestItem<Site>[], domain: string): RestItem<Site>[] {
+    return rows.filter(x => domainFilter(x.data.domain, domain)).sort((a, b) => a.data.domain.localeCompare(b.data.domain));
   }
 
   function domainFilter(src: string, domain: string) {
@@ -64,7 +64,7 @@
   </tr>
 
   <svelte:fragment slot="rows" let:value>
-    {#each rowsDomainFilter(value.rows, $domainOption) as item}
+    {#each rowOrdering(value.rows, $domainOption) as item}
       <PromiseLike value={item}>
         <tr slot="loading" class="empty-row">
           <td colspan="100">
@@ -105,7 +105,6 @@
     grid-template-columns: repeat(2, auto);
     justify-content: left;
     align-content: center;
-    gap: 8px;
 
     div a {
       display: block;
