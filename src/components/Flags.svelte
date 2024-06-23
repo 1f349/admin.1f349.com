@@ -61,6 +61,7 @@
 <style lang="scss">
   .dropdown-check-list {
     position: relative;
+    display: inline-block;
 
     > button {
       margin: 0;
@@ -121,6 +122,10 @@
 
       > div {
         margin-right: 6px;
+
+        > label {
+          display: block;
+        }
       }
     }
 

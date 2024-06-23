@@ -1,15 +1,23 @@
 <script lang="ts">
+  import PromiseLike from "../components/PromiseLike.svelte";
+  import PromiseTable from "../components/PromiseTable.svelte";
+  import RemoveIcon from "../icons/Remove.svelte";
   import {domainOption} from "../stores/domain-option";
-  import {type Site, sitesTable} from "../stores/sites";
   import {LOGIN} from "../utils/login";
+  import {RestItem, RestTable} from "../utils/rest-table";
 
   const apiSiteHosting = import.meta.env.VITE_API_SITE_HOSTING;
 
-  let tableKeys: string[] = [];
-  $: tableKeys = Object.entries($sitesTable)
-    .map(x => x[0])
-    .filter(x => domainFilter(x, $domainOption))
-    .sort((a, b) => a.localeCompare(b));
+  const table = new RestTable<Site>(apiSiteHosting, (item: Site) => item.domain);
+
+  interface Site {
+    domain: string;
+    branches: string[];
+  }
+
+  function rowsDomainFilter(rows: RestItem<Site>[], domain: string): RestItem<Site>[] {
+    return rows.filter(x => domainFilter(x.data.domain, domain));
+  }
 
   function domainFilter(src: string, domain: string) {
     if (domain == "*") return true;
@@ -20,112 +28,101 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = reloadTable();
-
-  async function reloadTable(): Promise<void> {
-    let f = await LOGIN.clientRequest(apiSiteHosting, {}, false);
-    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
-    let fJson = await f.json();
-    let rows = fJson as Site[];
-    rows.forEach(x => {
-      $sitesTable[x.domain] = x;
-    });
-  }
-
   async function deleteBranch(site: Site, branch: string) {
-    let f = await LOGIN.clientRequest(
-      apiSiteHosting,
-      {
-        method: "POST",
-        body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
-      },
-      false,
-    );
+    let f = await LOGIN.clientRequest(apiSiteHosting, {
+      method: "POST",
+      body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
+    });
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
-    promiseForTable = reloadTable();
+    table.reload();
   }
 
   async function resetSiteSecret(site: Site) {
-    let f = await LOGIN.clientRequest(
-      apiSiteHosting,
-      {
-        method: "POST",
-        body: JSON.stringify({submit: "secret", site: site.domain}),
-      },
-      false,
-    );
+    let f = await LOGIN.clientRequest(apiSiteHosting, {
+      method: "POST",
+      body: JSON.stringify({submit: "secret", site: site.domain}),
+    });
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
     alert("New secret: " + fJson.secret);
   }
+
+  domainOption.subscribe(() => table.reload());
 </script>
 
-<div class="wrapper">
-  <div style="padding:8px;background-color:#bb7900;">
-    Warning: This is currently still under development, however it DOES send updates to the real server
-  </div>
+<h1>Site Hosting</h1>
 
-  <div class="scrolling-area">
-    {#await promiseForTable}
-      <div class="text-padding">
-        <div>Loading...</div>
-      </div>
-    {:then}
-      <table class="main-table">
-        <thead>
-          <tr>
-            <th>Domain</th>
-            <th>Branches</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody class="invert-rows">
-          {#each tableKeys as key (key)}
-            {@const site = $sitesTable[key]}
-            <tr>
-              <td><a href="https://{site.domain}" target="_blank">{site.domain}</a></td>
-              <td>
-                <div class="branch-cell">
-                  {#each site.branches as branch}
-                    {#if branch == ""}
-                      <div><a href="https://{site.domain}/?git_branch=main" target="_blank" class="main-or-master">main or master</a></div>
-                    {:else}
-                      <div><a href="https://{site.domain}/?git_branch={branch}" target="_blank">{branch}</a></div>
-                    {/if}
-                    <div><button on:click={() => deleteBranch(site, branch)}>Delete Branch</button></div>
-                  {/each}
-                </div>
-              </td>
-              <td><button on:click={() => resetSiteSecret(site)}>Reset Secret</button></td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    {:catch err}
-      <div class="text-padding">
-        <div>Administrator... I hardly know her?</div>
-        <div>{err}</div>
-      </div>
-    {/await}
-  </div>
+<div style="padding:8px;background-color:#bb7900;">
+  Warning: This is currently still under development, however it DOES send updates to the real server
 </div>
 
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Domain</th>
+    <th>Branches</th>
+    <th>Action</th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowsDomainFilter(value.rows, $domainOption) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.domain}: {reason}</td>
+        </tr>
+
+        <tr slot="ok" let:value>
+          <td><a href="https://{value.data.domain}" target="_blank">{value.data.domain}</a></td>
+          <td>
+            <div class="branch-cell">
+              {#each value.data.branches as branch}
+                {#if branch == ""}
+                  <div><a href="https://{value.data.domain}/?git_branch=main" target="_blank" class="main-or-master">main or master</a></div>
+                {:else}
+                  <div><a href="https://{value.data.domain}/?git_branch={branch}" target="_blank">{branch}</a></div>
+                {/if}
+                <div><button class="btn-trash" on:click={() => deleteBranch(value.data, branch)}><RemoveIcon /></button></div>
+              {/each}
+            </div>
+          </td>
+          <td><button class="btn-reset-secret" on:click={() => resetSiteSecret(value.data)}>Reset Secret</button></td>
+        </tr>
+      </PromiseLike>
+    {/each}
+  </svelte:fragment>
+</PromiseTable>
+
 <style lang="scss">
-  .main-table {
-    th,
-    td {
-      width: 1%;
-    }
-  }
+  @import "../values.scss";
 
   .branch-cell {
     display: grid;
     grid-template-columns: repeat(2, auto);
-    justify-content: center;
+    justify-content: left;
+    align-content: center;
     gap: 8px;
+
+    div a {
+      display: block;
+      height: 40px;
+      line-height: 40px;
+    }
   }
 
   .main-or-master {
     color: lightgreen;
+  }
+
+  .btn-trash {
+    @include button-red-highlight;
+  }
+
+  .btn-reset-secret {
+    @include button-red-box;
   }
 </style>

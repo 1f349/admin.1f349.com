@@ -1,0 +1,98 @@
+// theme
+$theme-text: rgba(255, 255, 255, 0.87);
+$theme-header: #202020;
+$theme-sidebar: #262626;
+$theme-bg: #333333;
+
+// header
+$header-height: 50px;
+
+// sidebar
+$sidebar-highlight: #047857;
+$sidebar-width-short: 50px;
+$sidebar-width: 232px;
+
+// table
+$table-header: $theme-header;
+$table-row: $theme-sidebar;
+$table-row-highlight: $theme-header;
+
+$icon-highlight: #10b981;
+
+@mixin button-reset {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+@mixin button-highlight($highlight, $square: true) {
+  @include button-reset;
+
+  display: block;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 0;
+  width: 40px;
+
+  @if $square {
+    aspect-ratio: 1/1;
+  }
+
+  &:hover {
+    color: $highlight;
+  }
+}
+
+@mixin button-green-highlight($square: true) {
+  @include button-highlight(#10b981, $square);
+}
+
+@mixin button-red-highlight ($square: true) {
+  @include button-highlight(#ef4444, $square);
+}
+
+@mixin button-box($background: transparent) {
+  @include button-reset;
+
+  display: inline-flex;
+  -moz-box-align: center;
+  align-items: center;
+  -moz-box-pack: center;
+  justify-content: center;
+  box-sizing: border-box;
+  outline: 0px;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  font-weight: 500;
+  box-shadow: none;
+  border: medium;
+  border-radius: 1px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  min-height: 34px;
+  min-width: 105px;
+  text-transform: capitalize;
+  transition: none;
+  background-color: $background;
+  padding: 2px 20px;
+}
+
+@mixin button-green-box {
+  @include button-box(#047857);
+}
+
+@mixin button-red-box {
+  @include button-box(#b91c1c);
+}
+
+@mixin button-green-invert-box {
+  @include button-box;
+
+  color: #10b981;
+}

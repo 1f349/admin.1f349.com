@@ -79,7 +79,7 @@ func ssoServer(signer mjwt.Signer) {
 	r.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
 		corsAccessControl.ServeHTTP(w, r, func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"aud":"b5a9a8df-827c-4925-b1c1-1940abcf356b","name":"Test User","picture":"","profile":"http://localhost:9090/user/test-user","sub":"b429562a-20e9-4466-9e8e-bdeb55f2f4a3@localhost","updated_at":1572278406,"website":""}`))
+			w.Write([]byte(`{"aud":"b5a9a8df-827c-4925-b1c1-1940abcf356b","name":"Test User","picture":"https://picsum.photos/id/392/200","profile":"http://localhost:9090/user/test-user","sub":"b429562a-20e9-4466-9e8e-bdeb55f2f4a3@localhost","updated_at":1572278406,"website":""}`))
 		})
 	})
 	log.Println("[SSO Server]", http.ListenAndServe(":9090", r))
@@ -103,21 +103,29 @@ var serveApiCors = cors.New(cors.Options{
 })
 
 func apiServer(verify mjwt.Verifier) {
+	subdomains := []string{
+		"",
+		"www.",
+		"admin.",
+		"staff.",
+		"sso.",
+		"login.",
+		"status.",
+	}
+
 	r := http.NewServeMux()
 	r.Handle("/v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request) {
-		m := make([]map[string]any, 0, 40)
-		for i := 0; i < 20; i++ {
+		m := make([]map[string]any, 0, len(subdomains)*2)
+		for _, i := range subdomains {
 			m = append(m, map[string]any{
-				"src":    uuid.NewString() + ".example.com",
+				"src":    i + "example.com",
 				"dst":    "127.0.0.1:8080",
 				"desc":   "This is a test description",
 				"flags":  181,
 				"active": true,
 			})
-		}
-		for i := 0; i < 20; i++ {
 			m = append(m, map[string]any{
-				"src":    uuid.NewString() + ".example.org",
+				"src":    i + "example.org",
 				"dst":    "127.0.0.1:8085",
 				"desc":   "This is a test description",
 				"flags":  17,
@@ -127,20 +135,18 @@ func apiServer(verify mjwt.Verifier) {
 		json.NewEncoder(rw).Encode(m)
 	}))
 	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
-		m := make([]map[string]any, 0, 40)
-		for i := 0; i < 20; i++ {
+		m := make([]map[string]any, 0, len(subdomains)*2)
+		for _, i := range subdomains {
 			m = append(m, map[string]any{
-				"src":    uuid.NewString() + ".example.com",
+				"src":    i + "example.com",
 				"dst":    "test1.example.com",
 				"desc":   "This is a test description",
 				"flags":  1,
 				"code":   308,
 				"active": true,
 			})
-		}
-		for i := 0; i < 20; i++ {
 			m = append(m, map[string]any{
-				"src":    uuid.NewString() + ".example.org",
+				"src":    i + "example.org",
 				"dst":    "test2.example.org",
 				"desc":   "This is a test description",
 				"flags":  3,
@@ -151,10 +157,10 @@ func apiServer(verify mjwt.Verifier) {
 		json.NewEncoder(rw).Encode(m)
 	}))
 	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request) {
-		m := make(map[int]any, 41)
-		for i := 0; i < 20; i++ {
-			u := uuid.NewString()
-			m[i] = map[string]any{
+		m := make([]map[string]any, 0, len(subdomains)*2)
+		for i := 0; i < len(subdomains); i++ {
+			u := subdomains[i] + "example.com"
+			m = append(m, map[string]any{
 				"id":           i + 1,
 				"auto_renew":   true,
 				"active":       true,
@@ -163,14 +169,12 @@ func apiServer(verify mjwt.Verifier) {
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
 				"domains": []string{
-					u + ".example.com",
-					"*." + u + ".example.com",
+					u,
+					"*." + u,
 				},
-			}
-		}
-		for i := 0; i < 20; i++ {
-			u := uuid.NewString()
-			m[i+20] = map[string]any{
+			})
+			u = subdomains[i] + "example.org"
+			m = append(m, map[string]any{
 				"id":           i + 21,
 				"auto_renew":   false,
 				"active":       false,
@@ -179,26 +183,152 @@ func apiServer(verify mjwt.Verifier) {
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
 				"domains": []string{
-					u + ".example.org",
-					"*." + u + ".example.org",
+					u,
+					"*." + u,
 				},
-			}
-		}
-		u := uuid.NewString()
-		m[40] = map[string]any{
-			"id":           41,
-			"auto_renew":   false,
-			"active":       false,
-			"renewing":     false,
-			"renew_failed": true,
-			"not_after":    "2024-02-06T11:52:05Z",
-			"updated_at":   "2023-11-08T07:32:08Z",
-			"domains": []string{
-				u + ".example.org",
-				"*." + u + ".example.org",
-			},
+			})
 		}
 		json.NewEncoder(rw).Encode(m)
+	}))
+	r.Handle("/v1/azalea/domains", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+		type Zone struct {
+			ID   int64  `json:"id"`
+			Name string `json:"name"`
+		}
+		json.NewEncoder(rw).Encode([]Zone{
+			{ID: 1, Name: "example.com."},
+			{ID: 2, Name: "example.org."},
+		})
+	}))
+	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+		fmt.Fprintln(rw, `[
+  {
+    "Hdr": {
+      "Name": "example.com.",
+      "Rrtype": 6,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns1.example.com.",
+    "Mbox": "hostmaster.example.com.",
+    "Serial": 2024062001,
+    "Refresh": 7200,
+    "Retry": 1800,
+    "Expire": 1209600,
+    "Minttl": 300
+  },
+  {
+    "Hdr": {
+      "Name": "example.com.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns1.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "example.com.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns2.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "example.com.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns3.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "ns1.example.com.",
+      "Rrtype": 1,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "A": "10.54.0.1"
+  }
+]`)
+	}))
+	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+		fmt.Fprintln(rw, `[
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 6,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns1.example.com.",
+    "Mbox": "hostmaster.example.com.",
+    "Serial": 2024062001,
+    "Refresh": 7200,
+    "Retry": 1800,
+    "Expire": 1209600,
+    "Minttl": 300
+  },
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns1.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns2.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 2,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "Ns": "ns3.example.com."
+  },
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 1,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "A": "10.36.0.1"
+  },
+  {
+    "Hdr": {
+      "Name": "example.org.",
+      "Rrtype": 28,
+      "Class": 1,
+      "Ttl": 300,
+      "Rdlength": 0
+    },
+    "AAAA": "2001:db8::15"
+  }
+]`)
 	}))
 	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodPost {
@@ -219,16 +349,14 @@ func apiServer(verify mjwt.Verifier) {
 			}
 			return
 		}
-		m := make([]any, 0, 40)
-		for i := 0; i < 20; i++ {
+		m := make([]any, 0, len(subdomains))
+		for _, i := range subdomains {
 			m = append(m, map[string]any{
-				"domain":   uuid.NewString() + ".example.com",
+				"domain":   i + "example.com",
 				"branches": []string{"", "beta"},
 			})
-		}
-		for i := 0; i < 20; i++ {
 			m = append(m, map[string]any{
-				"domain":   uuid.NewString() + ".example.org",
+				"domain":   i + "example.org",
 				"branches": []string{"", "alpha"},
 			})
 		}

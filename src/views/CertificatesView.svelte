@@ -1,22 +1,37 @@
 <script lang="ts">
+  import PromiseLike from "../components/PromiseLike.svelte";
+  import PromiseTable from "../components/PromiseTable.svelte";
+  import X from "../icons/X.svelte";
   import {domainOption} from "../stores/domain-option";
-  import {type Cert, certsTable} from "../stores/certs";
   import {LOGIN} from "../utils/login";
+  import {RestItem, RestTable} from "../utils/rest-table";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
-  let tableKeys: string[] = [];
-  $: tableKeys = Object.entries($certsTable)
-    .map(x => x[1])
-    .filter(x => x.domains.map(x => domainFilter(x, $domainOption)).reduce((a, b) => a || b))
-    .sort((a, b) => {
-      // sort renew failed first
-      if (a.renew_failed && b.renew_failed) return a.id - b.id;
-      if (a.renew_failed) return -1;
-      if (b.renew_failed) return 1;
-      return a.id - b.id;
-    })
-    .map(x => x.id.toString());
+  const table = new RestTable<Cert>(apiOrchid + "/owned", (item: Cert) => item.id.toString());
+
+  interface Cert {
+    id: number;
+    auto_renew: boolean;
+    active: boolean;
+    renewing: boolean;
+    renew_failed: boolean;
+    not_after: string;
+    updated_at: string;
+    domains: string[];
+  }
+
+  function rowOrdering(rows: RestItem<Cert>[], domain: string): RestItem<Cert>[] {
+    return rows
+      .filter(x => x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b))
+      .sort((a, b) => {
+        // sort renew failed first
+        if (a.data.renew_failed && b.data.renew_failed) return a.data.id - b.data.id;
+        if (a.data.renew_failed) return -1;
+        if (b.data.renew_failed) return 1;
+        return a.data.id - b.data.id;
+      });
+  }
 
   function domainFilter(src: string, domain: string) {
     if (domain == "*") return true;
@@ -27,78 +42,64 @@
     return p.endsWith(domain);
   }
 
-  let promiseForTable: Promise<void> = reloadTable();
-
-  async function reloadTable(): Promise<void> {
-    let f = await LOGIN.clientRequest(apiOrchid + "/owned", {}, false);
-    if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
-    let fJson = await f.json();
-    let rows = fJson as Map<number, Cert>;
-    Object.values(rows).forEach(x => {
-      $certsTable[Object(x.id).toString()] = x;
-    });
-    console.log($certsTable);
-  }
+  domainOption.subscribe(() => table.reload());
 </script>
 
-<div class="wrapper">
-  <div style="padding:8px;background-color:#bb7900;">Warning: This is currently still under development</div>
+<h1>Certificates</h1>
 
-  <div class="scrolling-area">
-    {#await promiseForTable}
-      <div class="text-padding">
-        <div>Loading...</div>
-      </div>
-    {:then}
-      <table class="main-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Auto Renew</th>
-            <th>Active</th>
-            <th>Renewing</th>
-            <th>Renew Failed</th>
-            <th>Not After</th>
-            <th>Domains</th>
-          </tr>
-        </thead>
-        <tbody class="invert-rows">
-          {#each tableKeys as key (key)}
-            {@const cert = $certsTable[key]}
-            <tr class:cert-error={cert.renew_failed}>
-              <td>{cert.id}</td>
-              <td>{cert.auto_renew}</td>
-              <td>{cert.active}</td>
-              <td>{cert.renewing}</td>
-              <td>{cert.renew_failed}</td>
-              <td>
-                <div>{cert.not_after}</div>
-                <div>{Math.round((new Date(cert.not_after).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days until expiry</div>
-              </td>
-              <td class="branch-cell">
-                {#each cert.domains as domain}
-                  <div>{domain}</div>
-                {/each}
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    {:catch err}
-      <div class="text-padding">
-        <div>Administrator... I hardly know her?</div>
-        <div>{err}</div>
-      </div>
-    {/await}
-  </div>
-</div>
+<div style="padding:8px;background-color:#bb7900;">Warning: This is currently still under development</div>
+
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>ID</th>
+    <th>Auto Renew</th>
+    <th>Active</th>
+    <th>Renewing</th>
+    <th>Renew Failed</th>
+    <th>Not After</th>
+    <th>Domains</th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.id}: {reason}</td>
+        </tr>
+
+        <tr slot="ok" let:value class:cert-error={value.data.renew_failed} class="empty-row">
+          <td>{value.data.id}</td>
+          <td>{value.data.auto_renew}</td>
+          <td>{value.data.active}</td>
+          <td>{value.data.renewing}</td>
+          <td>{value.data.renew_failed}</td>
+          <td>
+            <div>{value.data.not_after}</div>
+            <div>{Math.round((new Date(value.data.not_after).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days until expiry</div>
+          </td>
+          <td class="branch-cell">
+            {#each value.data.domains as domain}
+              <div>{domain}</div>
+            {/each}
+          </td>
+        </tr>
+      </PromiseLike>
+    {/each}
+  </svelte:fragment>
+</PromiseTable>
 
 <style lang="scss">
-  .branch-cell {
+  .branch-cell:last-child {
     display: grid;
     grid-template-columns: repeat(1, auto);
-    justify-content: center;
-    gap: 8px;
+    justify-content: left;
+    padding: 8px 15px;
   }
 
   // css please explain yourself

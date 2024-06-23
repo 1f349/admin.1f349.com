@@ -1,81 +1,60 @@
 <script lang="ts">
-  import type {Writable} from "svelte/store";
-  import {type CSPair, noCPair, noSPair, yesCPair} from "../types/cspair";
-  import {redirectKeys, redirectEqual, type Redirect} from "../types/target";
+  import {redirectKeys, type Redirect} from "../types/target";
   import Flags from "./Flags.svelte";
   import RedirectCode from "./RedirectCode.svelte";
+  import type {RestItem} from "../utils/rest-table";
+  import ActionMenu from "./ActionMenu.svelte";
+  import ActionPopup from "./ActionPopup.svelte";
 
-  export let value: Writable<CSPair<Redirect>>;
+  export let value: RestItem<Redirect>;
+  let editItem: Redirect = {
+    src: "",
+    dst: "",
+    flags: 0,
+    code: 0,
+    active: false,
+  };
 
-  let item: CSPair<Redirect>;
-  $: item = $value;
+  let editPopup: boolean = false;
 
-  function resetRedirect(): any {
-    item.client = JSON.parse(JSON.stringify(item.server));
+  function save() {
+    value.update(editItem);
   }
-
-  const descCols = 50;
 </script>
 
-{#if noCPair(item)}
-  <tr class="deleted">
-    <td class="code-font"><a href="https://{item.server.src}" target="_blank">{item.server.src}</a></td>
-    <td><input type="text" class="code-font" disabled bind:value={item.server.dst} size={Math.max(20, item.server.dst.length + 2)} /></td>
-    <td><Flags value={item.server.flags} keys={redirectKeys} /></td>
-    <td><RedirectCode bind:code={item.server.code} /></td>
-    <td class="desc"><textarea rows="3" cols={descCols} disabled value={item.server.desc} /></td>
-    <td><input type="checkbox" disabled checked={false} /></td>
-    <td><button on:click={() => resetRedirect()}>Restore</button></td>
-  </tr>
-{:else if yesCPair(item)}
-  <tr class:created={noSPair(item)} class:modified={!noSPair(item) && !redirectEqual(item.client, item.server)}>
-    <td class="code-font"><a href="https://{item.client.src}" target="_blank">{item.client.src}</a></td>
-    <td><input type="text" class="code-font" bind:value={item.client.dst} size={Math.max(20, item.client.dst.length + 2)} /></td>
-    <td><Flags bind:value={item.client.flags} editable keys={redirectKeys} /></td>
-    <td><RedirectCode bind:code={item.client.code} editable /></td>
-    <td class="desc"><textarea rows="3" cols={descCols} bind:value={item.client.desc} /></td>
-    <td><input type="checkbox" bind:checked={item.client.active} /></td>
-    <td>
-      {#if !noSPair(item)}
-        <button on:click={() => resetRedirect()}>Reset</button>
-      {/if}
-      <button on:click={() => (item.client = null)}>Delete</button>
-    </td>
-  </tr>
-{:else}
-  <div>Invalid redirect row: please report this error</div>
-{/if}
+<tr>
+  <td class="code-font"><a href="https://{value.data.src}" target="_blank">{value.data.src}</a></td>
+  <td>{value.data.dst}</td>
+  <td><Flags bind:value={value.data.flags} keys={redirectKeys} /></td>
+  <td><RedirectCode bind:code={value.data.code} /></td>
+  <td><input type="checkbox" disabled checked={value.data.active} /></td>
+  <td>
+    <ActionMenu
+      data={value}
+      edit={() => {
+        editItem = JSON.parse(JSON.stringify(value.data));
+        editPopup = true;
+      }}
+      remove={() => value.remove()}
+    />
+
+    <ActionPopup name="Edit Redirect" bind:show={editPopup} on:save={save}>
+      <div>Source</div>
+      <div class="code-font">{editItem.src}</div>
+      <div>Destination</div>
+      <div><input type="text" class="code-font" bind:value={editItem.dst} size={Math.max(20, editItem.dst.length + 2)} /></div>
+      <div>Flags</div>
+      <div><Flags bind:value={editItem.flags} editable keys={redirectKeys} /></div>
+      <div>Redirect Code</div>
+      <div><RedirectCode bind:code={editItem.code} editable /></div>
+      <div>Active</div>
+      <div><input type="checkbox" bind:checked={editItem.active} /></div>
+    </ActionPopup>
+  </td>
+</tr>
 
 <style lang="scss">
-  tr.created {
-    background-color: #1a510077;
-
-    &:nth-child(2n) {
-      background-color: #10330077;
-    }
-  }
-
-  tr.modified {
-    background-color: #51510077;
-
-    &:nth-child(2n) {
-      background-color: #33330077;
-    }
-  }
-
-  tr.deleted {
-    background-color: #51000077;
-
-    &:nth-child(2n) {
-      background-color: #33000077;
-    }
-  }
-
   td input[type="text"] {
     padding: 4px;
-  }
-
-  .desc textarea {
-    resize: none;
   }
 </style>
