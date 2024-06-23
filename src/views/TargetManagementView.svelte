@@ -16,7 +16,7 @@
 
   export let apiUrl: string;
 
-  let table = new TargetTable<T>(apiUrl, (item: T) => item.src);
+  let table = new TargetTable<T>(apiUrl, (item: T) => "");
 
   function rowOrdering(rows: RestItem<T>[], domain: string): RestItem<T>[] {
     return rows.filter(x => domainFilter(x.data, domain)).sort((a, b) => a.data.src.localeCompare(b.data.src));
