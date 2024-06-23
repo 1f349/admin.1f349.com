@@ -16,7 +16,7 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
     this.rows = [];
   }
 
-  private updateSubs() {
+  updateSubs() {
     this.subs.forEach(x => x(this));
   }
 
@@ -82,7 +82,7 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     this.data = data;
   }
 
-  private updateSubs() {
+  updateSubs() {
     this.subs.forEach(x => x(this));
   }
 
@@ -138,6 +138,7 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
       const x = await LOGIN.clientRequest(this.keyUrl(), options);
       if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
       this.table.rows = this.table.rows.filter(x_1 => this.table.keyFunc(x_1.data) !== this.key());
+      this.table.updateSubs();
       this.setLoading(false);
     } catch (err) {
       this.setErrorReason("Failed to remove item " + this.key());
