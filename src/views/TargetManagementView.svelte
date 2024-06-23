@@ -19,7 +19,12 @@
   let table = new TargetTable<T>(apiUrl, (item: T) => "");
 
   function rowOrdering(rows: RestItem<T>[], domain: string): RestItem<T>[] {
-    return rows.filter(x => domainFilter(x.data, domain)).sort((a, b) => a.data.src.localeCompare(b.data.src));
+    return rows.filter(x => domainFilter(x.data, domain)).sort((a, b) => trimWildcards(a.data.src).localeCompare(trimWildcards(b.data.src)));
+  }
+
+  function trimWildcards(a: string) {
+    if (a.startsWith("*.")) return a.substring(2);
+    return a;
   }
 
   function domainFilter(item: T, domain: string): boolean {
