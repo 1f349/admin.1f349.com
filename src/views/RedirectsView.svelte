@@ -42,7 +42,7 @@
   </ActionPopup>
 </div>
 
-<TargetManagementView apiUrl="{apiViolet}/redirect">
+<TargetManagementView apiUrl="{apiViolet}/redirect" bind:this={targetManagement}>
   <svelte:fragment slot="headers">
     <th>Source</th>
     <th>Destination</th>
