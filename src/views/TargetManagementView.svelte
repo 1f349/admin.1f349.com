@@ -18,6 +18,10 @@
 
   let table = new TargetTable<T>(apiUrl, (item: T) => "");
 
+  export function createItem(t: T) {
+    table.addItem(t);
+  }
+
   function rowOrdering(rows: RestItem<T>[], domain: string): RestItem<T>[] {
     return rows.filter(x => domainFilter(x.data, domain)).sort((a, b) => trimWildcards(a.data.src).localeCompare(trimWildcards(b.data.src)));
   }

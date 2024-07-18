@@ -56,7 +56,7 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
 
   addItem(item: T) {
     (async () => {
-      let f = await LOGIN.clientRequest(this.apiUrl, {method: "POST"});
+      let f = await LOGIN.clientRequest(this.apiUrl, {method: "POST", body: JSON.stringify(item)});
       if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
       this.rows.push(new RestItem(this, item));
       this.updateSubs();

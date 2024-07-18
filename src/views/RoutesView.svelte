@@ -1,13 +1,43 @@
 <script lang="ts">
+  import ActionPopup from "../components/ActionPopup.svelte";
   import RouteRow from "../components/RouteRow.svelte";
   import TargetManagementView from "./TargetManagementView.svelte";
+  import {routeKeys, type Route} from "../types/target";
+  import Flags from "../components/Flags.svelte";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
+
+  let targetManagement: TargetManagementView<Route>;
+  let createItem: Route = {
+    src: "",
+    dst: "",
+    flags: 0,
+    active: false,
+  };
+  let createPopup: boolean = false;
+
+  function createRoute() {
+    targetManagement.createItem(createItem);
+  }
 </script>
 
-<h1>Routes</h1>
+<div class="row">
+  <h1>Routes</h1>
+  <button class="create-button" on:click={() => (createPopup = true)}>Create Route</button>
 
-<TargetManagementView apiUrl="{apiViolet}/route">
+  <ActionPopup name="Create Route" bind:show={createPopup} on:save={createRoute}>
+    <div>Source</div>
+    <div><input type="text" class="code-font" bind:value={createItem.src} size={Math.max(20, createItem.src.length + 2)} /></div>
+    <div>Destination</div>
+    <div><input type="text" class="code-font" bind:value={createItem.dst} size={Math.max(20, createItem.dst.length + 2)} /></div>
+    <div>Flags</div>
+    <div><Flags bind:value={createItem.flags} editable keys={routeKeys} /></div>
+    <div>Active</div>
+    <div><input type="checkbox" bind:checked={createItem.active} /></div>
+  </ActionPopup>
+</div>
+
+<TargetManagementView apiUrl="{apiViolet}/route" bind:this={targetManagement}>
   <svelte:fragment slot="headers">
     <th>Source</th>
     <th>Destination</th>
@@ -17,3 +47,18 @@
   </svelte:fragment>
   <RouteRow slot="row" let:value {value} />
 </TargetManagementView>
+
+<style lang="scss">
+  @import "../values.scss";
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .create-button {
+    @include button-green-box;
+  }
+</style>

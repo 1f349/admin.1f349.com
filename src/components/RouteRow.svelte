@@ -4,7 +4,7 @@
   import type {RestItem} from "../utils/rest-table";
   import ActionMenu from "./ActionMenu.svelte";
   import ActionPopup from "./ActionPopup.svelte";
-
+  
   export let value: RestItem<Route>;
   let editItem: Route = {
     src: "",
@@ -37,7 +37,7 @@
 
     <ActionPopup name="Edit Route" bind:show={editPopup} on:save={save}>
       <div>Source</div>
-      <div><input type="text" class="code-font" bind:value={editItem.src} size={Math.max(20, value.data.dst.length + 2)} /></div>
+      <div class="code-font">{editItem.src}</div>
       <div>Destination</div>
       <div><input type="text" class="code-font" bind:value={editItem.dst} size={Math.max(20, editItem.dst.length + 2)} /></div>
       <div>Flags</div>
