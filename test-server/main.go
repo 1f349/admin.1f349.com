@@ -52,6 +52,7 @@ func ssoServer(signer mjwt.Signer) {
 		ps := claims.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
+		ps.Set("azalea:domains")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
 		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
