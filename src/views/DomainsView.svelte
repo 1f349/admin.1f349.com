@@ -28,6 +28,13 @@
   import {RestItem, RestTable} from "../utils/rest-table";
   import PromiseLike from "../components/PromiseLike.svelte";
   import SoaRow from "../components/domains/SoaRow.svelte";
+  import NsRow from "../components/domains/NsRow.svelte";
+  import MxRow from "../components/domains/MxRow.svelte";
+  import ARow from "../components/domains/ARow.svelte";
+  import CnameRow from "../components/domains/CnameRow.svelte";
+  import TxtRow from "../components/domains/TxtRow.svelte";
+  import CaaRow from "../components/domains/CaaRow.svelte";
+  import SrvRow from "../components/domains/SrvRow.svelte";
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
@@ -88,8 +95,8 @@
     <h1>Domains / {getTitleDomain(soaRecords[0].Hdr.Name)}</h1>
     <a
       class="zone-download"
-      href="{import.meta.env.VITE_API_AZALEA}/domains/{getTitleDomain($soaRecords[0].Hdr.Name)}/zone-file"
-      download="{getTitleDomain($soaRecords[0].Hdr.Name)}.zone"
+      href="{import.meta.env.VITE_API_AZALEA}/domains/{getTitleDomain(soaRecords[0].Hdr.Name)}/zone-file"
+      download="{getTitleDomain(soaRecords[0].Hdr.Name)}.zone"
     >
       Download DNS Zone File
     </a>
@@ -109,7 +116,7 @@
   </tr>
 
   <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, DnsTypeSOA) as item}
+    {#each rowOrdering(value.rows, $domainOption, isSoaRecord) as item}
       <PromiseLike value={item}>
         <tr slot="loading" class="empty-row">
           <td colspan="100">
@@ -126,246 +133,207 @@
     {/each}
   </svelte:fragment>
 </PromiseTable>
-<table class="action-table" aria-label="List of Domains SOA Record">
-  <thead>
-    <tr>
-      <th>Primary Domain</th>
-      <th>Email</th>
-      <th>Default TTL</th>
-      <th>Refresh Rate</th>
-      <th>Retry Rate</th>
-      <th>Expire Time</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $soaRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $soaRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Mbox}</td>
-        <td>{record.Minttl}</td>
-        <td>{record.Refresh}</td>
-        <td>{record.Retry}</td>
-        <td>{record.Expire}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={null} />
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
 
 <h2>NS Record</h2>
-<table class="action-table" aria-label="List of Domains NS Record">
-  <thead>
-    <tr>
-      <th>Name Server</th>
-      <th>Subdomain</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $nsRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $nsRecords as record}
-      <tr>
-        <td>{record.Ns}</td>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td></td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Name Server</th>
+    <th>Subdomain</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isNsRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <NsRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>MX Record</h2>
-<table class="action-table" aria-label="List of Domains MX Record">
-  <thead>
-    <tr>
-      <th>Mail Server</th>
-      <th>Preference</th>
-      <th>Subdomain</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $mxRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $mxRecords as record}
-      <tr>
-        <td>{record.Mx}</td>
-        <td>{record.Preference}</td>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Mail Server</th>
+    <th>Preference</th>
+    <th>Subdomain</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isMxRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <MxRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>A/AAAA Record</h2>
-<table class="action-table" aria-label="List of Domains A/AAAA Record">
-  <thead>
-    <tr>
-      <th>Hostname</th>
-      <th>IP Address</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $aRecords.length === 0 && $aaaaRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $aRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.A}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Hostname</th>
+    <th>IP Address</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, t => isARecord(t) || isAaaaRecord(t)) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <ARow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-    {#each $aaaaRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.AAAA}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>CNAME Record</h2>
-<table class="action-table" aria-label="List of Domains CNAME Record">
-  <thead>
-    <tr>
-      <th>Hostname</th>
-      <th>Aliases to</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $cnameRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $cnameRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Target}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Hostname</th>
+    <th>Aliases to</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isCnameRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <CnameRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>TXT Record</h2>
-<table class="action-table" aria-label="List of Domains TXT Record">
-  <thead>
-    <tr>
-      <th>Hostname</th>
-      <th>Value</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $txtRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $txtRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>
-          <span class="cutoff">{record.Txt.join("\n")}</span>
-        </td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Hostname</th>
+    <th>Value</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isTxtRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <TxtRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>SRV Record</h2>
-<table class="action-table" aria-label="List of Domains SRV Record">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Priority</th>
-      <th>Weight</th>
-      <th>Port</th>
-      <th>Target</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $srvRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $srvRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Priority}</td>
-        <td>{record.Weight}</td>
-        <td>{record.Port}</td>
-        <td>{record.Target}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Name</th>
+    <th>Priority</th>
+    <th>Weight</th>
+    <th>Port</th>
+    <th>Target</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isSrvRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <SrvRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <h2>CAA Record</h2>
-<table class="action-table" aria-label="List of Domains CAA Record">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Tag</th>
-      <th>Value</th>
-      <th>TTL</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {#if $caaRecords.length === 0}
-      <tr class="empty-row"><td colspan="7">No items to display</td></tr>
-    {/if}
-    {#each $caaRecords as record}
-      <tr>
-        <td>{record.Hdr.Name}</td>
-        <td>{record.Tag}</td>
-        <td>{record.Value}</td>
-        <td>{record.Hdr.Ttl}</td>
-        <td>
-          <ActionMenu data={record} edit={t => console.log(t)} remove={t => console.log(t)} />
-        </td>
-      </tr>
+<PromiseTable value={table}>
+  <tr slot="headers">
+    <th>Name</th>
+    <th>Tag</th>
+    <th>Value</th>
+    <th>TTL</th>
+    <th></th>
+  </tr>
+
+  <svelte:fragment slot="rows" let:value>
+    {#each rowOrdering(value.rows, $domainOption, isCaaRecord) as item}
+      <PromiseLike value={item}>
+        <tr slot="loading" class="empty-row">
+          <td colspan="100">
+            <div>Loading...</div>
+          </td>
+        </tr>
+
+        <tr slot="error" let:reason class="empty-row">
+          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+        </tr>
+
+        <CaaRow slot="ok" let:value {value} />
+      </PromiseLike>
     {/each}
-  </tbody>
-</table>
+  </svelte:fragment>
+</PromiseTable>
 
 <style lang="scss">
   @import "../values.scss";
