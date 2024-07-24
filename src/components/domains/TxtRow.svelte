@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type {TxtRecord} from "../../stores/records";
+  import type {TxtRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import TxtCreate from "../create-domains/TxtCreate.svelte";
+  import TdCutOff from "../CutOffTd.svelte";
 
   export let value: RestItem<TxtRecord>;
   let editItem: TxtRecord = {
@@ -24,9 +26,8 @@
 
 <tr>
   <td class="code-font">{value.data.Hdr.Name}</td>
-  <td class="code-font">
-    <span class="cutoff">{value.data.Txt.join("\n")}</span>
-  </td>
+  <TdCutOff class="code-font">{value.data.Txt.join("\n")}</TdCutOff>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -38,10 +39,7 @@
     />
 
     <ActionPopup name="Edit TXT Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Value</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Txt[0]} size={Math.max(20, editItem.Txt[0].length + 2)} /></div>
+      <TxtCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type {CnameRecord} from "../../stores/records";
+  import type {CnameRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import CnameCreate from "../create-domains/CnameCreate.svelte";
 
   export let value: RestItem<CnameRecord>;
   let editItem: CnameRecord = {
@@ -25,6 +26,7 @@
 <tr>
   <td class="code-font">{value.data.Hdr.Name}</td>
   <td class="code-font">{value.data.Target}</td>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -36,10 +38,7 @@
     />
 
     <ActionPopup name="Edit CNAME Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Target</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Target} size={Math.max(20, editItem.Target.length + 2)} /></div>
+      <CnameCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

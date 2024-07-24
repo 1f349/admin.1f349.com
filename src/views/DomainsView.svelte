@@ -1,8 +1,14 @@
 <script lang="ts">
-  import {LOGIN} from "../utils/login";
   import {domainOption} from "../stores/domain-option";
   import {
+    DnsTypeA,
+    DnsTypeCAA,
+    DnsTypeCNAME,
+    DnsTypeMX,
+    DnsTypeNS,
     DnsTypeSOA,
+    DnsTypeSRV,
+    DnsTypeTXT,
     isARecord,
     isAaaaRecord,
     isCaaRecord,
@@ -14,6 +20,7 @@
     isTxtRecord,
     type ARecord,
     type AaaaRecord,
+    type AllRecords,
     type CaaRecord,
     type CnameRecord,
     type MxRecord,
@@ -22,9 +29,7 @@
     type SrvRecord,
     type TxtRecord,
     type UnknownRecord,
-  } from "../stores/records";
-  import ActionMenu from "../components/ActionMenu.svelte";
-  import PromiseTable from "../components/PromiseTable.svelte";
+  } from "../types/records";
   import {RestItem, RestTable} from "../utils/rest-table";
   import PromiseLike from "../components/PromiseLike.svelte";
   import SoaRow from "../components/domains/SoaRow.svelte";
@@ -35,15 +40,21 @@
   import TxtRow from "../components/domains/TxtRow.svelte";
   import CaaRow from "../components/domains/CaaRow.svelte";
   import SrvRow from "../components/domains/SrvRow.svelte";
+  import DomainTableView from "./DomainTableView.svelte";
+  import ActionPopup from "../components/ActionPopup.svelte";
+  import NsCreate from "../components/create-domains/NsCreate.svelte";
+  import MxCreate from "../components/create-domains/MxCreate.svelte";
+  import ACreate from "../components/create-domains/ACreate.svelte";
+  import CnameCreate from "../components/create-domains/CnameCreate.svelte";
+  import CaaCreate from "../components/create-domains/CaaCreate.svelte";
+  import TxtCreate from "../components/create-domains/TxtCreate.svelte";
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
-
-  type AllRecords = SoaRecord | NsRecord | MxRecord | ARecord | AaaaRecord | CnameRecord | TxtRecord | SrvRecord | CaaRecord;
 
   const table = new RestTable<AllRecords>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AllRecords) => item.Hdr.Name);
 
   function rowOrdering<T extends UnknownRecord>(
-    rows: RestItem<UnknownRecord>[],
+    rows: RestItem<AllRecords>[],
     domain: string,
     isTRecord: (t: UnknownRecord) => t is T,
   ): RestItem<T>[] {
@@ -54,6 +65,7 @@
   }
 
   function domainFilter(src: string, domain: string) {
+    domain = fqdn(domain);
     if (domain == "*") return true;
     let n = src.indexOf("/");
     if (n == -1) n = src.length;
@@ -69,6 +81,11 @@
       return name.substring(0, name.length - 1);
     }
     return name;
+  }
+
+  function fqdn(domain: string): string {
+    if (domain.endsWith(".")) return domain;
+    return domain + ".";
   }
 
   let soaRecords: SoaRecord[] = [
@@ -88,284 +105,173 @@
       Minttl: 0,
     },
   ];
+  let domainTitle: string = getTitleDomain(soaRecords[0].Hdr.Name);
+  let zoneFileUrl: string = `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file`;
+
+  let recordTypes = [
+    {
+      name: "SOA",
+      headers: ["Primary Domain", "Email", "Default TTL", "Refresh Rate", "Retry Rate", "Expire Time"],
+      filter: isSoaRecord,
+      render: SoaRow,
+      create: null,
+      save: null,
+      empty: null,
+    },
+    {
+      name: "NS",
+      headers: ["Subdomain", "Name Server", "TTL"],
+      filter: isNsRecord,
+      render: NsRow,
+      create: NsCreate,
+      empty: (): NsRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeNS,
+          Class: 1,
+          Ttl: 0,
+        },
+        Ns: "",
+      }),
+    },
+    {
+      name: "MX",
+      headers: ["Mail Server", "Preference", "Subdomain", "TTL"],
+      filter: isMxRecord,
+      render: MxRow,
+      create: MxCreate,
+      empty: (): MxRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeMX,
+          Class: 1,
+          Ttl: 0,
+        },
+        Mx: "",
+        Preference: 0,
+      }),
+    },
+    {
+      name: "A/AAAA",
+      headers: ["Hostname", "IP Address", "TTL"],
+      filter: (t: UnknownRecord) => isARecord(t) || isAaaaRecord(t),
+      render: ARow,
+      create: ACreate,
+      empty: (): ARecord | AaaaRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: 0, // this is on purpose
+          Class: 1,
+          Ttl: 0,
+        },
+        A: "",
+        AAAA: "",
+      }),
+    },
+    {
+      name: "CNAME",
+      headers: ["Hostname", "Aliases to", "TTL"],
+      filter: isCnameRecord,
+      render: CnameRow,
+      create: CnameCreate,
+      empty: (): CnameRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeCNAME,
+          Class: 1,
+          Ttl: 0,
+        },
+        Target: "",
+      }),
+    },
+    {
+      name: "TXT",
+      headers: ["Hostname", "Value", "TTL"],
+      filter: isTxtRecord,
+      render: TxtRow,
+      create: TxtCreate,
+      empty: (): TxtRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeTXT,
+          Class: 1,
+          Ttl: 0,
+        },
+        Txt: [""],
+      }),
+    },
+    {
+      name: "SRV",
+      headers: ["Name", "Priority", "Weight", "Port", "Target", "TTL"],
+      filter: isSrvRecord,
+      render: SrvRow,
+      create: null,
+      empty: (): SrvRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeSRV,
+          Class: 1,
+          Ttl: 0,
+        },
+        Priority: 0,
+        Weight: 0,
+        Port: 0,
+        Target: "",
+      }),
+    },
+    {
+      name: "CAA",
+      headers: ["Name", "Tag", "Value", "TTL"],
+      filter: isCaaRecord,
+      render: CaaRow,
+      create: CaaCreate,
+      empty: (): CaaRecord => ({
+        Hdr: {
+          Name: "",
+          Rrtype: DnsTypeCAA,
+          Class: 1,
+          Ttl: 0,
+        },
+        Flag: 0,
+        Tag: "",
+        Value: "",
+      }),
+    },
+  ];
+
+  function toAny(a: any) {
+    return a as any;
+  }
 </script>
 
 {#if soaRecords.length >= 1}
   <div class="title-row">
-    <h1>Domains / {getTitleDomain(soaRecords[0].Hdr.Name)}</h1>
-    <a
-      class="zone-download"
-      href="{import.meta.env.VITE_API_AZALEA}/domains/{getTitleDomain(soaRecords[0].Hdr.Name)}/zone-file"
-      download="{getTitleDomain(soaRecords[0].Hdr.Name)}.zone"
-    >
-      Download DNS Zone File
-    </a>
+    <h1>Domains / {domainTitle}</h1>
+    <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
   </div>
 {/if}
 
-<h2>SOA Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Primary Domain</th>
-    <th>Email</th>
-    <th>Default TTL</th>
-    <th>Refresh Rate</th>
-    <th>Retry Rate</th>
-    <th>Expire Time</th>
-    <th></th>
-  </tr>
+{#each recordTypes as recordType}
+  <DomainTableView recordName={recordType.name} {table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
+    <tr slot="headers">
+      {#each recordType.headers as header}
+        <th>{header}</th>
+      {/each}
+      <th></th>
+    </tr>
 
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isSoaRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
+    <svelte:fragment slot="create" let:editItem let:editMode>
+      {#if recordType.create != null && recordType.empty != null}
+        <svelte:component this={recordType.create} editItem={toAny(editItem)} {editMode} />
+      {/if}
+    </svelte:fragment>
 
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <SoaRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>NS Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Name Server</th>
-    <th>Subdomain</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isNsRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <NsRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>MX Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Mail Server</th>
-    <th>Preference</th>
-    <th>Subdomain</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isMxRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <MxRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>A/AAAA Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Hostname</th>
-    <th>IP Address</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, t => isARecord(t) || isAaaaRecord(t)) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <ARow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>CNAME Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Hostname</th>
-    <th>Aliases to</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isCnameRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <CnameRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>TXT Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Hostname</th>
-    <th>Value</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isTxtRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <TxtRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>SRV Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Name</th>
-    <th>Priority</th>
-    <th>Weight</th>
-    <th>Port</th>
-    <th>Target</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isSrvRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <SrvRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
-
-<h2>CAA Record</h2>
-<PromiseTable value={table}>
-  <tr slot="headers">
-    <th>Name</th>
-    <th>Tag</th>
-    <th>Value</th>
-    <th>TTL</th>
-    <th></th>
-  </tr>
-
-  <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isCaaRecord) as item}
-      <PromiseLike value={item}>
-        <tr slot="loading" class="empty-row">
-          <td colspan="100">
-            <div>Loading...</div>
-          </td>
-        </tr>
-
-        <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
-        </tr>
-
-        <CaaRow slot="ok" let:value {value} />
-      </PromiseLike>
-    {/each}
-  </svelte:fragment>
-</PromiseTable>
+    <svelte:component this={recordType.render} slot="row" let:value {value} />
+  </DomainTableView>
+{/each}
 
 <style lang="scss">
   @import "../values.scss";
-
-  button.action-menu {
-    @include button-green-highlight;
-  }
-
-  table tbody tr {
-    td {
-      position: relative;
-
-      span.cutoff {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        overflow: hidden;
-        text-wrap: nowrap;
-        text-overflow: ellipsis;
-        margin-inline: 15px;
-        display: inline-block;
-        vertical-align: middle;
-        line-height: 1rem;
-        transform: translateY(-50%);
-      }
-    }
-
-    &.empty-row td {
-      text-align: center;
-    }
-  }
 
   .title-row {
     display: flex;

@@ -1,8 +1,9 @@
 <script lang="ts">
-  import {isAaaaRecord, isARecord, type AaaaRecord, type ARecord} from "../../stores/records";
+  import {isAaaaRecord, isARecord, type AaaaRecord, type ARecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import ACreate from "../create-domains/ACreate.svelte";
 
   export let value: RestItem<ARecord | AaaaRecord>;
   let editItem: ARecord & AaaaRecord = {
@@ -26,6 +27,7 @@
 <tr>
   <td class="code-font">{value.data.Hdr.Name}</td>
   <td class="code-font">{isARecord(value.data) ? value.data.A : isAaaaRecord(value.data) ? value.data.AAAA : ""}</td>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -37,17 +39,7 @@
     />
 
     <ActionPopup name="Edit {isARecord(value.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      {#if isARecord(value.data)}
-        <div>IPv4 Address</div>
-        <div><input type="text" class="code-font" bind:value={editItem.A} size={Math.max(20, editItem.A.length + 2)} /></div>
-      {:else if isAaaaRecord(value.data)}
-        <div>IPv6 Address</div>
-        <div><input type="text" class="code-font" bind:value={editItem.AAAA} size={Math.max(20, editItem.AAAA.length + 2)} /></div>
-      {:else}
-        <div>Pretty sure something is broken. WOMP WOMP!!</div>
-      {/if}
+      <ACreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

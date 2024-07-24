@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type {CaaRecord} from "../../stores/records";
+  import type {CaaRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import CaaCreate from "../create-domains/CaaCreate.svelte";
 
   export let value: RestItem<CaaRecord>;
   let editItem: CaaRecord = {
@@ -28,6 +29,7 @@
   <td class="code-font">{value.data.Hdr.Name}</td>
   <td class="code-font">{value.data.Tag}</td>
   <td class="code-font">{value.data.Value}</td>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -39,12 +41,7 @@
     />
 
     <ActionPopup name="Edit CAA Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Tag</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Tag} size={Math.max(20, editItem.Tag.length + 2)} /></div>
-      <div>Value</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Value} size={Math.max(20, editItem.Value.length + 2)} /></div>
+      <CaaCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

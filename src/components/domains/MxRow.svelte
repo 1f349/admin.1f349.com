@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type {MxRecord} from "../../stores/records";
+  import type {MxRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import MxCreate from "../create-domains/MxCreate.svelte";
 
   export let value: RestItem<MxRecord>;
   let editItem: MxRecord = {
@@ -27,6 +28,7 @@
   <td class="code-font">{value.data.Hdr.Name}</td>
   <td class="code-font">{value.data.Mx}</td>
   <td class="code-font">{value.data.Preference}</td>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -37,13 +39,8 @@
       remove={() => value.remove()}
     />
 
-    <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Mail Server</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Mx} size={Math.max(20, editItem.Mx.length + 2)} /></div>
-      <div>Preference</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Preference} size={Math.max(20, editItem.Preference.length + 2)} /></div>
+    <ActionPopup name="Edit MX Record" bind:show={editPopup} on:save={save}>
+      <MxCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     cursor: default;
-    background-color: rgba(0,0,0,0.55);
+    background-color: rgba(0, 0, 0, 0.55);
     display: none;
 
     &.show {
@@ -45,6 +45,7 @@
     position: fixed;
     top: 50vh;
     left: 50vw;
+    max-width: calc(100vw - 72px);
     transform: translate(-50%, -50%);
     background-color: $theme-header;
     cursor: auto;

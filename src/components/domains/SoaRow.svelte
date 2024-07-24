@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type {SoaRecord} from "../../stores/records";
+  import type {SoaRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";

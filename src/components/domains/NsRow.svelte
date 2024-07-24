@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type {NsRecord} from "../../stores/records";
+  import type {NsRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import NsCreate from "../create-domains/NsCreate.svelte";
 
   export let value: RestItem<NsRecord>;
   let editItem: NsRecord = {
@@ -25,6 +26,7 @@
 <tr>
   <td class="code-font">{value.data.Hdr.Name}</td>
   <td class="code-font">{value.data.Ns}</td>
+  <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
     <ActionMenu
       data={value}
@@ -36,10 +38,7 @@
     />
 
     <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Nameserver</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Ns} size={Math.max(20, editItem.Ns.length + 2)} /></div>
+      <NsCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

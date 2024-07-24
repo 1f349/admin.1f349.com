@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type {CnameRecord, SrvRecord} from "../../stores/records";
+  import type {SrvRecord} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
+  import SrvCreate from "../create-domains/SrvCreate.svelte";
 
   export let value: RestItem<SrvRecord>;
   let editItem: SrvRecord = {
@@ -43,10 +44,7 @@
     />
 
     <ActionPopup name="Edit CNAME Record" bind:show={editPopup} on:save={save}>
-      <div>Name</div>
-      <div class="code-font">{editItem.Hdr.Name}</div>
-      <div>Target</div>
-      <div><input type="text" class="code-font" bind:value={editItem.Target} size={Math.max(20, editItem.Target.length + 2)} /></div>
+      <SrvCreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
 </tr>

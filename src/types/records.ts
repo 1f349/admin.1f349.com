@@ -8,6 +8,8 @@ export const DnsTypeTXT = 16;
 export const DnsTypeSRV = 33;
 export const DnsTypeCAA = 257;
 
+export type AllRecords = SoaRecord | NsRecord | MxRecord | ARecord | AaaaRecord | CnameRecord | TxtRecord | SrvRecord | CaaRecord;
+
 export interface RecordHeader {
   Name: string;
   Rrtype: number;
