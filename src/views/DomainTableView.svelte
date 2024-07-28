@@ -3,7 +3,7 @@
   import type {RestItem, RestTable} from "../utils/rest-table";
   import PromiseTable from "../components/PromiseTable.svelte";
   import PromiseLike from "../components/PromiseLike.svelte";
-  import type {AllRecords, UnknownRecord} from "../types/records";
+  import type {AllRecords, ApiRecordFormat, UnknownRecord} from "../types/records";
   import ActionPopup from "../components/ActionPopup.svelte";
 
   type T = $$Generic<UnknownRecord>;
@@ -11,6 +11,7 @@
   export let recordName: string;
   export let table: RestTable<AllRecords>;
   export let emptyRecord: (() => any) | null;
+  export let convert: (t: T) => ApiRecordFormat;
   export let rowOrdering: (rows: RestItem<AllRecords>[], domain: string, isTRecord: (t: UnknownRecord) => t is T) => RestItem<T>[];
   export let isTRecord: (t: UnknownRecord) => t is T;
 
@@ -18,7 +19,8 @@
   let createPopup: boolean = false;
 
   function createRecord() {
-    table.addItem(createItem as any);
+    if (createItem == null) return;
+    table.addItem(convert(createItem) as any);
   }
 </script>
 

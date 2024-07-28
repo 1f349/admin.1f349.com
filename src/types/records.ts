@@ -10,6 +10,12 @@ export const DnsTypeCAA = 257;
 
 export type AllRecords = SoaRecord | NsRecord | MxRecord | ARecord | AaaaRecord | CnameRecord | TxtRecord | SrvRecord | CaaRecord;
 
+export interface ApiRecordFormat {
+  name: string;
+  type: number;
+  value: any;
+}
+
 export interface RecordHeader {
   Name: string;
   Rrtype: number;

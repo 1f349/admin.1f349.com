@@ -21,6 +21,7 @@
     type ARecord,
     type AaaaRecord,
     type AllRecords,
+    type ApiRecordFormat,
     type CaaRecord,
     type CnameRecord,
     type MxRecord,
@@ -133,6 +134,11 @@
         },
         Ns: "",
       }),
+      convert: (t: NsRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: t.Ns,
+      }),
     },
     {
       name: "MX",
@@ -149,6 +155,14 @@
         },
         Mx: "",
         Preference: 0,
+      }),
+      convert: (t: MxRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: {
+          mx: t.Mx,
+          preference: t.Preference,
+        },
       }),
     },
     {
@@ -167,6 +181,11 @@
         A: "",
         AAAA: "",
       }),
+      convert: (t: ARecord | AaaaRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: isARecord(t) ? t.A : isAaaaRecord(t) ? t.AAAA : "",
+      }),
     },
     {
       name: "CNAME",
@@ -183,6 +202,11 @@
         },
         Target: "",
       }),
+      convert: (t: CnameRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: t.Target,
+      }),
     },
     {
       name: "TXT",
@@ -198,6 +222,11 @@
           Ttl: 0,
         },
         Txt: [""],
+      }),
+      convert: (t: TxtRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: t.Txt,
       }),
     },
     {
@@ -218,6 +247,16 @@
         Port: 0,
         Target: "",
       }),
+      convert: (t: SrvRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: {
+          priority: t.Priority,
+          weight: t.Weight,
+          port: t.Port,
+          target: t.Target,
+        },
+      }),
     },
     {
       name: "CAA",
@@ -236,6 +275,15 @@
         Tag: "",
         Value: "",
       }),
+      convert: (t: CaaRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: {
+          flag: t.Flag,
+          tag: t.Tag,
+          value: t.Value,
+        },
+      }),
     },
   ];
 
@@ -252,7 +300,14 @@
 {/if}
 
 {#each recordTypes as recordType}
-  <DomainTableView recordName={recordType.name} {table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
+  <DomainTableView
+    recordName={recordType.name}
+    {table}
+    emptyRecord={recordType.empty}
+    convert={recordType.convert}
+    {rowOrdering}
+    isTRecord={recordType.filter}
+  >
     <tr slot="headers">
       {#each recordType.headers as header}
         <th>{header}</th>
