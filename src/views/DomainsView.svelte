@@ -49,6 +49,7 @@
   import CnameCreate from "../components/create-domains/CnameCreate.svelte";
   import CaaCreate from "../components/create-domains/CaaCreate.svelte";
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
+  import PromiseTable from "../components/PromiseTable.svelte";
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
@@ -89,39 +90,31 @@
     return domain + ".";
   }
 
-  let soaRecords: SoaRecord[] = [
-    {
-      Hdr: {
-        Name: "example.com.",
-        Rrtype: DnsTypeSOA,
-        Class: 1,
-        Ttl: 300,
-      },
-      Ns: "ns1.example.com.",
-      Mbox: "postmaster.example.com.",
-      Serial: 0,
-      Refresh: 0,
-      Retry: 0,
-      Expire: 0,
-      Minttl: 0,
-    },
-  ];
-  let domainTitle: string = getTitleDomain(soaRecords[0].Hdr.Name);
-  let zoneFileUrl: string = `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file`;
+  let domainTitle: string = "";
+  $: (domainTitle = table.rows.length === 0 ? "Unknown" : getTitleDomain(table.rows[0].data.Hdr.Name)), $table;
+  let zoneFileUrl: string;
+  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file` : "";
 
   let recordTypes = [
     {
       name: "SOA",
       headers: ["Primary Domain", "Email", "Default TTL", "Refresh Rate", "Retry Rate", "Expire Time"],
+      locked: true,
       filter: isSoaRecord,
       render: SoaRow,
       create: null,
       save: null,
       empty: null,
+      convert: (t: SoaRecord): ApiRecordFormat => ({
+        name: t.Hdr.Name,
+        type: t.Hdr.Rrtype,
+        value: "",
+      }),
     },
     {
       name: "NS",
       headers: ["Subdomain", "Name Server", "TTL"],
+      locked: true,
       filter: isNsRecord,
       render: NsRow,
       create: NsCreate,
@@ -143,6 +136,7 @@
     {
       name: "MX",
       headers: ["Mail Server", "Preference", "Subdomain", "TTL"],
+      locked: false,
       filter: isMxRecord,
       render: MxRow,
       create: MxCreate,
@@ -168,6 +162,7 @@
     {
       name: "A/AAAA",
       headers: ["Hostname", "IP Address", "TTL"],
+      locked: false,
       filter: (t: UnknownRecord) => isARecord(t) || isAaaaRecord(t),
       render: ARow,
       create: ACreate,
@@ -190,6 +185,7 @@
     {
       name: "CNAME",
       headers: ["Hostname", "Aliases to", "TTL"],
+      locked: false,
       filter: isCnameRecord,
       render: CnameRow,
       create: CnameCreate,
@@ -211,6 +207,7 @@
     {
       name: "TXT",
       headers: ["Hostname", "Value", "TTL"],
+      locked: false,
       filter: isTxtRecord,
       render: TxtRow,
       create: TxtCreate,
@@ -232,6 +229,7 @@
     {
       name: "SRV",
       headers: ["Name", "Priority", "Weight", "Port", "Target", "TTL"],
+      locked: false,
       filter: isSrvRecord,
       render: SrvRow,
       create: null,
@@ -261,6 +259,7 @@
     {
       name: "CAA",
       headers: ["Name", "Tag", "Value", "TTL"],
+      locked: false,
       filter: isCaaRecord,
       render: CaaRow,
       create: CaaCreate,
@@ -287,12 +286,14 @@
     },
   ];
 
+  recordTypes[1].empty = null;
+
   function toAny(a: any) {
     return a as any;
   }
 </script>
 
-{#if soaRecords.length >= 1}
+{#if domainTitle}
   <div class="title-row">
     <h1>Domains / {domainTitle}</h1>
     <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
@@ -321,7 +322,7 @@
       {/if}
     </svelte:fragment>
 
-    <svelte:component this={recordType.render} slot="row" let:value {value} />
+    <svelte:component this={recordType.render} slot="row" let:value {value} locked={recordType.locked} />
   </DomainTableView>
 {/each}
 

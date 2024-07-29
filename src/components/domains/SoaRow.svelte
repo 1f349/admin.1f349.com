@@ -22,6 +22,7 @@
   };
 
   let editPopup: boolean = false;
+  export let locked: boolean = false;
 
   function save() {
     value.update(editItem);
@@ -36,14 +37,16 @@
   <td class="code-font">{value.data.Retry}</td>
   <td class="code-font">{value.data.Expire}</td>
   <td>
-    <ActionMenu
-      data={value}
-      edit={() => {
-        editItem = JSON.parse(JSON.stringify(value.data));
-        editPopup = true;
-      }}
-      remove={() => value.remove()}
-    />
+    {#if !locked}
+      <ActionMenu
+        data={value}
+        edit={() => {
+          editItem = JSON.parse(JSON.stringify(value.data));
+          editPopup = true;
+        }}
+        remove={() => value.remove()}
+      />
+    {/if}
 
     <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
       <div>Name</div>

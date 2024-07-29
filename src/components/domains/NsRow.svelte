@@ -17,6 +17,7 @@
   };
 
   let editPopup: boolean = false;
+  export let locked: boolean = false;
 
   function save() {
     value.update(editItem);
@@ -28,14 +29,16 @@
   <td class="code-font">{value.data.Ns}</td>
   <td class="code-font">{value.data.Hdr.Ttl}</td>
   <td>
-    <ActionMenu
-      data={value}
-      edit={() => {
-        editItem = JSON.parse(JSON.stringify(value.data));
-        editPopup = true;
-      }}
-      remove={() => value.remove()}
-    />
+    {#if !locked}
+      <ActionMenu
+        data={value}
+        edit={() => {
+          editItem = JSON.parse(JSON.stringify(value.data));
+          editPopup = true;
+        }}
+        remove={() => value.remove()}
+      />
+    {/if}
 
     <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
       <NsCreate bind:editItem editMode={true} />
