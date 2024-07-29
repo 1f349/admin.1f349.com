@@ -223,7 +223,7 @@
       convert: (t: TxtRecord): ApiRecordFormat => ({
         name: t.Hdr.Name,
         type: t.Hdr.Rrtype,
-        value: t.Txt,
+        value: t.Txt.join("\n"),
       }),
     },
     {
