@@ -6,7 +6,6 @@
     DnsTypeCNAME,
     DnsTypeMX,
     DnsTypeNS,
-    DnsTypeSOA,
     DnsTypeSRV,
     DnsTypeTXT,
     isARecord,
@@ -18,21 +17,20 @@
     isSoaRecord,
     isSrvRecord,
     isTxtRecord,
-    type ARecord,
-    type AaaaRecord,
-    type AllRecords,
+    type AValue,
+    type AaaaValue,
+    type AnyRecord,
+    type AnyValue,
     type ApiRecordFormat,
-    type CaaRecord,
-    type CnameRecord,
-    type MxRecord,
-    type NsRecord,
-    type SoaRecord,
-    type SrvRecord,
-    type TxtRecord,
-    type UnknownRecord,
+    type CaaValue,
+    type CnameValue,
+    type MxValue,
+    type NsValue,
+    type SoaValue,
+    type SrvValue,
+    type TxtValue,
   } from "../types/records";
   import {RestItem, RestTable} from "../utils/rest-table";
-  import PromiseLike from "../components/PromiseLike.svelte";
   import SoaRow from "../components/domains/SoaRow.svelte";
   import NsRow from "../components/domains/NsRow.svelte";
   import MxRow from "../components/domains/MxRow.svelte";
@@ -42,28 +40,26 @@
   import CaaRow from "../components/domains/CaaRow.svelte";
   import SrvRow from "../components/domains/SrvRow.svelte";
   import DomainTableView from "./DomainTableView.svelte";
-  import ActionPopup from "../components/ActionPopup.svelte";
   import NsCreate from "../components/create-domains/NsCreate.svelte";
   import MxCreate from "../components/create-domains/MxCreate.svelte";
   import ACreate from "../components/create-domains/ACreate.svelte";
   import CnameCreate from "../components/create-domains/CnameCreate.svelte";
   import CaaCreate from "../components/create-domains/CaaCreate.svelte";
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
-  import PromiseTable from "../components/PromiseTable.svelte";
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
-  const table = new RestTable<AllRecords>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AllRecords) => item.Hdr.Name);
+  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => item.name);
 
-  function rowOrdering<T extends UnknownRecord>(
-    rows: RestItem<AllRecords>[],
+  function rowOrdering<T extends AnyValue>(
+    rows: RestItem<AnyRecord>[],
     domain: string,
-    isTRecord: (t: UnknownRecord) => t is T,
-  ): RestItem<T>[] {
+    isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>,
+  ): RestItem<ApiRecordFormat<T>>[] {
     return rows
       .filter(x => isTRecord(x.data))
-      .filter(x => domainFilter(x.data.Hdr.Name, domain))
-      .sort((a, b) => a.data.Hdr.Name.localeCompare(b.data.Hdr.Name)) as unknown as RestItem<T>[];
+      .filter(x => domainFilter(x.data.name, domain))
+      .sort((a, b) => a.data.name.localeCompare(b.data.name)) as unknown as RestItem<ApiRecordFormat<T>>[];
   }
 
   function domainFilter(src: string, domain: string) {
@@ -91,7 +87,7 @@
   }
 
   let domainTitle: string = "";
-  $: (domainTitle = table.rows.length === 0 ? "Unknown" : getTitleDomain(table.rows[0].data.Hdr.Name)), $table;
+  $: (domainTitle = table.rows.length === 0 ? "Unknown" : getTitleDomain(table.rows[0].data.name)), $table;
   let zoneFileUrl: string;
   zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file` : "";
 
@@ -105,11 +101,6 @@
       create: null,
       save: null,
       empty: null,
-      convert: (t: SoaRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
-        value: "",
-      }),
     },
     {
       name: "NS",
@@ -118,19 +109,11 @@
       filter: isNsRecord,
       render: NsRow,
       create: NsCreate,
-      empty: (): NsRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeNS,
-          Class: 1,
-          Ttl: 0,
-        },
-        Ns: "",
-      }),
-      convert: (t: NsRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
-        value: t.Ns,
+      empty: (): ApiRecordFormat<NsValue> => ({
+        name: "",
+        type: DnsTypeNS,
+        ttl: null,
+        value: "",
       }),
     },
     {
@@ -140,22 +123,13 @@
       filter: isMxRecord,
       render: MxRow,
       create: MxCreate,
-      empty: (): MxRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeMX,
-          Class: 1,
-          Ttl: 0,
-        },
-        Mx: "",
-        Preference: 0,
-      }),
-      convert: (t: MxRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
+      empty: (): ApiRecordFormat<MxValue> => ({
+        name: "",
+        type: DnsTypeMX,
+        ttl: null,
         value: {
-          mx: t.Mx,
-          preference: t.Preference,
+          mx: "",
+          preference: 0,
         },
       }),
     },
@@ -163,23 +137,14 @@
       name: "A/AAAA",
       headers: ["Hostname", "IP Address", "TTL"],
       locked: false,
-      filter: (t: UnknownRecord) => isARecord(t) || isAaaaRecord(t),
+      filter: (t: AnyRecord) => isARecord(t) || isAaaaRecord(t),
       render: ARow,
       create: ACreate,
-      empty: (): ARecord | AaaaRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: 0, // this is on purpose
-          Class: 1,
-          Ttl: 0,
-        },
-        A: "",
-        AAAA: "",
-      }),
-      convert: (t: ARecord | AaaaRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
-        value: isARecord(t) ? t.A : isAaaaRecord(t) ? t.AAAA : "",
+      empty: (): ApiRecordFormat<AValue | AaaaValue> => ({
+        name: "",
+        type: 0, // this is on purpose
+        ttl: null,
+        value: "",
       }),
     },
     {
@@ -189,19 +154,11 @@
       filter: isCnameRecord,
       render: CnameRow,
       create: CnameCreate,
-      empty: (): CnameRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeCNAME,
-          Class: 1,
-          Ttl: 0,
-        },
-        Target: "",
-      }),
-      convert: (t: CnameRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
-        value: t.Target,
+      empty: (): ApiRecordFormat<CnameValue> => ({
+        name: "",
+        type: DnsTypeCNAME,
+        ttl: null,
+        value: "",
       }),
     },
     {
@@ -211,19 +168,11 @@
       filter: isTxtRecord,
       render: TxtRow,
       create: TxtCreate,
-      empty: (): TxtRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeTXT,
-          Class: 1,
-          Ttl: 0,
-        },
-        Txt: [""],
-      }),
-      convert: (t: TxtRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
-        value: t.Txt.join("\n"),
+      empty: (): ApiRecordFormat<TxtValue> => ({
+        name: "",
+        type: DnsTypeTXT,
+        ttl: null,
+        value: "",
       }),
     },
     {
@@ -233,26 +182,15 @@
       filter: isSrvRecord,
       render: SrvRow,
       create: null,
-      empty: (): SrvRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeSRV,
-          Class: 1,
-          Ttl: 0,
-        },
-        Priority: 0,
-        Weight: 0,
-        Port: 0,
-        Target: "",
-      }),
-      convert: (t: SrvRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
+      empty: (): ApiRecordFormat<SrvValue> => ({
+        name: "",
+        type: DnsTypeSRV,
+        ttl: null,
         value: {
-          priority: t.Priority,
-          weight: t.Weight,
-          port: t.Port,
-          target: t.Target,
+          priority: 0,
+          weight: 0,
+          port: 0,
+          target: "",
         },
       }),
     },
@@ -263,24 +201,14 @@
       filter: isCaaRecord,
       render: CaaRow,
       create: CaaCreate,
-      empty: (): CaaRecord => ({
-        Hdr: {
-          Name: "",
-          Rrtype: DnsTypeCAA,
-          Class: 1,
-          Ttl: 0,
-        },
-        Flag: 0,
-        Tag: "",
-        Value: "",
-      }),
-      convert: (t: CaaRecord): ApiRecordFormat => ({
-        name: t.Hdr.Name,
-        type: t.Hdr.Rrtype,
+      empty: (): ApiRecordFormat<CaaValue> => ({
+        name: "",
+        type: DnsTypeCAA,
+        ttl: null,
         value: {
-          flag: t.Flag,
-          tag: t.Tag,
-          value: t.Value,
+          flag: 0,
+          tag: "",
+          value: "",
         },
       }),
     },
@@ -301,14 +229,7 @@
 {/if}
 
 {#each recordTypes as recordType}
-  <DomainTableView
-    recordName={recordType.name}
-    {table}
-    emptyRecord={recordType.empty}
-    convert={recordType.convert}
-    {rowOrdering}
-    isTRecord={recordType.filter}
-  >
+  <DomainTableView recordName={recordType.name} {table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
     <tr slot="headers">
       {#each recordType.headers as header}
         <th>{header}</th>
@@ -322,7 +243,7 @@
       {/if}
     </svelte:fragment>
 
-    <svelte:component this={recordType.render} slot="row" let:value {value} locked={recordType.locked} />
+    <svelte:component this={recordType.render} slot="row" let:value item={value} locked={recordType.locked} />
   </DomainTableView>
 {/each}
 

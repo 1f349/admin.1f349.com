@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type {NsRecord} from "../../types/records";
+  import type {ApiRecordFormat, NsValue} from "../../types/records";
 
-  export let editItem: NsRecord;
+  export let editItem: ApiRecordFormat<NsValue>;
   export let editMode: boolean;
 </script>
 
 <div>Name</div>
 {#if editMode}
-  <div class="code-font">{editItem.Hdr.Name}</div>
+  <div class="code-font">{editItem.name}</div>
 {:else}
-  <div><input type="text" class="code-font" bind:value={editItem.Hdr.Name} size={Math.max(20, editItem.Hdr.Name.length + 2)} /></div>
+  <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
 <div>Nameserver</div>
-<div><input type="text" class="code-font" bind:value={editItem.Ns} size={Math.max(20, editItem.Ns.length + 2)} /></div>
+<div><input type="text" class="code-font" bind:value={editItem.value} size={Math.max(20, editItem.value.length + 2)} /></div>

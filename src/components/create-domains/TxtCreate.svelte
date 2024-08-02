@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type {TxtRecord} from "../../types/records";
+  import type {ApiRecordFormat, TxtValue} from "../../types/records";
 
-  export let editItem: TxtRecord;
+  export let editItem: ApiRecordFormat<TxtValue>;
   export let editMode: boolean;
 
   function constrain(min: number, max: number, value: number) {
@@ -11,9 +11,9 @@
 
 <div>Name</div>
 {#if editMode}
-  <div class="code-font">{editItem.Hdr.Name}</div>
+  <div class="code-font">{editItem.name}</div>
 {:else}
-  <div><input type="text" class="code-font" bind:value={editItem.Hdr.Name} size={Math.max(20, editItem.Hdr.Name.length + 2)} /></div>
+  <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
 <div>Value</div>
-<div><input type="text" class="code-font" bind:value={editItem.Txt[0]} size={constrain(20, 100, editItem.Txt[0].length + 2)} /></div>
+<div><input type="text" class="code-font" bind:value={editItem.value} size={constrain(20, 100, editItem.value.length + 2)} /></div>

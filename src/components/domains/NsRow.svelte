@@ -1,42 +1,39 @@
 <script lang="ts">
-  import type {NsRecord} from "../../types/records";
+  import type {ApiRecordFormat, NsValue} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
   import NsCreate from "../create-domains/NsCreate.svelte";
 
-  export let value: RestItem<NsRecord>;
-  let editItem: NsRecord = {
-    Hdr: {
-      Name: "",
-      Rrtype: 0,
-      Class: 0,
-      Ttl: 0,
-    },
-    Ns: "",
+  export let item: RestItem<ApiRecordFormat<NsValue>>;
+  let editItem: ApiRecordFormat<NsValue> = {
+    name: item.data.name,
+    type: item.data.type,
+    ttl: item.data.ttl,
+    value: "",
   };
 
   let editPopup: boolean = false;
   export let locked: boolean = false;
 
   function save() {
-    value.update(editItem);
+    item.update(editItem);
   }
 </script>
 
 <tr>
-  <td class="code-font">{value.data.Hdr.Name}</td>
-  <td class="code-font">{value.data.Ns}</td>
-  <td class="code-font">{value.data.Hdr.Ttl}</td>
+  <td class="code-font">{item.data.name}</td>
+  <td class="code-font">{item.data.value}</td>
+  <td class="code-font">{item.data.ttl}</td>
   <td>
     {#if !locked}
       <ActionMenu
-        data={value}
+        data={item}
         edit={() => {
-          editItem = JSON.parse(JSON.stringify(value.data));
+          editItem = JSON.parse(JSON.stringify(item.data));
           editPopup = true;
         }}
-        remove={() => value.remove()}
+        remove={() => item.remove()}
       />
     {/if}
 

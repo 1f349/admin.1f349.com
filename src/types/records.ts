@@ -1,3 +1,5 @@
+import type {IPv4, IPv6} from "ipaddr.js";
+
 export const DnsTypeSOA = 6;
 export const DnsTypeNS = 2;
 export const DnsTypeMX = 15;
@@ -8,105 +10,86 @@ export const DnsTypeTXT = 16;
 export const DnsTypeSRV = 33;
 export const DnsTypeCAA = 257;
 
-export type AllRecords = SoaRecord | NsRecord | MxRecord | ARecord | AaaaRecord | CnameRecord | TxtRecord | SrvRecord | CaaRecord;
+export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | CnameValue | TxtValue | SrvValue | CaaValue;
+export type AnyRecord = ApiRecordFormat<AnyValue>;
 
-export interface ApiRecordFormat {
+export interface ApiRecordFormat<T> {
   name: string;
   type: number;
-  value: any;
+  ttl: number | null;
+  value: T;
 }
 
-export interface RecordHeader {
-  Name: string;
-  Rrtype: number;
-  Class: number;
-  Ttl: number;
+export interface SoaValue {
+  ns: string;
+  mbox: string;
+  serial: number;
+  refresh: number;
+  retry: number;
+  expire: number;
+  minttl: number;
 }
 
-export interface UnknownRecord {
-  Hdr: RecordHeader;
+export function isSoaRecord(x: AnyRecord): x is ApiRecordFormat<SoaValue> {
+  return x.type === DnsTypeSOA;
 }
 
-export interface SoaRecord extends UnknownRecord {
-  Ns: string;
-  Mbox: string;
-  Serial: number;
-  Refresh: number;
-  Retry: number;
-  Expire: number;
-  Minttl: number;
+export type NsValue = string;
+
+export function isNsRecord(x: AnyRecord): x is ApiRecordFormat<NsValue> {
+  return x.type === DnsTypeNS;
 }
 
-export function isSoaRecord(x: UnknownRecord): x is SoaRecord {
-  return x.Hdr.Rrtype === DnsTypeSOA;
+export interface MxValue {
+  preference: number;
+  mx: string;
 }
 
-export interface NsRecord extends UnknownRecord {
-  Ns: string;
+export function isMxRecord(x: AnyRecord): x is ApiRecordFormat<MxValue> {
+  return x.type === DnsTypeMX;
 }
 
-export function isNsRecord(x: UnknownRecord): x is NsRecord {
-  return x.Hdr.Rrtype === DnsTypeNS;
+export type AValue = string;
+
+export function isARecord(x: AnyRecord): x is ApiRecordFormat<AValue> {
+  return x.type === DnsTypeA;
 }
 
-export interface MxRecord extends UnknownRecord {
-  Preference: number;
-  Mx: string;
+export type AaaaValue = string;
+
+export function isAaaaRecord(x: AnyRecord): x is ApiRecordFormat<AaaaValue> {
+  return x.type === DnsTypeAAAA;
 }
 
-export function isMxRecord(x: UnknownRecord): x is MxRecord {
-  return x.Hdr.Rrtype === DnsTypeMX;
+export type CnameValue = string;
+
+export function isCnameRecord(x: AnyRecord): x is ApiRecordFormat<CnameValue> {
+  return x.type === DnsTypeCNAME;
 }
 
-export interface ARecord extends UnknownRecord {
-  A: string;
+export type TxtValue = string;
+
+export function isTxtRecord(x: AnyRecord): x is ApiRecordFormat<TxtValue> {
+  return x.type === DnsTypeTXT;
 }
 
-export function isARecord(x: UnknownRecord): x is ARecord {
-  return x.Hdr.Rrtype === DnsTypeA;
+export interface SrvValue {
+  priority: number;
+  weight: number;
+  port: number;
+  target: string;
 }
 
-export interface AaaaRecord extends UnknownRecord {
-  AAAA: string;
+export function isSrvRecord(x: AnyRecord): x is ApiRecordFormat<SrvValue> {
+  return x.type === DnsTypeSRV;
 }
 
-export function isAaaaRecord(x: UnknownRecord): x is AaaaRecord {
-  return x.Hdr.Rrtype === DnsTypeAAAA;
+export interface CaaValue {
+  flag: number;
+  tag: string;
+  value: string;
 }
 
-export interface CnameRecord extends UnknownRecord {
-  Target: string;
-}
-
-export function isCnameRecord(x: UnknownRecord): x is CnameRecord {
-  return x.Hdr.Rrtype === DnsTypeCNAME;
-}
-
-export interface TxtRecord extends UnknownRecord {
-  Txt: Array<string>;
-}
-
-export function isTxtRecord(x: UnknownRecord): x is TxtRecord {
-  return x.Hdr.Rrtype === DnsTypeTXT;
-}
-
-export interface SrvRecord extends UnknownRecord {
-  Priority: number;
-  Weight: number;
-  Port: number;
-  Target: string;
-}
-
-export function isSrvRecord(x: UnknownRecord): x is SrvRecord {
-  return x.Hdr.Rrtype === DnsTypeSRV;
-}
-
-export interface CaaRecord extends UnknownRecord {
-  Flag: number;
-  Tag: string;
-  Value: string;
-}
-
-export function isCaaRecord(x: UnknownRecord): x is CaaRecord {
-  return x.Hdr.Rrtype === DnsTypeCAA;
+export function isCaaRecord(x: AnyRecord): x is ApiRecordFormat<CaaValue> {
+  return x.type === DnsTypeCAA;
 }

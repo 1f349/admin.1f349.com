@@ -1,44 +1,40 @@
 <script lang="ts">
-  import {isAaaaRecord, isARecord, type AaaaRecord, type ARecord} from "../../types/records";
+  import {isAaaaRecord, isARecord, type AaaaValue, type ApiRecordFormat, type AValue} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
   import ACreate from "../create-domains/ACreate.svelte";
 
-  export let value: RestItem<ARecord | AaaaRecord>;
-  let editItem: ARecord & AaaaRecord = {
-    Hdr: {
-      Name: "",
-      Rrtype: 0,
-      Class: 0,
-      Ttl: 0,
-    },
-    A: "",
-    AAAA: "",
+  export let item: RestItem<ApiRecordFormat<AValue | AaaaValue>>;
+  let editItem: ApiRecordFormat<AValue & AaaaValue> = {
+    name: item.data.name,
+    type: item.data.type,
+    ttl: item.data.ttl,
+    value: "",
   };
 
   let editPopup: boolean = false;
 
   function save() {
-    value.update(editItem);
+    item.update(editItem);
   }
 </script>
 
 <tr>
-  <td class="code-font">{value.data.Hdr.Name}</td>
-  <td class="code-font">{isARecord(value.data) ? value.data.A : isAaaaRecord(value.data) ? value.data.AAAA : ""}</td>
-  <td class="code-font">{value.data.Hdr.Ttl}</td>
+  <td class="code-font">{item.data.name}</td>
+  <td class="code-font">{item.data.value}</td>
+  <td class="code-font">{item.data.ttl}</td>
   <td>
     <ActionMenu
-      data={value}
+      data={item}
       edit={() => {
-        editItem = JSON.parse(JSON.stringify(value.data));
+        editItem = JSON.parse(JSON.stringify(item.data));
         editPopup = true;
       }}
-      remove={() => value.remove()}
+      remove={() => item.remove()}
     />
 
-    <ActionPopup name="Edit {isARecord(value.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
+    <ActionPopup name="Edit {isARecord(item.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
       <ACreate bind:editItem editMode={true} />
     </ActionPopup>
   </td>
