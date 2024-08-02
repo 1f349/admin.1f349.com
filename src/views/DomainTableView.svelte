@@ -50,7 +50,7 @@
   {/if}
 </div>
 
-<PromiseTable value={table}>
+<PromiseTable value={$table}>
   <slot name="headers" slot="headers" />
 
   <svelte:fragment slot="rows" let:value>
