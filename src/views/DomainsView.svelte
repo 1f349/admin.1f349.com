@@ -47,7 +47,7 @@
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
-  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => item.name);
+  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => item.id);
 
   domainOption.subscribe(x => {
     table.changeUrl(apiAzalea + "/domains/" + x + "/records");
