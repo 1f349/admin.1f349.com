@@ -232,7 +232,7 @@
 {/if}
 
 {#each recordTypes as recordType}
-  <DomainTableView recordName={recordType.name} {table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
+  <DomainTableView recordName={recordType.name} table={$table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
     <tr slot="headers">
       {#each recordType.headers as header}
         <th>{header}</th>
