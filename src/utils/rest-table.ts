@@ -16,6 +16,10 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
     this.rows = [];
   }
 
+  changeUrl(apiUrl: string) {
+    this.apiUrl = apiUrl;
+  }
+
   updateSubs() {
     this.subs.forEach(x => x(this));
   }

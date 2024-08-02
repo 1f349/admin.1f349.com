@@ -1,7 +1,6 @@
 <script lang="ts">
   import {domainOption} from "../stores/domain-option";
   import {
-    DnsTypeA,
     DnsTypeCAA,
     DnsTypeCNAME,
     DnsTypeMX,
@@ -26,7 +25,6 @@
     type CnameValue,
     type MxValue,
     type NsValue,
-    type SoaValue,
     type SrvValue,
     type TxtValue,
   } from "../types/records";
@@ -50,6 +48,11 @@
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
   const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => item.name);
+
+  domainOption.subscribe(x => {
+    table.changeUrl(apiAzalea + "/domains/" + x + "/records");
+    table.reload();
+  });
 
   function rowOrdering<T extends AnyValue>(
     rows: RestItem<AnyRecord>[],
