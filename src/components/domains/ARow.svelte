@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {isAaaaRecord, isARecord, type AaaaValue, type ApiRecordFormat, type AValue} from "../../types/records";
+  import {isARecord, type AaaaValue, type ApiRecordFormat, type AValue} from "../../types/records";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
@@ -14,9 +14,17 @@
   };
 
   let editPopup: boolean = false;
+  let errorMessage: string | null = null;
 
   function save() {
-    item.update(editItem);
+    item
+      .update(editItem)
+      .then(() => {
+        editPopup = false;
+      })
+      .catch(x => {
+        errorMessage = x;
+      });
   }
 </script>
 
@@ -36,6 +44,10 @@
 
     <ActionPopup name="Edit {isARecord(item.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
       <ACreate bind:editItem editMode={true} />
+
+      {#if errorMessage}
+        <div>{errorMessage}</div>
+      {/if}
     </ActionPopup>
   </td>
 </tr>

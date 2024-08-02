@@ -15,9 +15,17 @@
 
   let editPopup: boolean = false;
   export let locked: boolean = false;
+  let errorMessage: string | null = null;
 
   function save() {
-    item.update(editItem);
+    item
+      .update(editItem)
+      .then(() => {
+        editPopup = false;
+      })
+      .catch(x => {
+        errorMessage = x;
+      });
   }
 </script>
 
@@ -39,6 +47,10 @@
 
     <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
       <NsCreate bind:editItem editMode={true} />
+
+      {#if errorMessage}
+        <div>{errorMessage}</div>
+      {/if}
     </ActionPopup>
   </td>
 </tr>

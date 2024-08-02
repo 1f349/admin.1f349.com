@@ -22,9 +22,17 @@
 
   let editPopup: boolean = false;
   export let locked: boolean = false;
+  let errorMessage: string | null = null;
 
   function save() {
-    item.update(editItem);
+    item
+      .update(editItem)
+      .then(() => {
+        editPopup = false;
+      })
+      .catch(x => {
+        errorMessage = x;
+      });
   }
 
   function numLength(n: number) {
@@ -64,6 +72,10 @@
       <div><input type="number" class="code-font" bind:value={editItem.value.retry} size={Math.max(20, numLength(editItem.value.retry))} /></div>
       <div>Expire</div>
       <div><input type="number" class="code-font" bind:value={editItem.value.expire} size={Math.max(20, numLength(editItem.value.expire))} /></div>
+
+      {#if errorMessage}
+        <div>{errorMessage}</div>
+      {/if}
     </ActionPopup>
   </td>
 </tr>

@@ -18,9 +18,17 @@
   };
 
   let editPopup: boolean = false;
+  let errorMessage: string | null = null;
 
   function save() {
-    item.update(editItem);
+    item
+      .update(editItem)
+      .then(() => {
+        editPopup = false;
+      })
+      .catch(x => {
+        errorMessage = x;
+      });
   }
 </script>
 
@@ -41,6 +49,10 @@
 
     <ActionPopup name="Edit CAA Record" bind:show={editPopup} on:save={save}>
       <CaaCreate bind:editItem editMode={true} />
+
+      {#if errorMessage}
+        <div>{errorMessage}</div>
+      {/if}
     </ActionPopup>
   </td>
 </tr>

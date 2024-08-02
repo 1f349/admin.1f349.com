@@ -20,10 +20,18 @@
 
   let createItem: ApiRecordFormat<T> | null = emptyRecord == null ? null : emptyRecord();
   let createPopup: boolean = false;
+  let errorMessage: string | null = null;
 
   function createRecord() {
     if (createItem == null) return;
-    table.addItem(createItem);
+    table
+      .addItem(createItem)
+      .then(() => {
+        createPopup = false;
+      })
+      .catch(x => {
+        errorMessage = x;
+      });
   }
 </script>
 
@@ -34,6 +42,10 @@
 
     <ActionPopup name="Create {recordName} Record" bind:show={createPopup} on:save={createRecord}>
       <slot name="create" editItem={createItem} editMode={false} />
+
+      {#if errorMessage}
+        <div>{errorMessage}</div>
+      {/if}
     </ActionPopup>
   {/if}
 </div>
@@ -51,7 +63,7 @@
         </tr>
 
         <tr slot="error" let:reason class="empty-row">
-          <td colspan="100">Error loading row for {item.data.Hdr.Name}: {reason}</td>
+          <td colspan="100">Error loading row for {item.data.name} ({item.data.id}): {reason}</td>
         </tr>
 
         <slot name="row" slot="ok" let:value {value} />
