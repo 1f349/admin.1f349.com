@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/1f349/mjwt"
 	"github.com/1f349/mjwt/auth"
-	"github.com/1f349/mjwt/claims"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
@@ -20,18 +18,19 @@ import (
 
 func main() {
 	log.Println("Starting test server")
-	signer, err := mjwt.NewMJwtSignerFromFileOrCreate("Test SSO Service", "private.key.local", rand.Reader, 2048)
+	parentKid := uuid.NewString()
+	signer, err := mjwt.NewIssuer("Test SSO Service", parentKid, jwt.SigningMethodRS512)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	go ssoServer(signer)
-	go apiServer(signer)
+	go ssoServer(signer, parentKid)
+	go apiServer(signer.KeyStore())
 	done := make(chan struct{})
 	<-done
 }
 
-func ssoServer(signer mjwt.Signer) {
+func ssoServer(signer *mjwt.Issuer, parentKid string) {
 	r := http.NewServeMux()
 	r.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		// request url: http://localhost:9090/authorize?response_type=token&redirect_uri=http://localhost:5173/&scope=openid%20profile%20name&client_id=b5a9a8df-827c-4925-b1c1-1940abcf356b
@@ -49,17 +48,18 @@ func ssoServer(signer mjwt.Signer) {
 			panic("invalid client_id")
 		}
 
-		ps := claims.NewPermStorage()
+		ps := auth.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
 		ps.Set("azalea:domains")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
-		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", uuid.NewString(), jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
+		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", parentKid, jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
 			Perms: ps,
 		})
 		if err != nil {
 			http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
+			log.Println("Error:", err)
 			return
 		}
 		v := url.Values{}
@@ -103,7 +103,7 @@ var serveApiCors = cors.New(cors.Options{
 	AllowCredentials: true,
 })
 
-func apiServer(verify mjwt.Verifier) {
+func apiServer(verify *mjwt.KeyStore) {
 	subdomains := []string{
 		"",
 		"www.",
@@ -115,7 +115,7 @@ func apiServer(verify mjwt.Verifier) {
 	}
 
 	r := http.NewServeMux()
-	r.Handle("/v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("GET /v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
 		for _, i := range subdomains {
 			m = append(m, map[string]any{
@@ -135,7 +135,17 @@ func apiServer(verify mjwt.Verifier) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("POST /v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		j := make(map[string]any)
+		json.NewDecoder(req.Body).Decode(&j)
+		keys:=  b.Claims.Perms.Search("domain:owns=*")
+
+		strings.Split() j.src
+		fmt.Printf("%#v\n", j)
+		fmt.Printf("%#v\n", b.Claims.Perms.Dump())
+		b.Claims.Perms.
+	}))
+	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
 		for _, i := range subdomains {
 			m = append(m, map[string]any{
@@ -157,7 +167,7 @@ func apiServer(verify mjwt.Verifier) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
 		for i := 0; i < len(subdomains); i++ {
 			u := subdomains[i] + "example.com"
@@ -191,7 +201,7 @@ func apiServer(verify mjwt.Verifier) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/azalea/domains", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("/v1/azalea/domains", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
 			ID   int64  `json:"id"`
 			Name string `json:"name"`
@@ -201,7 +211,7 @@ func apiServer(verify mjwt.Verifier) {
 			{ID: 2, Name: "example.org."},
 		})
 	}))
-	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
     "Hdr": {
@@ -261,7 +271,7 @@ func apiServer(verify mjwt.Verifier) {
   }
 ]`)
 	}))
-	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
     "Hdr": {
@@ -331,7 +341,7 @@ func apiServer(verify mjwt.Verifier) {
   }
 ]`)
 	}))
-	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request) {
+	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		if req.Method == http.MethodPost {
 			defer req.Body.Close()
 			dec := json.NewDecoder(req.Body)
@@ -372,7 +382,7 @@ func apiServer(verify mjwt.Verifier) {
 	log.Println("[API Server]", http.ListenAndServe(":9090", r))
 }
 
-func hasPerm(verify mjwt.Verifier, perm string, next func(rw http.ResponseWriter, req *http.Request)) http.Handler {
+func hasPerm(verify *mjwt.KeyStore, perm string, next func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims])) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		a := req.Header.Get("Authorization")
 		if !strings.HasPrefix(a, "Bearer ") {
@@ -385,10 +395,10 @@ func hasPerm(verify mjwt.Verifier, perm string, next func(rw http.ResponseWriter
 			log.Println("Invalid token:", err)
 			return
 		}
-		if !b.Claims.Perms.Has("violet:route") {
+		if !b.Claims.Perms.Has(perm) {
 			http.Error(rw, "Missing permission", http.StatusForbidden)
 			return
 		}
-		next(rw, req)
+		next(rw, req, b)
 	})
 }

@@ -18,8 +18,8 @@
 
   let table = new TargetTable<T>(apiUrl, (item: T) => "");
 
-  export function createItem(t: T) {
-    table.addItem(t);
+  export function createItem(t: T): Promise<void> {
+    return table.addItem(t);
   }
 
   function rowOrdering(rows: RestItem<T>[], domain: string): RestItem<T>[] {

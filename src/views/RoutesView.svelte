@@ -15,9 +15,13 @@
     active: false,
   };
   let createPopup: boolean = false;
+  let createErrorMessage = "";
 
   function createRoute() {
-    targetManagement.createItem(createItem);
+    createErrorMessage = "";
+    targetManagement.createItem(createItem).catch(x => {
+      createErrorMessage = x;
+    });
   }
 </script>
 
@@ -34,6 +38,9 @@
     <div><Flags bind:value={createItem.flags} editable keys={routeKeys} /></div>
     <div>Active</div>
     <div><input type="checkbox" bind:checked={createItem.active} /></div>
+    {#if createErrorMessage}
+      <div>{createErrorMessage}</div>
+    {/if}
   </ActionPopup>
 </div>
 
