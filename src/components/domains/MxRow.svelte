@@ -8,7 +8,6 @@
 
   export let item: RestItem<ApiRecordFormat<MxValue>>;
   let editItem: ApiRecordFormat<MxValue> = {
-    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,

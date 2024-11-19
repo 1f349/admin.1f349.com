@@ -8,7 +8,6 @@
 
   export let item: RestItem<ApiRecordFormat<CaaValue>>;
   let editItem: ApiRecordFormat<CaaValue> = {
-    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,

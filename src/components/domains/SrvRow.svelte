@@ -8,7 +8,6 @@
 
   export let item: RestItem<ApiRecordFormat<SrvValue>>;
   let editItem: ApiRecordFormat<SrvValue> = {
-    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,

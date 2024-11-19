@@ -9,7 +9,6 @@
 
   export let item: RestItem<ApiRecordFormat<TxtValue>>;
   let editItem: ApiRecordFormat<TxtValue> = {
-    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,

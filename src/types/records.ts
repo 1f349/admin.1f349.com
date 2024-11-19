@@ -12,7 +12,7 @@ export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | Cname
 export type AnyRecord = ApiRecordFormat<AnyValue>;
 
 export interface ApiRecordFormat<T> {
-  id: number;
+  id?: number;
   name: string;
   type: number;
   ttl: number | null;

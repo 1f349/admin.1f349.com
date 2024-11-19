@@ -6,7 +6,6 @@
 
   export let item: RestItem<ApiRecordFormat<SoaValue>>;
   let editItem: ApiRecordFormat<SoaValue> = {
-    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,
