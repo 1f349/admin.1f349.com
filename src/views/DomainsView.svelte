@@ -112,7 +112,6 @@
       render: NsRow,
       create: NsCreate,
       empty: (): ApiRecordFormat<NsValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeNS,
         ttl: null,
@@ -127,7 +126,6 @@
       render: MxRow,
       create: MxCreate,
       empty: (): ApiRecordFormat<MxValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeMX,
         ttl: null,
@@ -145,7 +143,6 @@
       render: ARow,
       create: ACreate,
       empty: (): ApiRecordFormat<AValue | AaaaValue> => ({
-        id: 0,
         name: "",
         type: 0, // this is on purpose
         ttl: null,
@@ -160,7 +157,6 @@
       render: CnameRow,
       create: CnameCreate,
       empty: (): ApiRecordFormat<CnameValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeCNAME,
         ttl: null,
@@ -175,7 +171,6 @@
       render: TxtRow,
       create: TxtCreate,
       empty: (): ApiRecordFormat<TxtValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeTXT,
         ttl: null,
@@ -190,7 +185,6 @@
       render: SrvRow,
       create: null,
       empty: (): ApiRecordFormat<SrvValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeSRV,
         ttl: null,
@@ -210,7 +204,6 @@
       render: CaaRow,
       create: CaaCreate,
       empty: (): ApiRecordFormat<CaaValue> => ({
-        id: 0,
         name: "",
         type: DnsTypeCAA,
         ttl: null,
