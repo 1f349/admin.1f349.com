@@ -8,7 +8,6 @@ export function dnsFqdn(domain: string): string {
 
 export function dnsSubdomain(value: string): string {
   let baseDomain = dnsFqdn(get(domainOption));
-  console.log(value, baseDomain, value == baseDomain);
 
   if (value == baseDomain) value = "";
   else if (value.endsWith("." + baseDomain)) value = value.substring(0, value.length - baseDomain.length - 1);

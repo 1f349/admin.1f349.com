@@ -19,7 +19,6 @@
       }
     } catch {
       editItem.type = 0;
-      console.error("Invalid IP address:", value);
     }
   }
 </script>
@@ -37,4 +36,6 @@
   <div>IP address is IPv4</div>
 {:else if editItem.type === DnsTypeAAAA}
   <div>IP address is IPv6</div>
+{:else}
+  <div>Invalid IP address</div>
 {/if}
