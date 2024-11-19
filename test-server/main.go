@@ -14,6 +14,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
+	"golang.org/x/net/publicsuffix"
 )
 
 func main() {
@@ -137,13 +138,23 @@ func apiServer(verify *mjwt.KeyStore) {
 	}))
 	r.Handle("POST /v1/violet/route", hasPerm(verify, "violet:route", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		j := make(map[string]any)
-		json.NewDecoder(req.Body).Decode(&j)
-		keys:=  b.Claims.Perms.Search("domain:owns=*")
+		err := json.NewDecoder(req.Body).Decode(&j)
+		if err != nil {
+			http.Error(rw, "Failed to parse JSON", http.StatusBadRequest)
+			return
+		}
 
-		strings.Split() j.src
-		fmt.Printf("%#v\n", j)
-		fmt.Printf("%#v\n", b.Claims.Perms.Dump())
-		b.Claims.Perms.
+		etld, err := publicsuffix.EffectiveTLDPlusOne(j["src"].(string))
+		if err != nil {
+			http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		if !b.Claims.Perms.Has("domain:owns=" + etld) {
+			http.Error(rw, "User does not own this domain", http.StatusBadRequest)
+			return
+		}
+
+		fmt.Printf("Would create database row: %#v\n", j)
 	}))
 	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
@@ -201,7 +212,7 @@ func apiServer(verify *mjwt.KeyStore) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/azalea/domains", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/azalea/domains", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
 			ID   int64  `json:"id"`
 			Name string `json:"name"`
@@ -211,134 +222,105 @@ func apiServer(verify *mjwt.KeyStore) {
 			{ID: 2, Name: "example.org."},
 		})
 	}))
-	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
-    "Hdr": {
-      "Name": "example.com.",
-      "Rrtype": 6,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns1.example.com.",
-    "Mbox": "hostmaster.example.com.",
-    "Serial": 2024062001,
-    "Refresh": 7200,
-    "Retry": 1800,
-    "Expire": 1209600,
-    "Minttl": 300
+		"id": -1,
+		"name": "example.com.",
+		"type": 6,
+		"ttl": 300,
+		"value": {
+			"ns": "ns1.example.com.",
+			"mbox": "hostmaster.example.com.",
+			"serial": 2024111901,
+			"refresh": 7200,
+			"retry": 1800,
+			"expire": 1209600,
+			"minttl": 300
+		}
   },
   {
-    "Hdr": {
-      "Name": "example.com.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns1.example.com."
+		"id": -2,
+		"name": "example.com.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns1.example.com."
   },
   {
-    "Hdr": {
-      "Name": "example.com.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns2.example.com."
+		"id": -2,
+		"name": "example.com.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns2.example.com."
   },
   {
-    "Hdr": {
-      "Name": "example.com.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns3.example.com."
+		"id": -2,
+		"name": "example.com.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns3.example.com."
   },
   {
-    "Hdr": {
-      "Name": "ns1.example.com.",
-      "Rrtype": 1,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "A": "10.54.0.1"
+		"id": 1,
+		"name": "ns1.example.com.",
+		"type": 1,
+		"ttl": 300,
+		"value": "10.20.0.1"
   }
 ]`)
 	}))
-	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "domains:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
-  {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 6,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns1.example.com.",
-    "Mbox": "hostmaster.example.com.",
-    "Serial": 2024062001,
-    "Refresh": 7200,
-    "Retry": 1800,
-    "Expire": 1209600,
-    "Minttl": 300
+	{
+		"id": -1,
+		"name": "example.org.",
+		"type": 6,
+		"ttl": 300,
+		"value": {
+			"ns": "ns1.example.com.",
+			"mbox": "hostmaster.example.com.",
+			"serial": 2024062001,
+			"refresh": 7200,
+			"retry": 1800,
+			"expire": 1209600,
+			"minttl": 300
+		}
   },
   {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns1.example.com."
+		"id": -2,
+		"name": "example.org.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns1.example.com."
   },
   {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns2.example.com."
+		"id": -2,
+		"name": "example.org.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns2.example.com."
   },
   {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 2,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "Ns": "ns3.example.com."
+		"id": -2,
+		"name": "example.org.",
+		"type": 2,
+		"ttl": 300,
+		"value": "ns3.example.com."
   },
   {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 1,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "A": "10.36.0.1"
+		"id": 1,
+		"name": "example.org.",
+		"type": 1,
+		"ttl": 300,
+		"value": "10.36.0.1"
   },
-  {
-    "Hdr": {
-      "Name": "example.org.",
-      "Rrtype": 28,
-      "Class": 1,
-      "Ttl": 300,
-      "Rdlength": 0
-    },
-    "AAAA": "2001:db8::15"
-  }
+	{
+		"id": 2,
+		"name": "example.org.",
+		"type": 28,
+		"ttl": 300,
+		"value": "2001:db8::15"
+	}
 ]`)
 	}))
 	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {

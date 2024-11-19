@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {ApiRecordFormat, TxtValue} from "../../types/records";
+  import {dnsSubdomain} from "../../utils/dns-subdomain";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
@@ -8,6 +9,7 @@
 
   export let item: RestItem<ApiRecordFormat<TxtValue>>;
   let editItem: ApiRecordFormat<TxtValue> = {
+    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,
@@ -30,7 +32,7 @@
 </script>
 
 <tr>
-  <td class="code-font">{item.data.name}</td>
+  <td class="code-font">{dnsSubdomain(item.data.name)}</td>
   <TdCutOff class="code-font">{item.data.value}</TdCutOff>
   <td class="code-font">{item.data.ttl}</td>
   <td>

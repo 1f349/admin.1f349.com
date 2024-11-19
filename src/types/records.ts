@@ -1,5 +1,3 @@
-import type {IPv4, IPv6} from "ipaddr.js";
-
 export const DnsTypeSOA = 6;
 export const DnsTypeNS = 2;
 export const DnsTypeMX = 15;
@@ -14,6 +12,7 @@ export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | Cname
 export type AnyRecord = ApiRecordFormat<AnyValue>;
 
 export interface ApiRecordFormat<T> {
+  id: number;
   name: string;
   type: number;
   ttl: number | null;

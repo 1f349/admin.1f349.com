@@ -1,27 +1,56 @@
 <script lang="ts">
+  import {onMount} from "svelte";
   import ActionPopup from "../components/ActionPopup.svelte";
   import Flags from "../components/Flags.svelte";
   import RedirectCode from "../components/RedirectCode.svelte";
   import RedirectRow from "../components/RedirectRow.svelte";
   import {redirectKeys, type Redirect} from "../types/target";
+  import {tempClear, tempGet, tempSave} from "../utils/temp-saving";
   import TargetManagementView from "./TargetManagementView.svelte";
+  import Redirect from "../icons/Redirect.svelte";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
   let targetManagement: TargetManagementView<Redirect>;
-  let createItem: Redirect = {
-    src: "",
-    dst: "",
-    flags: 0,
-    code: 0,
-    active: false,
-  };
-
+  let createItem: Redirect = defaultCreateItem();
   let createPopup: boolean = false;
+  let createErrorMessage = "";
+
+  function defaultCreateItem(): Redirect {
+    return {
+      src: "",
+      dst: "",
+      flags: 0,
+      code: 0,
+      active: false,
+    };
+  }
+
+  const createItemStore: string = "redirects-view-create-item";
 
   function createRedirect() {
-    targetManagement.createItem(createItem);
+    createErrorMessage = "";
+    tempSave(createItemStore, createItem);
+    targetManagement
+      .createItem(createItem)
+      .then(() => {
+        createPopup = false;
+        createItem = defaultCreateItem();
+        tempClear(createItemStore);
+      })
+      .catch(x => {
+        createErrorMessage = x;
+      });
   }
+
+  onMount(() => {
+    let start = tempGet<Redirect>(createItemStore);
+    if (start != null) {
+      createPopup = true;
+      createErrorMessage = "You have been logged in";
+      createItem = start;
+    }
+  });
 </script>
 
 <div class="row">

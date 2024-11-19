@@ -44,10 +44,11 @@
   import CnameCreate from "../components/create-domains/CnameCreate.svelte";
   import CaaCreate from "../components/create-domains/CaaCreate.svelte";
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
+  import {dnsFqdn} from "../utils/dns-subdomain";
 
   const apiAzalea = import.meta.env.VITE_API_AZALEA;
 
-  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => item.id);
+  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => `${item.id}`);
 
   domainOption.subscribe(x => {
     table.changeUrl(apiAzalea + "/domains/" + x + "/records");
@@ -66,7 +67,7 @@
   }
 
   function domainFilter(src: string, domain: string) {
-    domain = fqdn(domain);
+    domain = dnsFqdn(domain);
     if (domain == "*") return true;
     let n = src.indexOf("/");
     if (n == -1) n = src.length;
@@ -84,13 +85,11 @@
     return name;
   }
 
-  function fqdn(domain: string): string {
-    if (domain.endsWith(".")) return domain;
-    return domain + ".";
-  }
-
   let domainTitle: string = "";
-  $: (domainTitle = table.rows.length === 0 ? "Unknown" : getTitleDomain(table.rows[0].data.name)), $table;
+  $: try {
+    console.log("a:", table.rows[0].data.name);
+  } catch {}
+  $: (domainTitle = table.rows.length === 0 ? "Unknown" : (getTitleDomain(table.rows[0].data.name) ?? "")), $table;
   let zoneFileUrl: string;
   zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file` : "";
 
@@ -113,6 +112,7 @@
       render: NsRow,
       create: NsCreate,
       empty: (): ApiRecordFormat<NsValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeNS,
         ttl: null,
@@ -127,6 +127,7 @@
       render: MxRow,
       create: MxCreate,
       empty: (): ApiRecordFormat<MxValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeMX,
         ttl: null,
@@ -144,6 +145,7 @@
       render: ARow,
       create: ACreate,
       empty: (): ApiRecordFormat<AValue | AaaaValue> => ({
+        id: 0,
         name: "",
         type: 0, // this is on purpose
         ttl: null,
@@ -158,6 +160,7 @@
       render: CnameRow,
       create: CnameCreate,
       empty: (): ApiRecordFormat<CnameValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeCNAME,
         ttl: null,
@@ -172,6 +175,7 @@
       render: TxtRow,
       create: TxtCreate,
       empty: (): ApiRecordFormat<TxtValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeTXT,
         ttl: null,
@@ -186,6 +190,7 @@
       render: SrvRow,
       create: null,
       empty: (): ApiRecordFormat<SrvValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeSRV,
         ttl: null,
@@ -205,6 +210,7 @@
       render: CaaRow,
       create: CaaCreate,
       empty: (): ApiRecordFormat<CaaValue> => ({
+        id: 0,
         name: "",
         type: DnsTypeCAA,
         ttl: null,

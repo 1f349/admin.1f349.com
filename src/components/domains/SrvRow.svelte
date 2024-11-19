@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {ApiRecordFormat, SrvValue} from "../../types/records";
+  import {dnsSubdomain} from "../../utils/dns-subdomain";
   import type {RestItem} from "../../utils/rest-table";
   import ActionMenu from "../ActionMenu.svelte";
   import ActionPopup from "../ActionPopup.svelte";
@@ -7,6 +8,7 @@
 
   export let item: RestItem<ApiRecordFormat<SrvValue>>;
   let editItem: ApiRecordFormat<SrvValue> = {
+    id: 0,
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,
@@ -34,7 +36,7 @@
 </script>
 
 <tr>
-  <td class="code-font">{item.data.name}</td>
+  <td class="code-font">{dnsSubdomain(item.data.name)}</td>
   <td class="code-font">{item.data.value.priority}</td>
   <td class="code-font">{item.data.value.weight}</td>
   <td class="code-font">{item.data.value.port}</td>

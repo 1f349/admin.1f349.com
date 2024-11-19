@@ -4,25 +4,50 @@
   import TargetManagementView from "./TargetManagementView.svelte";
   import {routeKeys, type Route} from "../types/target";
   import Flags from "../components/Flags.svelte";
+  import {tempClear, tempGet, tempSave} from "../utils/temp-saving";
+  import {onMount} from "svelte";
 
   const apiViolet = import.meta.env.VITE_API_VIOLET;
 
   let targetManagement: TargetManagementView<Route>;
-  let createItem: Route = {
-    src: "",
-    dst: "",
-    flags: 0,
-    active: false,
-  };
+  let createItem: Route = defaultCreateItem();
   let createPopup: boolean = false;
   let createErrorMessage = "";
 
+  function defaultCreateItem(): Route {
+    return {
+      src: "",
+      dst: "",
+      flags: 0,
+      active: false,
+    };
+  }
+
+  const createItemStore: string = "routes-view-create-item";
+
   function createRoute() {
     createErrorMessage = "";
-    targetManagement.createItem(createItem).catch(x => {
-      createErrorMessage = x;
-    });
+    tempSave(createItemStore, createItem);
+    targetManagement
+      .createItem(createItem)
+      .then(() => {
+        createPopup = false;
+        createItem = defaultCreateItem();
+        tempClear(createItemStore);
+      })
+      .catch(x => {
+        createErrorMessage = x;
+      });
   }
+
+  onMount(() => {
+    let start = tempGet<Route>(createItemStore);
+    if (start != null) {
+      createPopup = true;
+      createErrorMessage = "You have been logged in";
+      createItem = start;
+    }
+  });
 </script>
 
 <div class="row">
