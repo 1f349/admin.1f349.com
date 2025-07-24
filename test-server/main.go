@@ -52,7 +52,7 @@ func ssoServer(signer *mjwt.Issuer, parentKid string) {
 		ps := auth.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
-		ps.Set("azalea:domains")
+		ps.Set("verbena:domains")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
 		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", parentKid, jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
@@ -212,7 +212,7 @@ func apiServer(verify *mjwt.KeyStore) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/azalea/domains", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/domains", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
 			ID   int64  `json:"id"`
 			Name string `json:"name"`
@@ -222,10 +222,10 @@ func apiServer(verify *mjwt.KeyStore) {
 			{ID: 2, Name: "example.org."},
 		})
 	}))
-	r.Handle("/v1/azalea/domains/example.com/records", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/domains/1/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
-		"id": -1,
+		"id": 1,
 		"name": "example.com.",
 		"type": 6,
 		"ttl": 300,
@@ -269,10 +269,10 @@ func apiServer(verify *mjwt.KeyStore) {
   }
 ]`)
 	}))
-	r.Handle("/v1/azalea/domains/example.org/records", hasPerm(verify, "azalea:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/domains/2/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
 	{
-		"id": -1,
+		"id": 2,
 		"name": "example.org.",
 		"type": 6,
 		"ttl": 300,

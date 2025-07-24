@@ -108,7 +108,7 @@
   } catch {}
   $: (domainTitle = table.rows.length === 0 ? "Unknown" : (getTitleDomain(table.rows[0].data.name) ?? "")), $table;
   let zoneFileUrl: string;
-  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_AZALEA}/domains/${domainTitle}/zone-file` : "";
+  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/domains/${domainTitle}/zone-file` : "";
 
   let recordTypes = [
     {

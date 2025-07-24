@@ -11,7 +11,7 @@ interface ImportMetaEnv {
   VITE_LOGOUT_PAGE: string;
   VITE_API_VIOLET: string;
   VITE_API_ORCHID: string;
-  VITE_API_AZALEA: string;
+  VITE_API_VERBENA: string;
   VITE_API_SITE_HOSTING: string;
 }
 

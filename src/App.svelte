@@ -33,7 +33,7 @@
     {name: "Domains", icon: DomainIcon, view: DomainsView},
     {name: "Sites", icon: SiteIcon, view: SitesView},
   ];
-  if (!import.meta.env.VITE_API_AZALEA) sidebarOptions = sidebarOptions.filter(x => x.name !== "Domains");
+  if (!import.meta.env.VITE_API_VERBENA) sidebarOptions = sidebarOptions.filter(x => x.name !== "Domains");
 
   let sidebarSelection: SidebarTab = findSidebarTab(localStorage.getItem("sidebar-tab") || "");
 
