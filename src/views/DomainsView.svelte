@@ -46,12 +46,12 @@
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
   import {dnsFqdn} from "../utils/dns-subdomain";
 
-  const apiAzalea = import.meta.env.VITE_API_AZALEA;
+  const apiVerbena = import.meta.env.VITE_API_VERBENA;
 
-  const table = new RestTable<AnyRecord>(apiAzalea + "/domains/" + $domainOption + "/records", (item: AnyRecord) => `${item.id}`);
+  const table = new RestTable<AnyRecord>(apiVerbena + "/domains/" + $domainOption + "/records", (item: AnyRecord) => `${item.id}`);
 
   domainOption.subscribe(x => {
-    table.changeUrl(apiAzalea + "/domains/" + x + "/records");
+    table.changeUrl(apiVerbena + "/domains/" + x + "/records");
     table.reload();
   });
 
