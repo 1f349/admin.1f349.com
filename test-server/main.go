@@ -212,7 +212,7 @@ func apiServer(verify *mjwt.KeyStore) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
-	r.Handle("/v1/verbena/domains", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/zones", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
 			ID   int64  `json:"id"`
 			Name string `json:"name"`
@@ -222,7 +222,7 @@ func apiServer(verify *mjwt.KeyStore) {
 			{ID: 2, Name: "example.org."},
 		})
 	}))
-	r.Handle("/v1/verbena/domains/1/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/zones/1/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
 		"id": 1,
@@ -269,7 +269,7 @@ func apiServer(verify *mjwt.KeyStore) {
   }
 ]`)
 	}))
-	r.Handle("/v1/verbena/domains/2/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/verbena/zones/2/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
 	{
 		"id": 2,

@@ -50,9 +50,9 @@
   import type {Zone} from "../types/zone";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
-  const apiAllZones = apiVerbena + "/domains";
+  const apiAllZones = apiVerbena + "/zones";
 
-  const table = new RestTable<AnyRecord>(apiVerbena + "/domains/0/records", (item: AnyRecord) => `${item.id}`);
+  const table = new RestTable<AnyRecord>(apiVerbena + "/zones/0/records", (item: AnyRecord) => `${item.id}`);
 
   let allZones: Zone[] = [];
 
@@ -70,7 +70,7 @@
 
   domainOption.subscribe(x => {
     let myZone = allZones.find(zone => zone.name === x);
-    table.changeUrl(apiVerbena + "/domains/" + (myZone ?? "0") + "/records");
+    table.changeUrl(apiVerbena + "/zones/" + (myZone ?? "0") + "/records");
     table.reload();
   });
 
@@ -108,7 +108,7 @@
   } catch {}
   $: (domainTitle = table.rows.length === 0 ? "Unknown" : (getTitleDomain(table.rows[0].data.name) ?? "")), $table;
   let zoneFileUrl: string;
-  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/domains/${domainTitle}/zone-file` : "";
+  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
 
   let recordTypes = [
     {
