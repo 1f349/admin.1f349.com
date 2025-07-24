@@ -45,13 +45,32 @@
   import CaaCreate from "../components/create-domains/CaaCreate.svelte";
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
   import {dnsFqdn} from "../utils/dns-subdomain";
+  import {onMount} from "svelte";
+  import {LOGIN} from "../utils/login";
+  import type {Zone} from "../types/zone";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
+  const apiAllZones = apiVerbena + "/domains";
 
-  const table = new RestTable<AnyRecord>(apiVerbena + "/domains/" + $domainOption + "/records", (item: AnyRecord) => `${item.id}`);
+  const table = new RestTable<AnyRecord>(apiVerbena + "/domains/0/records", (item: AnyRecord) => `${item.id}`);
+
+  let allZones: Zone[] = [];
+
+  async function fetchAllZones() {
+    let f = await LOGIN.clientRequest(apiAllZones, {method: "GET"});
+    if (f.status != 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    let rows = fJson as Zone[];
+    allZones = rows;
+  }
+
+  onMount(() => {
+    fetchAllZones();
+  });
 
   domainOption.subscribe(x => {
-    table.changeUrl(apiVerbena + "/domains/" + x + "/records");
+    let myZone = allZones.find(zone => zone.name === x);
+    table.changeUrl(apiVerbena + "/domains/" + (myZone ?? "0") + "/records");
     table.reload();
   });
 
