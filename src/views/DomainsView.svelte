@@ -70,7 +70,7 @@
 
   domainOption.subscribe(x => {
     let myZone = allZones.find(zone => zone.name === x);
-    table.changeUrl(apiVerbena + "/zones/" + (myZone ?? "0") + "/records");
+    table.changeUrl(apiVerbena + "/zones/" + (myZone?.id ?? "0") + "/records");
     table.reload();
   });
 
