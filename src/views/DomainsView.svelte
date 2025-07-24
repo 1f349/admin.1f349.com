@@ -76,8 +76,6 @@
     return p.endsWith(domain);
   }
 
-  domainOption.subscribe(() => table.reload());
-
   function getTitleDomain(name: string): string {
     if (name.endsWith(".")) {
       return name.substring(0, name.length - 1);
