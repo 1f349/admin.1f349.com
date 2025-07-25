@@ -55,6 +55,7 @@
   const table = new RestTable<AnyRecord>(apiVerbena + "/zones/0/records", (item: AnyRecord) => `${item.id}`);
 
   let allZones: Zone[] = [];
+  let currentZone: Zone | undefined;
 
   async function fetchAllZones() {
     let f = await LOGIN.clientRequest(apiAllZones, {method: "GET"});
@@ -77,18 +78,18 @@
 
   function changeToZone(x: string) {
     let myZone = allZones.find(zone => zone.name === x);
+    currentZone = myZone;
     table.changeUrl(apiVerbena + "/zones/" + (myZone?.id ?? "0") + "/records");
     table.reload();
   }
 
   function rowOrdering<T extends AnyValue>(
     rows: RestItem<AnyRecord>[],
-    domain: string,
     isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>,
   ): RestItem<ApiRecordFormat<T>>[] {
     return rows
       .filter(x => isTRecord(x.data))
-      .filter(x => domainFilter(x.data.name, domain))
+      .filter(x => domainFilter(x.data.name, currentZone?.name))
       .sort((a, b) => a.data.name.localeCompare(b.data.name)) as unknown as RestItem<ApiRecordFormat<T>>[];
   }
 

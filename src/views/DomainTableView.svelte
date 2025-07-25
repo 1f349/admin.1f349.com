@@ -13,7 +13,6 @@
   export let emptyRecord: (() => ApiRecordFormat<T>) | null;
   export let rowOrdering: (
     rows: RestItem<AnyRecord>[],
-    domain: string,
     isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>,
   ) => RestItem<ApiRecordFormat<T>>[];
   export let isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>;
@@ -54,7 +53,7 @@
   <slot name="headers" slot="headers" />
 
   <svelte:fragment slot="rows" let:value>
-    {#each rowOrdering(value.rows, $domainOption, isTRecord) as item}
+    {#each rowOrdering(value.rows, isTRecord) as item}
       <PromiseLike value={item}>
         <tr slot="loading" class="empty-row">
           <td colspan="100">
