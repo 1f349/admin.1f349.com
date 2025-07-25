@@ -65,14 +65,21 @@
   }
 
   onMount(() => {
-    fetchAllZones();
+    (async () => {
+      await fetchAllZones();
+      changeToZone($domainOption);
+    })();
   });
 
   domainOption.subscribe(x => {
+    changeToZone(x);
+  });
+
+  function changeToZone(x: string) {
     let myZone = allZones.find(zone => zone.name === x);
     table.changeUrl(apiVerbena + "/zones/" + (myZone?.id ?? "0") + "/records");
     table.reload();
-  });
+  }
 
   function rowOrdering<T extends AnyValue>(
     rows: RestItem<AnyRecord>[],
