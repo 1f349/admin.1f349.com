@@ -18,6 +18,7 @@
   let errorMessage: string | null = null;
 
   function save() {
+    console.log(editItem);
     item
       .update(editItem)
       .then(() => {
