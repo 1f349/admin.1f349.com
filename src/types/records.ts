@@ -15,7 +15,7 @@ export interface ApiRecordFormat<T> {
   id?: number;
   name: string;
   zone_id?: number;
-  type: number;
+  type: string;
   ttl: number | null;
   value: T;
 }

@@ -7,7 +7,7 @@
 
   let value: string = "";
 
-  function onChange() {
+  $: {
     try {
       let addr = parseAddr(value);
       if (addr instanceof IPv4) {
@@ -18,7 +18,7 @@
         editItem.type = DnsTypeAAAA;
       }
     } catch {
-      editItem.type = 0;
+      editItem.type = "";
     }
   }
 </script>
@@ -31,7 +31,7 @@
 {/if}
 
 <div>IP Address</div>
-<div><input type="text" class="code-font" bind:value on:keyup={onChange} size={Math.max(20, value.length + 2)} /></div>
+<div><input type="text" class="code-font" bind:value size={Math.max(20, value.length + 2)} /></div>
 {#if editItem.type === DnsTypeA}
   <div>IP address is IPv4</div>
 {:else if editItem.type === DnsTypeAAAA}
