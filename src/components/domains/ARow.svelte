@@ -46,6 +46,8 @@
     <ActionPopup name="Edit {isARecord(item.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
       <ACreate bind:editItem editMode={true} />
 
+      <div>{JSON.stringify(editItem)}</div>
+
       {#if errorMessage}
         <div>{errorMessage}</div>
       {/if}
