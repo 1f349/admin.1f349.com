@@ -18,7 +18,6 @@
   let errorMessage: string | null = null;
 
   function save() {
-    console.log(editItem);
     item
       .update(editItem)
       .then(() => {
@@ -46,8 +45,6 @@
 
     <ActionPopup name="Edit {isARecord(item.data) ? 'A' : 'AAAA'} Record" bind:show={editPopup} on:save={save}>
       <ACreate bind:editItem editMode={true} />
-
-      <div>{JSON.stringify(editItem)}</div>
 
       {#if errorMessage}
         <div>{errorMessage}</div>

@@ -120,7 +120,7 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     if (!options)
       options = {
         method: "PUT",
-        body: JSON.stringify(this.data),
+        body: JSON.stringify(data),
       };
     try {
       const x = await LOGIN.clientRequest(this.keyUrl(), options);
