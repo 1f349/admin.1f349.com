@@ -89,7 +89,7 @@
   ): RestItem<ApiRecordFormat<T>>[] {
     return rows
       .filter(x => isTRecord(x.data))
-      .filter(x => domainFilter(x.data.name, currentZone?.name))
+      .filter(x => x.data.zone_id === currentZone?.id)
       .sort((a, b) => a.data.name.localeCompare(b.data.name)) as unknown as RestItem<ApiRecordFormat<T>>[];
   }
 

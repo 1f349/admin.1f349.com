@@ -14,6 +14,7 @@ export type AnyRecord = ApiRecordFormat<AnyValue>;
 export interface ApiRecordFormat<T> {
   id?: number;
   name: string;
+  zone_id?: number;
   type: number;
   ttl: number | null;
   value: T;
