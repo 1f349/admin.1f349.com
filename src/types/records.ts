@@ -1,12 +1,12 @@
-export const DnsTypeSOA = 6;
-export const DnsTypeNS = 2;
-export const DnsTypeMX = 15;
-export const DnsTypeA = 1;
-export const DnsTypeAAAA = 28;
-export const DnsTypeCNAME = 5;
-export const DnsTypeTXT = 16;
-export const DnsTypeSRV = 33;
-export const DnsTypeCAA = 257;
+export const DnsTypeSOA = "SOA"; // 6
+export const DnsTypeNS = "NS"; // 2
+export const DnsTypeMX = "MX"; // 15
+export const DnsTypeA = "A"; // 1
+export const DnsTypeAAAA = "AAAA"; // 28
+export const DnsTypeCNAME = "CNAME"; // 5
+export const DnsTypeTXT = "TXT"; // 16
+export const DnsTypeSRV = "SRV"; // 33
+export const DnsTypeCAA = "CAA"; // 257
 
 export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | CnameValue | TxtValue | SrvValue | CaaValue;
 export type AnyRecord = ApiRecordFormat<AnyValue>;
