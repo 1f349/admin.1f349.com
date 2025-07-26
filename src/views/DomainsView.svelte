@@ -114,7 +114,7 @@
   $: try {
     console.log("a:", table.rows[0].data.name);
   } catch {}
-  $: (domainTitle = table.rows.length === 0 ? "Unknown" : (getTitleDomain(table.rows[0].data.name) ?? "")), $table;
+  $: (domainTitle = table.rows.length === 0 ? "Unknown" : (currentZone?.name) ?? ""), $table;
   let zoneFileUrl: string;
   zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
 
