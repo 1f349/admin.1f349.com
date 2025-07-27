@@ -93,23 +93,6 @@
       .sort((a, b) => a.data.name.localeCompare(b.data.name)) as unknown as RestItem<ApiRecordFormat<T>>[];
   }
 
-  function domainFilter(src: string, domain: string) {
-    domain = dnsFqdn(domain);
-    if (domain == "*") return true;
-    let n = src.indexOf("/");
-    if (n == -1) n = src.length;
-    let p = src.slice(0, n);
-    if (p == domain) return true;
-    return p.endsWith(domain);
-  }
-
-  function getTitleDomain(name: string): string {
-    if (name.endsWith(".")) {
-      return name.substring(0, name.length - 1);
-    }
-    return name;
-  }
-
   let domainTitle: string = "";
   $: try {
     console.log("a:", table.rows[0].data.name);
@@ -169,7 +152,7 @@
       create: ACreate,
       empty: (): ApiRecordFormat<AValue | AaaaValue> => ({
         name: "",
-        type: 0, // this is on purpose
+        type: "", // this is on purpose
         ttl: null,
         value: "",
       }),
