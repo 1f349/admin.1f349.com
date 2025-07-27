@@ -8,4 +8,5 @@ export interface Zone {
   expire: number;
   ttl: number;
   active: boolean;
+  nameservers: string[];
 }
