@@ -13,7 +13,6 @@
     isCnameRecord,
     isMxRecord,
     isNsRecord,
-    isSoaRecord,
     isSrvRecord,
     isTxtRecord,
     type AValue,
@@ -29,7 +28,6 @@
     type TxtValue,
   } from "../types/records";
   import {RestItem, RestTable} from "../utils/rest-table";
-  import SoaRow from "../components/domains/SoaRow.svelte";
   import NsRow from "../components/domains/NsRow.svelte";
   import MxRow from "../components/domains/MxRow.svelte";
   import ARow from "../components/domains/ARow.svelte";
@@ -44,7 +42,6 @@
   import CnameCreate from "../components/create-domains/CnameCreate.svelte";
   import CaaCreate from "../components/create-domains/CaaCreate.svelte";
   import TxtCreate from "../components/create-domains/TxtCreate.svelte";
-  import {dnsFqdn} from "../utils/dns-subdomain";
   import {onMount} from "svelte";
   import {LOGIN} from "../utils/login";
   import type {Zone} from "../types/zone";
@@ -102,16 +99,6 @@
   zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
 
   let recordTypes = [
-    {
-      name: "SOA",
-      headers: ["Primary Domain", "Email", "Default TTL", "Refresh Rate", "Retry Rate", "Expire Time"],
-      locked: true,
-      filter: isSoaRecord,
-      render: SoaRow,
-      create: null,
-      save: null,
-      empty: null,
-    },
     {
       name: "NS",
       headers: ["Subdomain", "Name Server", "TTL"],
@@ -223,8 +210,6 @@
       }),
     },
   ];
-
-  recordTypes[1].empty = null;
 
   function toAny(a: any) {
     return a as any;
