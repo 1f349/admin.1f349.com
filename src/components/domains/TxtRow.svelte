@@ -12,7 +12,9 @@
     name: item.data.name,
     type: item.data.type,
     ttl: item.data.ttl,
-    value: "",
+    value: {
+      value: "",
+    },
   };
 
   let editPopup: boolean = false;
@@ -32,7 +34,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <TdCutOff class="code-font">{item.data.value}</TdCutOff>
+  <TdCutOff class="code-font">{item.data.value.value}</TdCutOff>
   <td class="code-font">{item.data.ttl}</td>
   <td>
     <ActionMenu

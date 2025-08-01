@@ -12,7 +12,7 @@
     type: item.data.type,
     ttl: item.data.ttl,
     value: {
-      mx: "",
+      value: "",
       preference: 0,
     },
   };
@@ -22,7 +22,7 @@
 
   function save() {
     item
-      .update({...editItem, value:`${editItem.value.preference} ${editItem.value.mx}`})
+      .update(editItem)
       .then(() => {
         editPopup = false;
       })
@@ -34,7 +34,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <td class="code-font">{item.data.value.mx}</td>
+  <td class="code-font">{item.data.value.value}</td>
   <td class="code-font">{item.data.value.preference}</td>
   <td class="code-font">{item.data.ttl}</td>
   <td>

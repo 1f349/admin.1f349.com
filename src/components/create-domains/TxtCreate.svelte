@@ -16,4 +16,4 @@
   <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
 <div>Value</div>
-<div><input type="text" class="code-font" bind:value={editItem.value} size={constrain(20, 100, editItem.value.length + 2)} /></div>
+<div><input type="text" class="code-font" bind:value={editItem.value.value} size={constrain(20, 100, editItem.value.value.length + 2)} /></div>

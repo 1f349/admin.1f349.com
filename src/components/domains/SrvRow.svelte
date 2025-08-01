@@ -15,7 +15,7 @@
       priority: 0,
       weight: 0,
       port: 0,
-      target: "",
+      value: "",
     },
   };
 
@@ -39,7 +39,7 @@
   <td class="code-font">{item.data.value.priority}</td>
   <td class="code-font">{item.data.value.weight}</td>
   <td class="code-font">{item.data.value.port}</td>
-  <td class="code-font">{item.data.value.target}</td>
+  <td class="code-font">{item.data.value.value}</td>
   <td class="code-font">{item.data.ttl}</td>
   <td>
     <ActionMenu

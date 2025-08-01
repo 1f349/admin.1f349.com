@@ -34,7 +34,9 @@ export function isSoaRecord(x: AnyRecord): x is ApiRecordFormat<SoaValue> {
   return x.type === DnsTypeSOA;
 }
 
-export type NsValue = string;
+export interface NsValue {
+  value: string;
+}
 
 export function isNsRecord(x: AnyRecord): x is ApiRecordFormat<NsValue> {
   return x.type === DnsTypeNS;
@@ -42,32 +44,40 @@ export function isNsRecord(x: AnyRecord): x is ApiRecordFormat<NsValue> {
 
 export interface MxValue {
   preference: number;
-  mx: string;
+  value: string;
 }
 
 export function isMxRecord(x: AnyRecord): x is ApiRecordFormat<MxValue> {
   return x.type === DnsTypeMX;
 }
 
-export type AValue = string;
+export interface AValue {
+  value: string;
+}
 
 export function isARecord(x: AnyRecord): x is ApiRecordFormat<AValue> {
   return x.type === DnsTypeA;
 }
 
-export type AaaaValue = string;
+export interface AaaaValue {
+  value: string;
+}
 
 export function isAaaaRecord(x: AnyRecord): x is ApiRecordFormat<AaaaValue> {
   return x.type === DnsTypeAAAA;
 }
 
-export type CnameValue = string;
+export interface CnameValue {
+  value: string;
+}
 
 export function isCnameRecord(x: AnyRecord): x is ApiRecordFormat<CnameValue> {
   return x.type === DnsTypeCNAME;
 }
 
-export type TxtValue = string;
+export interface TxtValue {
+  value: string;
+}
 
 export function isTxtRecord(x: AnyRecord): x is ApiRecordFormat<TxtValue> {
   return x.type === DnsTypeTXT;
@@ -77,7 +87,7 @@ export interface SrvValue {
   priority: number;
   weight: number;
   port: number;
-  target: string;
+  value: string;
 }
 
 export function isSrvRecord(x: AnyRecord): x is ApiRecordFormat<SrvValue> {
