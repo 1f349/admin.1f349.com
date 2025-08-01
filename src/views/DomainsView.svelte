@@ -110,7 +110,9 @@
         name: "",
         type: DnsTypeNS,
         ttl: null,
-        value: "",
+        value: {
+          value: "",
+        },
       }),
     },
     {
@@ -125,7 +127,7 @@
         type: DnsTypeMX,
         ttl: null,
         value: {
-          mx: "",
+          value: "",
           preference: 0,
         },
       }),
@@ -141,7 +143,9 @@
         name: "",
         type: "", // this is on purpose
         ttl: null,
-        value: "",
+        value: {
+          value: "",
+        },
       }),
     },
     {
@@ -155,7 +159,9 @@
         name: "",
         type: DnsTypeCNAME,
         ttl: null,
-        value: "",
+        value: {
+          value: "",
+        },
       }),
     },
     {
@@ -169,7 +175,9 @@
         name: "",
         type: DnsTypeTXT,
         ttl: null,
-        value: "",
+        value: {
+          value: "",
+        },
       }),
     },
     {
@@ -187,7 +195,7 @@
           priority: 0,
           weight: 0,
           port: 0,
-          target: "",
+          value: "",
         },
       }),
     },
