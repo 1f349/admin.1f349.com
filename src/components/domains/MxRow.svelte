@@ -22,7 +22,7 @@
 
   function save() {
     item
-      .update(editItem)
+      .update({...editItem, value:`${editItem.value.preference} ${editItem.value.mx}`})
       .then(() => {
         editPopup = false;
       })
