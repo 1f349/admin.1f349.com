@@ -226,6 +226,19 @@ func apiServer(verify *mjwt.KeyStore) {
 		rw.Write([]byte("[]\n"))
 	}))
 	r.Handle("/v1/verbena/zones/1/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		if req.Method == http.MethodPost {
+			var a map[string]any
+			err := json.NewDecoder(req.Body).Decode(&a)
+			if err != nil {
+				http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			a["id"] = 5
+			a["zone_id"] = 1
+			json.NewEncoder(rw).Encode(a)
+			return
+		}
+
 		fmt.Fprintln(rw, `[
   {
 		"id": -2,
@@ -301,6 +314,19 @@ func apiServer(verify *mjwt.KeyStore) {
 ]`)
 	}))
 	r.Handle("/v1/verbena/zones/2/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		if req.Method == http.MethodPost {
+			var a map[string]any
+			err := json.NewDecoder(req.Body).Decode(&a)
+			if err != nil {
+				http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			a["id"] = 6
+			a["zone_id"] = 2
+			json.NewEncoder(rw).Encode(a)
+			return
+		}
+
 		fmt.Fprintln(rw, `[
   {
 		"id": -2,
