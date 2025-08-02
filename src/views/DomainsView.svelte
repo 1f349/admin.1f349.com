@@ -117,7 +117,7 @@
     },
     {
       name: "MX",
-      headers: ["Mail Server", "Preference", "Subdomain", "TTL"],
+      headers: ["Subdomain", "Preference", "Mail Server", "TTL"],
       locked: false,
       filter: isMxRecord,
       render: MxRow,
