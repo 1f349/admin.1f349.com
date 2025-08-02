@@ -35,7 +35,7 @@
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
   <TdCutOff class="code-font">{item.data.value.text}</TdCutOff>
-  <td class="code-font">{item.data.ttl}</td>
+  <td class="code-font">{item.data.ttl ?? "Default"}</td>
   <td>
     <ActionMenu
       data={item}

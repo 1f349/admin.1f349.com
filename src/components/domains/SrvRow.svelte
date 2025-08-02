@@ -40,7 +40,7 @@
   <td class="code-font">{item.data.value.weight}</td>
   <td class="code-font">{item.data.value.port}</td>
   <td class="code-font">{item.data.value.target}</td>
-  <td class="code-font">{item.data.ttl}</td>
+  <td class="code-font">{item.data.ttl ?? "Default"}</td>
   <td>
     <ActionMenu
       data={item}
