@@ -218,108 +218,139 @@ func apiServer(verify *mjwt.KeyStore) {
 			Name string `json:"name"`
 		}
 		json.NewEncoder(rw).Encode([]Zone{
-			{ID: 1, Name: "example.com."},
-			{ID: 2, Name: "example.org."},
+			{ID: 1, Name: "example.com"},
+			{ID: 2, Name: "example.org"},
 		})
+	}))
+	r.Handle("/v1/verbena/zones/0/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		rw.Write([]byte("[]\n"))
 	}))
 	r.Handle("/v1/verbena/zones/1/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
   {
-		"id": 1,
-		"name": "example.com.",
-		"type": 6,
+		"id": -2,
+		"name": "@",
+		"zone_id": 1,
+		"type": "NS",
 		"ttl": 300,
 		"value": {
-			"ns": "ns1.example.com.",
-			"mbox": "hostmaster.example.com.",
-			"serial": 2024111901,
-			"refresh": 7200,
-			"retry": 1800,
-			"expire": 1209600,
-			"minttl": 300
+			"target": "ns1.example.com"
 		}
   },
   {
 		"id": -2,
-		"name": "example.com.",
-		"type": 2,
+		"name": "@",
+		"zone_id": 1,
+		"type": "NS",
 		"ttl": 300,
-		"value": "ns1.example.com."
+		"value": {
+			"target": "ns2.example.com"
+		}
   },
   {
 		"id": -2,
-		"name": "example.com.",
-		"type": 2,
+		"name": "@",
+		"zone_id": 1,
+		"type": "NS",
 		"ttl": 300,
-		"value": "ns2.example.com."
-  },
-  {
-		"id": -2,
-		"name": "example.com.",
-		"type": 2,
-		"ttl": 300,
-		"value": "ns3.example.com."
+		"value": {
+			"target": "ns3.example.com"
+		}
   },
   {
 		"id": 1,
-		"name": "ns1.example.com.",
-		"type": 1,
+		"name": "ns1",
+		"zone_id": 1,
+		"type": "A",
 		"ttl": 300,
-		"value": "10.20.0.1"
-  }
+		"value": {
+			"ip": "10.20.0.1"
+		}
+  },
+	{
+		"id": 2,
+		"name": "@",
+		"zone_id": 1,
+		"type": "MX",
+		"ttl": null,
+		"value": {
+			"target": "smtp.example.com",
+			"preference": 1
+		}
+	},
+	{
+		"id": 3,
+		"name": "@",
+		"zone_id": 1,
+		"type": "CNAME",
+		"ttl": null,
+		"value": {
+			"target": "other.example.com"
+		}
+	},
+	{
+		"id": 3,
+		"name": "@",
+		"zone_id": 1,
+		"type": "TXT",
+		"ttl": null,
+		"value": {
+			"text": "Example text value"
+		}
+	}
 ]`)
 	}))
 	r.Handle("/v1/verbena/zones/2/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		fmt.Fprintln(rw, `[
-	{
-		"id": 2,
-		"name": "example.org.",
-		"type": 6,
+  {
+		"id": -2,
+		"name": "@",
+		"zone_id": 2,
+		"type": "NS",
 		"ttl": 300,
 		"value": {
-			"ns": "ns1.example.com.",
-			"mbox": "hostmaster.example.com.",
-			"serial": 2024062001,
-			"refresh": 7200,
-			"retry": 1800,
-			"expire": 1209600,
-			"minttl": 300
+			"target": "ns1.example.com"
 		}
   },
   {
 		"id": -2,
-		"name": "example.org.",
-		"type": 2,
+		"name": "@",
+		"zone_id": 2,
+		"type": "NS",
 		"ttl": 300,
-		"value": "ns1.example.com."
+		"value": {
+			"target": "ns2.example.com"
+		}
   },
   {
 		"id": -2,
-		"name": "example.org.",
-		"type": 2,
+		"name": "@",
+		"zone_id": 2,
+		"type": "NS",
 		"ttl": 300,
-		"value": "ns2.example.com."
-  },
-  {
-		"id": -2,
-		"name": "example.org.",
-		"type": 2,
-		"ttl": 300,
-		"value": "ns3.example.com."
+		"value": {
+			"target": "ns3.example.com"
+		}
   },
   {
 		"id": 1,
-		"name": "example.org.",
-		"type": 1,
+		"name": "@",
+		"zone_id": 2,
+		"type": "A",
 		"ttl": 300,
-		"value": "10.36.0.1"
+		"value": {
+		  "ip": "10.36.0.1"
+		}
   },
 	{
 		"id": 2,
-		"name": "example.org.",
-		"type": 28,
+		"name": "@",
+		"zone_id": 2,
+		"type": "AAAA",
 		"ttl": 300,
-		"value": "2001:db8::15"
+		"value": {
+			"ip": "2001:db8::15"
+		}
 	}
 ]`)
 	}))
