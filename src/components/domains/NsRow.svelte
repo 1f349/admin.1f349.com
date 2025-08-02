@@ -48,7 +48,7 @@
       />
     {/if}
 
-    <ActionPopup name="Edit SOA Record" bind:show={editPopup} on:save={save}>
+    <ActionPopup name="Edit NS Record" bind:show={editPopup} on:save={save}>
       <NsCreate bind:editItem editMode={true} />
 
       {#if errorMessage}

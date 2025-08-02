@@ -51,7 +51,7 @@
       remove={() => item.remove()}
     />
 
-    <ActionPopup name="Edit CNAME Record" bind:show={editPopup} on:save={save}>
+    <ActionPopup name="Edit SRV Record" bind:show={editPopup} on:save={save}>
       <SrvCreate bind:editItem editMode={true} />
 
       {#if errorMessage}
