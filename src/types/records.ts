@@ -35,7 +35,7 @@ export function isSoaRecord(x: AnyRecord): x is ApiRecordFormat<SoaValue> {
 }
 
 export interface NsValue {
-  value: string;
+  target: string;
 }
 
 export function isNsRecord(x: AnyRecord): x is ApiRecordFormat<NsValue> {
@@ -44,7 +44,7 @@ export function isNsRecord(x: AnyRecord): x is ApiRecordFormat<NsValue> {
 
 export interface MxValue {
   preference: number;
-  value: string;
+  target: string;
 }
 
 export function isMxRecord(x: AnyRecord): x is ApiRecordFormat<MxValue> {
@@ -52,7 +52,7 @@ export function isMxRecord(x: AnyRecord): x is ApiRecordFormat<MxValue> {
 }
 
 export interface AValue {
-  value: string;
+  ip: string;
 }
 
 export function isARecord(x: AnyRecord): x is ApiRecordFormat<AValue> {
@@ -60,7 +60,7 @@ export function isARecord(x: AnyRecord): x is ApiRecordFormat<AValue> {
 }
 
 export interface AaaaValue {
-  value: string;
+  ip: string;
 }
 
 export function isAaaaRecord(x: AnyRecord): x is ApiRecordFormat<AaaaValue> {
@@ -68,7 +68,7 @@ export function isAaaaRecord(x: AnyRecord): x is ApiRecordFormat<AaaaValue> {
 }
 
 export interface CnameValue {
-  value: string;
+  target: string;
 }
 
 export function isCnameRecord(x: AnyRecord): x is ApiRecordFormat<CnameValue> {
@@ -76,7 +76,7 @@ export function isCnameRecord(x: AnyRecord): x is ApiRecordFormat<CnameValue> {
 }
 
 export interface TxtValue {
-  value: string;
+  text: string;
 }
 
 export function isTxtRecord(x: AnyRecord): x is ApiRecordFormat<TxtValue> {
@@ -87,7 +87,7 @@ export interface SrvValue {
   priority: number;
   weight: number;
   port: number;
-  value: string;
+  target: string;
 }
 
 export function isSrvRecord(x: AnyRecord): x is ApiRecordFormat<SrvValue> {

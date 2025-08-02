@@ -12,7 +12,7 @@
     type: item.data.type,
     ttl: item.data.ttl,
     value: {
-      value: "",
+      target: "",
     },
   };
 
@@ -34,7 +34,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <td class="code-font">{item.data.value.value}</td>
+  <td class="code-font">{item.data.value.target}</td>
   <td class="code-font">{item.data.ttl}</td>
   <td>
     {#if !locked}

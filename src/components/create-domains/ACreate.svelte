@@ -11,10 +11,10 @@
     try {
       let addr = parseAddr(value);
       if (addr instanceof IPv4) {
-        (editItem as ApiRecordFormat<AValue>).value.value = addr.toString();
+        (editItem as ApiRecordFormat<AValue>).value.ip = addr.toString();
         editItem.type = DnsTypeA;
       } else if (addr instanceof IPv6) {
-        (editItem as ApiRecordFormat<AaaaValue>).value.value = addr.toString();
+        (editItem as ApiRecordFormat<AaaaValue>).value.ip = addr.toString();
         editItem.type = DnsTypeAAAA;
       }
     } catch {

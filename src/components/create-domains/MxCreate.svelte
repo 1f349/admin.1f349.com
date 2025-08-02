@@ -12,6 +12,6 @@
   <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
 <div>Mail Server</div>
-<div><input type="text" class="code-font" bind:value={editItem.value.value} size={Math.max(20, editItem.value.value.length + 2)} /></div>
+<div><input type="text" class="code-font" bind:value={editItem.value.target} size={Math.max(20, editItem.value.target.length + 2)} /></div>
 <div>Preference</div>
 <div><input type="number" class="code-font" bind:value={editItem.value.preference} /></div>

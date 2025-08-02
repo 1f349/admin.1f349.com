@@ -13,7 +13,7 @@
     type: item.data.type,
     ttl: item.data.ttl,
     value: {
-      value: "",
+      text: "",
     },
   };
 
@@ -34,7 +34,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <TdCutOff class="code-font">{item.data.value.value}</TdCutOff>
+  <TdCutOff class="code-font">{item.data.value.text}</TdCutOff>
   <td class="code-font">{item.data.ttl}</td>
   <td>
     <ActionMenu

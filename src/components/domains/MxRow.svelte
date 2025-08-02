@@ -12,7 +12,7 @@
     type: item.data.type,
     ttl: item.data.ttl,
     value: {
-      value: "",
+      target: "",
       preference: 0,
     },
   };
@@ -34,7 +34,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <td class="code-font">{item.data.value.value}</td>
+  <td class="code-font">{item.data.value.target}</td>
   <td class="code-font">{item.data.value.preference}</td>
   <td class="code-font">{item.data.ttl}</td>
   <td>

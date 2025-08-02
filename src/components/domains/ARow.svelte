@@ -12,7 +12,7 @@
     type: item.data.type,
     ttl: item.data.ttl,
     value: {
-      value: "",
+      ip: "",
     },
   };
 
@@ -33,7 +33,7 @@
 
 <tr>
   <td class="code-font">{dnsSubdomain(item.data.name)}</td>
-  <td class="code-font">{item.data.value.value}</td>
+  <td class="code-font">{item.data.value.ip}</td>
   <td class="code-font">{item.data.ttl}</td>
   <td>
     <ActionMenu

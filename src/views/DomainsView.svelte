@@ -111,7 +111,7 @@
         type: DnsTypeNS,
         ttl: null,
         value: {
-          value: "",
+          target: "",
         },
       }),
     },
@@ -127,7 +127,7 @@
         type: DnsTypeMX,
         ttl: null,
         value: {
-          value: "",
+          target: "",
           preference: 0,
         },
       }),
@@ -144,7 +144,7 @@
         type: "", // this is on purpose
         ttl: null,
         value: {
-          value: "",
+          ip: "",
         },
       }),
     },
@@ -160,7 +160,7 @@
         type: DnsTypeCNAME,
         ttl: null,
         value: {
-          value: "",
+          target: "",
         },
       }),
     },
@@ -176,7 +176,7 @@
         type: DnsTypeTXT,
         ttl: null,
         value: {
-          value: "",
+          text: "",
         },
       }),
     },
@@ -195,7 +195,7 @@
           priority: 0,
           weight: 0,
           port: 0,
-          value: "",
+          target: "",
         },
       }),
     },
