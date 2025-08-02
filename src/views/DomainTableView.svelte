@@ -1,5 +1,4 @@
 <script lang="ts">
-  import {domainOption} from "../stores/domain-option";
   import type {RestItem, RestTable} from "../utils/rest-table";
   import PromiseTable from "../components/PromiseTable.svelte";
   import PromiseLike from "../components/PromiseLike.svelte";
