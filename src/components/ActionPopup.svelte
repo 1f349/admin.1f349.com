@@ -7,6 +7,7 @@
 
   export let name: string;
   export let show: boolean = false;
+  export let showButtonRow: boolean = true;
 
   function save() {
     dispatch("save");
@@ -26,10 +27,12 @@
       </button>
     </div>
     <slot />
-    <div class="button-row">
-      <button class="btn-close" on:click={() => close()}>Close</button>
-      <button class="btn-save" on:click={() => save()}>Save</button>
-    </div>
+    {#if showButtonRow}
+      <div class="button-row">
+        <button class="btn-close" on:click={() => close()}>Close</button>
+        <button class="btn-save" on:click={() => save()}>Save</button>
+      </div>
+    {/if}
   </div>
 </Popup>
 
