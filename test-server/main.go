@@ -212,6 +212,9 @@ func apiServer(verify *mjwt.KeyStore) {
 		}
 		json.NewEncoder(rw).Encode(m)
 	}))
+	r.Handle("/v1/verbena/bot-token", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		fmt.Fprintln(rw, `{"token":"abcd1234"}`)
+	}))
 	r.Handle("/v1/verbena/zones", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
 			ID   int64  `json:"id"`

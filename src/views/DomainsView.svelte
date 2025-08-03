@@ -45,9 +45,11 @@
   import {onMount} from "svelte";
   import {LOGIN} from "../utils/login";
   import type {Zone} from "../types/zone";
+  import ActionPopup from "../components/ActionPopup.svelte";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
+  const apiBotToken = apiVerbena + "/bot-token";
 
   const table = new RestTable<AnyRecord>(apiVerbena + "/zones/0/records", (item: AnyRecord) => `${item.id}`);
 
@@ -222,13 +224,48 @@
   function toAny(a: any) {
     return a as any;
   }
+
+  let botTokenPopup: boolean = false;
+
+  $: if (!botTokenPopup) {
+    botTokenPromise = null;
+  }
+
+  let botTokenPromise: Promise<string> | null = null;
+
+  function isText(data: unknown): data is string {
+    return typeof data === "string";
+  }
+
+  async function fetchBotToken(title: string): Promise<string> {
+    botTokenPopup = true;
+
+    let f = await LOGIN.clientRequest(apiBotToken, {method: "POST", body: JSON.stringify({zone: title})});
+    if (f.status != 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    if (!isText(fJson.token)) throw new Error("Unexpected output");
+    return fJson.token;
+  }
 </script>
 
 {#if domainTitle}
   <div class="title-row">
     <h1>Domains / {domainTitle}</h1>
     <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
+    <button class="bot-token-button" on:click={() => (botTokenPromise = fetchBotToken(domainTitle))}>Create Bot Token</button>
   </div>
+
+  <ActionPopup name="Bot API Token" bind:show={botTokenPopup} showButtonRow={false}>
+    {#await botTokenPromise}
+      <div>Requesting bot token...</div>
+    {:then x}
+      <div style="user-select: none;">
+        Token: <span class="bot-token-selection">{x}</span>
+      </div>
+    {:catch err}
+      <div>Failed to request bot token: {err}</div>
+    {/await}
+  </ActionPopup>
 {/if}
 
 {#each recordTypes as recordType}
@@ -261,5 +298,18 @@
     .zone-download {
       @include button-green-invert-box;
     }
+
+    .bot-token-button {
+      @include button-green-box;
+    }
+  }
+
+  .bot-token-selection {
+    -webkit-touch-callout: all; /* iOS Safari */
+    -webkit-user-select: all; /* Safari */
+    -khtml-user-select: all; /* Konqueror HTML */
+    -moz-user-select: all; /* Firefox */
+    -ms-user-select: all; /* Internet Explorer/Edge */
+    user-select: all; /* Chrome and Opera */
   }
 </style>
