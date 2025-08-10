@@ -5,6 +5,13 @@
   export let editMode: boolean;
 </script>
 
+<div>
+  SRV record names should be begin with the format <code>_SERVICE._PROTOCOL</code>
+</div>
+<div>
+  For example: <code>_sip._tcp</code>
+</div>
+
 <div>Name</div>
 {#if editMode}
   <div class="code-font">{editItem.name}</div>
