@@ -19,10 +19,13 @@
 
   function createRecord() {
     if (createItem == null) return;
+
+    // Trim and normalise record name
     createItem.name = createItem.name.trim();
     if (createItem.name == "") {
       createItem.name = "@";
     }
+
     table
       .addItem(createItem)
       .then(() => {
