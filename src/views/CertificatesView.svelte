@@ -100,6 +100,11 @@
     padding: 8px 15px;
   }
 
+  .branch-cell {
+    min-height: 40px;
+    height: auto;
+  }
+
   // css please explain yourself
   tr.cert-error.cert-error {
     &:nth-child(2n + 1) {

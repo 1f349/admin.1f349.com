@@ -52,6 +52,7 @@ func ssoServer(signer *mjwt.Issuer, parentKid string) {
 		ps := auth.NewPermStorage()
 		ps.Set("violet:route")
 		ps.Set("violet:redirect")
+		ps.Set("orchid:cert")
 		ps.Set("verbena:domains")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
@@ -183,6 +184,13 @@ func apiServer(verify *mjwt.KeyStore) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
 		for i := 0; i < len(subdomains); i++ {
 			u := subdomains[i] + "example.com"
+			us := []string{
+				u,
+				"*." + u,
+			}
+			if i == len(subdomains)-1 {
+				us = append(us, "extra-subdomain."+u, "another-extra-subdomain."+u)
+			}
 			m = append(m, map[string]any{
 				"id":           i + 1,
 				"auto_renew":   true,
@@ -191,12 +199,17 @@ func apiServer(verify *mjwt.KeyStore) {
 				"renew_failed": false,
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
-				"domains": []string{
-					u,
-					"*." + u,
-				},
+				"domains":      us,
 			})
+
 			u = subdomains[i] + "example.org"
+			us = []string{
+				u,
+				"*." + u,
+			}
+			if i == len(subdomains)-1 {
+				us = append(us, "extra-subdomain."+u, "another-extra-subdomain."+u)
+			}
 			m = append(m, map[string]any{
 				"id":           i + 21,
 				"auto_renew":   false,
@@ -205,10 +218,7 @@ func apiServer(verify *mjwt.KeyStore) {
 				"renew_failed": false,
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
-				"domains": []string{
-					u,
-					"*." + u,
-				},
+				"domains":      us,
 			})
 		}
 		json.NewEncoder(rw).Encode(m)
