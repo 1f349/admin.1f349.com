@@ -10,10 +10,7 @@
   export let recordName: string;
   export let table: RestTable<AnyRecord>;
   export let emptyRecord: (() => ApiRecordFormat<T>) | null;
-  export let rowOrdering: (
-    rows: RestItem<AnyRecord>[],
-    isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>,
-  ) => RestItem<ApiRecordFormat<T>>[];
+  export let rowOrdering: (rows: RestItem<AnyRecord>[], isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>) => RestItem<ApiRecordFormat<T>>[];
   export let isTRecord: (t: AnyRecord) => t is ApiRecordFormat<T>;
 
   let createItem: ApiRecordFormat<T> | null = emptyRecord == null ? null : emptyRecord();
@@ -22,6 +19,10 @@
 
   function createRecord() {
     if (createItem == null) return;
+    createItem.name = createItem.name.trim();
+    if (createItem.name == "") {
+      createItem.name = "@";
+    }
     table
       .addItem(createItem)
       .then(() => {
