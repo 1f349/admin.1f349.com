@@ -46,6 +46,7 @@
   import {LOGIN} from "../utils/login";
   import type {Zone} from "../types/zone";
   import ActionPopup from "../components/ActionPopup.svelte";
+  import SrvCreate from "../components/create-domains/SrvCreate.svelte";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
@@ -188,7 +189,7 @@
       locked: false,
       filter: isSrvRecord,
       render: SrvRow,
-      create: null,
+      create: SrvCreate,
       empty: (): ApiRecordFormat<SrvValue> => ({
         name: "",
         type: DnsTypeSRV,
