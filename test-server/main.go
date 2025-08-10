@@ -55,6 +55,7 @@ func ssoServer(signer *mjwt.Issuer, parentKid string) {
 		ps.Set("verbena:domains")
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
+		ps.Set("domain:owns=example.net")
 		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", parentKid, jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
 			Perms: ps,
 		})

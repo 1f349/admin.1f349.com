@@ -78,8 +78,10 @@
   function changeToZone(x: string) {
     let myZone = allZones.find(zone => zone.name === x);
     currentZone = myZone;
-    table.changeUrl(apiVerbena + "/zones/" + (myZone?.id ?? "0") + "/records");
-    table.reload();
+    if (myZone) {
+      table.changeUrl(apiVerbena + "/zones/" + myZone.id + "/records");
+      table.reload();
+    }
   }
 
   function rowOrdering<T extends AnyValue>(
@@ -93,7 +95,7 @@
   }
 
   let domainTitle: string = "";
-  $: (domainTitle = table.rows.length === 0 ? "Unknown" : (currentZone?.name ?? "")), $table;
+  $: (domainTitle = $domainOption), $table;
 
   let zoneFileUrl: string;
   zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
@@ -249,8 +251,10 @@
 {#if domainTitle}
   <div class="title-row">
     <h1>Domains / {domainTitle}</h1>
-    <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
-    <button class="bot-token-button" on:click={() => (botTokenPromise = fetchBotToken(domainTitle))}>Create Bot Token</button>
+    {#if currentZone}
+      <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
+      <button class="bot-token-button" on:click={() => (botTokenPromise = fetchBotToken(domainTitle))}>Create Bot Token</button>
+    {/if}
   </div>
 
   <ActionPopup name="Bot API Token" bind:show={botTokenPopup} showButtonRow={false}>
@@ -266,24 +270,28 @@
   </ActionPopup>
 {/if}
 
-{#each recordTypes as recordType}
-  <DomainTableView recordName={recordType.name} table={$table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
-    <tr slot="headers">
-      {#each recordType.headers as header}
-        <th>{header}</th>
-      {/each}
-      <th></th>
-    </tr>
+{#if currentZone}
+  {#each recordTypes as recordType}
+    <DomainTableView recordName={recordType.name} table={$table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
+      <tr slot="headers">
+        {#each recordType.headers as header}
+          <th>{header}</th>
+        {/each}
+        <th></th>
+      </tr>
 
-    <svelte:fragment slot="create" let:editItem let:editMode>
-      {#if recordType.create != null && recordType.empty != null}
-        <svelte:component this={recordType.create} editItem={toAny(editItem)} {editMode} />
-      {/if}
-    </svelte:fragment>
+      <svelte:fragment slot="create" let:editItem let:editMode>
+        {#if recordType.create != null && recordType.empty != null}
+          <svelte:component this={recordType.create} editItem={toAny(editItem)} {editMode} />
+        {/if}
+      </svelte:fragment>
 
-    <svelte:component this={recordType.render} slot="row" let:value item={value} locked={recordType.locked} />
-  </DomainTableView>
-{/each}
+      <svelte:component this={recordType.render} slot="row" let:value item={value} locked={recordType.locked} />
+    </DomainTableView>
+  {/each}
+{:else}
+  <div class="non-configured">This domain is not configured for zone management</div>
+{/if}
 
 <style lang="scss">
   @import "../values.scss";
@@ -309,5 +317,12 @@
     -moz-user-select: all; /* Firefox */
     -ms-user-select: all; /* Internet Explorer/Edge */
     user-select: all; /* Chrome and Opera */
+  }
+
+  .non-configured {
+    background-color: #262626;
+    padding: 10px 15px;
+    text-align: center;
+    white-space: nowrap;
   }
 </style>
