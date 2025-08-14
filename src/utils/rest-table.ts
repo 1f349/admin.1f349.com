@@ -5,14 +5,16 @@ import {LOGIN} from "./login";
 export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
   apiUrl: string;
   keyFunc: (item: T) => string;
+  keyUrlFunc: (item: T) => string;
   rows: Array<RestItem<T>>;
   private errorReason: string | null = null;
   private loading: boolean = false;
   private subs: Set<Subscriber<RestTable<T>>> = new Set();
 
-  constructor(apiUrl: string, keyFunc: (item: T) => string) {
+  constructor(apiUrl: string, keyFunc: (item: T) => string, keyUrlFunc: ((item: T) => string) | null = null) {
     this.apiUrl = apiUrl;
     this.keyFunc = keyFunc;
+    this.keyUrlFunc = keyUrlFunc ?? keyFunc;
     this.rows = [];
   }
 
@@ -103,7 +105,7 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
   }
 
   keyUrl(): string {
-    let keyPath = "/" + this.key();
+    let keyPath = "/" + this.table.keyUrlFunc(this.data);
     if (keyPath === "/") keyPath = "";
     return this.table.apiUrl + keyPath;
   }

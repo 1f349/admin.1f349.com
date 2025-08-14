@@ -16,7 +16,7 @@
 
   export let apiUrl: string;
 
-  let table = new TargetTable<T>(apiUrl, (item: T) => "");
+  let table = new TargetTable<T>(apiUrl, (item: T) => item.src);
 
   export function createItem(t: T): Promise<void> {
     return table.addItem(t);

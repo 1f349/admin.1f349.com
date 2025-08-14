@@ -6,7 +6,7 @@ interface Target {
 
 export class TargetTable<T extends Target> extends RestTable<T> {
   constructor(apiUrl: string, keyFunc: (item: T) => string) {
-    super(apiUrl, keyFunc);
+    super(apiUrl, keyFunc, _ => "");
   }
 
   makeItem(x: T): RestItem<T> {

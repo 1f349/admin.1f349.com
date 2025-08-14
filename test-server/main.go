@@ -157,6 +157,7 @@ func apiServer(verify *mjwt.KeyStore) {
 		}
 
 		fmt.Printf("Would create database row: %#v\n", j)
+		json.NewEncoder(rw).Encode(j)
 	}))
 	r.Handle("/v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
@@ -179,6 +180,27 @@ func apiServer(verify *mjwt.KeyStore) {
 			})
 		}
 		json.NewEncoder(rw).Encode(m)
+	}))
+	r.Handle("POST /v1/violet/redirect", hasPerm(verify, "violet:redirect", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+		j := make(map[string]any)
+		err := json.NewDecoder(req.Body).Decode(&j)
+		if err != nil {
+			http.Error(rw, "Failed to parse JSON", http.StatusBadRequest)
+			return
+		}
+
+		etld, err := publicsuffix.EffectiveTLDPlusOne(j["src"].(string))
+		if err != nil {
+			http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		if !b.Claims.Perms.Has("domain:owns=" + etld) {
+			http.Error(rw, "User does not own this domain", http.StatusBadRequest)
+			return
+		}
+
+		fmt.Printf("Would create database row: %#v\n", j)
+		json.NewEncoder(rw).Encode(j)
 	}))
 	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
