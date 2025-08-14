@@ -7,14 +7,18 @@
   import CnameCreate from "../create-domains/CnameCreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<CnameValue>>;
-  let editItem: ApiRecordFormat<CnameValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      target: "",
-    },
-  };
+  let editItem: ApiRecordFormat<CnameValue> = empty();
+
+  function empty(): ApiRecordFormat<CnameValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        target: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -24,6 +28,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

@@ -7,14 +7,18 @@
   import NsCreate from "../create-domains/NsCreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<NsValue>>;
-  let editItem: ApiRecordFormat<NsValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      target: "",
-    },
-  };
+  let editItem: ApiRecordFormat<NsValue> = empty();
+
+  function empty(): ApiRecordFormat<NsValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        target: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   export let locked: boolean = false;
@@ -25,6 +29,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

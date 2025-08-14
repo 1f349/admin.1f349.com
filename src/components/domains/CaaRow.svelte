@@ -7,16 +7,20 @@
   import CaaCreate from "../create-domains/CaaCreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<CaaValue>>;
-  let editItem: ApiRecordFormat<CaaValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      flag: 0,
-      tag: "",
-      value: "",
-    },
-  };
+  let editItem: ApiRecordFormat<CaaValue> = empty();
+
+  function empty(): ApiRecordFormat<CaaValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        flag: 0,
+        tag: "",
+        value: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -26,6 +30,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

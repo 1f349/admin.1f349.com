@@ -8,14 +8,18 @@
   import TdCutOff from "../CutOffTd.svelte";
 
   export let item: RestItem<ApiRecordFormat<TxtValue>>;
-  let editItem: ApiRecordFormat<TxtValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      text: "",
-    },
-  };
+  let editItem: ApiRecordFormat<TxtValue> = empty();
+
+  function empty(): ApiRecordFormat<TxtValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        text: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -25,6 +29,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

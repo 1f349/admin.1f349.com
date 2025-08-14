@@ -5,20 +5,24 @@
   import ActionPopup from "../ActionPopup.svelte";
 
   export let item: RestItem<ApiRecordFormat<SoaValue>>;
-  let editItem: ApiRecordFormat<SoaValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      ns: "",
-      mbox: "",
-      serial: 0,
-      refresh: 0,
-      retry: 0,
-      expire: 0,
-      minttl: 0,
-    },
-  };
+  let editItem: ApiRecordFormat<SoaValue> = empty();
+
+  function empty(): ApiRecordFormat<SoaValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        ns: "",
+        mbox: "",
+        serial: 0,
+        refresh: 0,
+        retry: 0,
+        expire: 0,
+        minttl: 0,
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   export let locked: boolean = false;
@@ -29,6 +33,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

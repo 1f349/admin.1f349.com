@@ -7,17 +7,21 @@
   import SrvCreate from "../create-domains/SrvCreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<SrvValue>>;
-  let editItem: ApiRecordFormat<SrvValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      priority: 0,
-      weight: 0,
-      port: 0,
-      target: "",
-    },
-  };
+  let editItem: ApiRecordFormat<SrvValue> = empty();
+
+  function empty(): ApiRecordFormat<SrvValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        priority: 0,
+        weight: 0,
+        port: 0,
+        target: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -27,6 +31,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

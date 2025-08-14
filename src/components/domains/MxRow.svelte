@@ -7,15 +7,19 @@
   import MxCreate from "../create-domains/MxCreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<MxValue>>;
-  let editItem: ApiRecordFormat<MxValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      target: "",
-      preference: 0,
-    },
-  };
+  let editItem: ApiRecordFormat<MxValue> = empty();
+
+  function empty(): ApiRecordFormat<MxValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        target: "",
+        preference: 0,
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -25,6 +29,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;

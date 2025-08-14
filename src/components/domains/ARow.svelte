@@ -7,14 +7,18 @@
   import ACreate from "../create-domains/ACreate.svelte";
 
   export let item: RestItem<ApiRecordFormat<AValue | AaaaValue>>;
-  let editItem: ApiRecordFormat<AValue & AaaaValue> = {
-    name: item.data.name,
-    type: item.data.type,
-    ttl: item.data.ttl,
-    value: {
-      ip: "",
-    },
-  };
+  let editItem: ApiRecordFormat<AValue & AaaaValue> = empty();
+
+  function empty(): ApiRecordFormat<AValue & AaaaValue> {
+    return {
+      name: item.data.name,
+      type: item.data.type,
+      ttl: item.data.ttl,
+      value: {
+        ip: "",
+      },
+    };
+  }
 
   let editPopup: boolean = false;
   let errorMessage: string | null = null;
@@ -24,6 +28,7 @@
       .update(editItem)
       .then(() => {
         editPopup = false;
+        editItem = empty();
       })
       .catch(x => {
         errorMessage = x;
