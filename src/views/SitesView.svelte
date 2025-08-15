@@ -8,7 +8,7 @@
 
   const apiBluebell = import.meta.env.VITE_API_BLUEBELL;
 
-  const table = new RestTable<Site>(apiBluebell + "/sites", (item: Site) => item.domain);
+  const table = new RestTable<Site>(apiBluebell + "/sites/" + $domainOption, (item: Site) => item.domain);
 
   interface Site {
     domain: string;
