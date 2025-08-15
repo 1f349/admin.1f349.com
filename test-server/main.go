@@ -416,7 +416,7 @@ func apiServer(verify *mjwt.KeyStore) {
 	}
 ]`)
 	}))
-	r.Handle("/v1/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/bluebell/sites", hasPerm(verify, "sites:manage", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		if req.Method == http.MethodPost {
 			defer req.Body.Close()
 			dec := json.NewDecoder(req.Body)

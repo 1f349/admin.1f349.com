@@ -6,9 +6,9 @@
   import {LOGIN} from "../utils/login";
   import {RestItem, RestTable} from "../utils/rest-table";
 
-  const apiSiteHosting = import.meta.env.VITE_API_SITE_HOSTING;
+  const apiBluebell = import.meta.env.VITE_API_BLUEBELL;
 
-  const table = new RestTable<Site>(apiSiteHosting, (item: Site) => item.domain);
+  const table = new RestTable<Site>(apiBluebell, (item: Site) => item.domain);
 
   interface Site {
     domain: string;
@@ -29,7 +29,7 @@
   }
 
   async function deleteBranch(site: Site, branch: string) {
-    let f = await LOGIN.clientRequest(apiSiteHosting, {
+    let f = await LOGIN.clientRequest(apiBluebell, {
       method: "POST",
       body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
     });
@@ -38,7 +38,7 @@
   }
 
   async function resetSiteSecret(site: Site) {
-    let f = await LOGIN.clientRequest(apiSiteHosting, {
+    let f = await LOGIN.clientRequest(apiBluebell, {
       method: "POST",
       body: JSON.stringify({submit: "secret", site: site.domain}),
     });

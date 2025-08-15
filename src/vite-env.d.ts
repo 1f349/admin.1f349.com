@@ -12,7 +12,7 @@ interface ImportMetaEnv {
   VITE_API_VIOLET: string;
   VITE_API_ORCHID: string;
   VITE_API_VERBENA: string;
-  VITE_API_SITE_HOSTING: string;
+  VITE_API_BLUEBELL: string;
 }
 
 interface ImportMeta {
