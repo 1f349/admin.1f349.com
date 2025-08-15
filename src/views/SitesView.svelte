@@ -8,7 +8,7 @@
 
   const apiBluebell = import.meta.env.VITE_API_BLUEBELL;
 
-  const table = new RestTable<Site>(apiBluebell, (item: Site) => item.domain);
+  const table = new RestTable<Site>(apiBluebell + "/sites", (item: Site) => item.domain);
 
   interface Site {
     domain: string;
@@ -29,18 +29,16 @@
   }
 
   async function deleteBranch(site: Site, branch: string) {
-    let f = await LOGIN.clientRequest(apiBluebell, {
-      method: "POST",
-      body: JSON.stringify({submit: "delete-branch", site: site.domain, branch}),
+    let f = await LOGIN.clientRequest(apiBluebell + `/sites/${site.domain}/${branch}/enable`, {
+      method: "DELETE",
     });
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     table.reload();
   }
 
   async function resetSiteSecret(site: Site) {
-    let f = await LOGIN.clientRequest(apiBluebell, {
+    let f = await LOGIN.clientRequest(apiBluebell + `/sites/${site.domain}/reset-token`, {
       method: "POST",
-      body: JSON.stringify({submit: "secret", site: site.domain}),
     });
     if (f.status !== 200) throw new Error("Unexpected status code: " + f.status);
     let fJson = await f.json();
