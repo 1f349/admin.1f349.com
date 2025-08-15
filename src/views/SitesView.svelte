@@ -12,7 +12,14 @@
 
   interface Site {
     domain: string;
-    branches: string[];
+    branches: Branch[];
+  }
+
+  interface Branch {
+    domain: string;
+    branch: string;
+    last_update: string;
+    enable: boolean;
   }
 
   function rowOrdering(rows: RestItem<Site>[], domain: string): RestItem<Site>[] {
@@ -79,12 +86,12 @@
           <td>
             <div class="branch-cell">
               {#each value.data.branches as branch}
-                {#if branch == ""}
-                  <div><a href="https://{value.data.domain}/?git_branch=main" target="_blank" class="main-or-master">main or master</a></div>
+                {#if branch.branch == "@"}
+                  <div><a href="https://{value.data.domain}/?git_branch=main" target="_blank" class="main-or-master">@</a></div>
                 {:else}
-                  <div><a href="https://{value.data.domain}/?git_branch={branch}" target="_blank">{branch}</a></div>
+                  <div><a href="https://{value.data.domain}/?git_branch={branch.branch}" target="_blank">{branch.branch}</a></div>
                 {/if}
-                <div><button class="btn-trash" on:click={() => deleteBranch(value.data, branch)}><RemoveIcon /></button></div>
+                <div><button class="btn-trash" on:click={() => deleteBranch(value.data, branch.branch)}><RemoveIcon /></button></div>
               {/each}
             </div>
           </td>
