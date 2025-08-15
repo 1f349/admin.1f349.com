@@ -108,7 +108,7 @@
   .branch-cell {
     display: grid;
     grid-template-columns: repeat(2, auto);
-    justify-content: left;
+    justify-content: space-between;
     align-content: center;
 
     div a {
