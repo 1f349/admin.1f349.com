@@ -5,6 +5,7 @@
     DnsTypeCNAME,
     DnsTypeMX,
     DnsTypeNS,
+    DnsTypePTR,
     DnsTypeSRV,
     DnsTypeTXT,
     isARecord,
@@ -13,6 +14,7 @@
     isCnameRecord,
     isMxRecord,
     isNsRecord,
+    isPtrRecord,
     isSrvRecord,
     isTxtRecord,
     type AValue,
@@ -24,6 +26,7 @@
     type CnameValue,
     type MxValue,
     type NsValue,
+    type PtrValue,
     type SrvValue,
     type TxtValue,
   } from "../types/records";
@@ -47,6 +50,8 @@
   import type {Zone} from "../types/zone";
   import ActionPopup from "../components/ActionPopup.svelte";
   import SrvCreate from "../components/create-domains/SrvCreate.svelte";
+  import PtrRow from "../components/domains/PtrRow.svelte";
+  import PtrCreate from "../components/create-domains/PtrCreate.svelte";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
@@ -217,6 +222,22 @@
           flag: 0,
           tag: "",
           value: "",
+        },
+      }),
+    },
+    {
+      name: "PTR",
+      headers: ["Name", "Target", "TTL"],
+      locked: false,
+      filter: isPtrRecord,
+      render: PtrRow,
+      create: PtrCreate,
+      empty: (): ApiRecordFormat<PtrValue> => ({
+        name: "",
+        type: DnsTypePTR,
+        ttl: null,
+        value: {
+          target: "",
         },
       }),
     },

@@ -7,8 +7,9 @@ export const DnsTypeCNAME = "CNAME"; // 5
 export const DnsTypeTXT = "TXT"; // 16
 export const DnsTypeSRV = "SRV"; // 33
 export const DnsTypeCAA = "CAA"; // 257
+export const DnsTypePTR = "PTR"; // 12
 
-export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | CnameValue | TxtValue | SrvValue | CaaValue;
+export type AnyValue = SoaValue | NsValue | MxValue | AValue | AaaaValue | CnameValue | TxtValue | SrvValue | CaaValue | PtrValue;
 export type AnyRecord = ApiRecordFormat<AnyValue>;
 
 export interface ApiRecordFormat<T> {
@@ -102,4 +103,12 @@ export interface CaaValue {
 
 export function isCaaRecord(x: AnyRecord): x is ApiRecordFormat<CaaValue> {
   return x.type === DnsTypeCAA;
+}
+
+export interface PtrValue {
+  target: string;
+}
+
+export function isPtrRecord(x: AnyRecord): x is ApiRecordFormat<PtrValue> {
+  return x.type === DnsTypePTR;
 }
