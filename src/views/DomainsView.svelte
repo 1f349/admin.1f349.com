@@ -271,7 +271,9 @@
   }
 
   async function downloadZoneFile(currentZone: Zone) {
-    let f = await LOGIN.clientRequest(apiAllZones, {method: "POST"});
+    if (!zoneFileUrl || zoneFileUrl == "") return;
+
+    let f = await LOGIN.clientRequest(zoneFileUrl, {method: "POST"});
     let blob = await f.blob();
     download(blob, `${currentZone.name}.zone`);
   }
