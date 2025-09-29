@@ -52,6 +52,7 @@
   import SrvCreate from "../components/create-domains/SrvCreate.svelte";
   import PtrRow from "../components/domains/PtrRow.svelte";
   import PtrCreate from "../components/create-domains/PtrCreate.svelte";
+  import download from "downloadjs";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
@@ -268,13 +269,19 @@
     if (!isText(fJson.token)) throw new Error("Unexpected output");
     return fJson.token;
   }
+
+  async function downloadZoneFile(currentZone: Zone) {
+    let f = await LOGIN.clientRequest(apiAllZones, {method: "POST"});
+    let blob = await f.blob();
+    download(blob, `${currentZone.name}.zone`);
+  }
 </script>
 
 {#if domainTitle}
   <div class="title-row">
     <h1>Domains / {domainTitle}</h1>
     {#if currentZone}
-      <a class="zone-download" href={zoneFileUrl} download="{domainTitle}.zone">Download DNS Zone File</a>
+      <button class="zone-download" on:click={() => (currentZone ? downloadZoneFile(currentZone) : {})}>Download DNS Zone File</button>
       <button class="bot-token-button" on:click={() => (botTokenPromise = fetchBotToken(domainTitle))}>Create Bot Token</button>
     {/if}
   </div>
