@@ -104,7 +104,7 @@
   $: (domainTitle = $domainOption), $table;
 
   let zoneFileUrl: string;
-  zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
+  $: zoneFileUrl = domainTitle ? `${import.meta.env.VITE_API_VERBENA}/zones/${domainTitle}/zone-file` : "";
 
   let recordTypes = [
     {
