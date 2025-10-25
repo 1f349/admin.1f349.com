@@ -53,6 +53,7 @@
   import PtrRow from "../components/domains/PtrRow.svelte";
   import PtrCreate from "../components/create-domains/PtrCreate.svelte";
   import download from "downloadjs";
+  import {parseArpaToPrefix} from "../utils/arpa";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
@@ -103,6 +104,16 @@
 
   let domainTitle: string = "";
   $: (domainTitle = $domainOption), $table;
+
+  function formatTitle(title: string): string {
+    try {
+      let arpa = parseArpaToPrefix(title);
+      if (arpa != null) {
+        return `${arpa[0]}/${arpa[1]}`;
+      }
+    } catch {}
+    return title;
+  }
 
   let zoneFileUrl: string;
   $: zoneFileUrl = currentZone ? `${import.meta.env.VITE_API_VERBENA}/zones/${currentZone?.id}/zone-file` : "";
@@ -281,7 +292,7 @@
 
 {#if domainTitle}
   <div class="title-row">
-    <h1>Domains / {domainTitle}</h1>
+    <h1>Domains / {formatTitle(domainTitle)}</h1>
     {#if currentZone}
       <button class="zone-download" on:click={() => (currentZone ? downloadZoneFile(currentZone) : {})}>Download DNS Zone File</button>
       <button class="bot-token-button" on:click={() => (botTokenPromise = fetchBotToken(domainTitle))}>Create Bot Token</button>

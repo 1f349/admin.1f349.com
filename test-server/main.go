@@ -57,6 +57,10 @@ func ssoServer(signer *mjwt.Issuer, parentKid string) {
 		ps.Set("domain:owns=example.com")
 		ps.Set("domain:owns=example.org")
 		ps.Set("domain:owns=example.net")
+		ps.Set("domain:owns=32_27.2.0.192.in-addr.arpa")
+		ps.Set("domain:owns=113.0.203.in-addr.arpa")
+		ps.Set("domain:owns=8_33.8.b.d.0.1.0.0.2.ip6.arpa")
+		ps.Set("domain:owns=5.3.0.0.8.b.d.0.1.0.0.2.ip6.arpa")
 		accessToken, err := signer.GenerateJwt("81b99bd7-bf74-4cc2-9133-80ed2393dfe6", parentKid, jwt.ClaimStrings{"b5a9a8df-827c-4925-b1c1-1940abcf356b"}, 15*time.Minute, auth.AccessTokenClaims{
 			Perms: ps,
 		})
