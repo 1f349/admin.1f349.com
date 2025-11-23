@@ -54,6 +54,10 @@ $icon-highlight: #10b981;
   @include button-highlight(#ef4444, $square);
 }
 
+@mixin button-gold-highlight($square: true) {
+  @include button-highlight(#ffd700, $square);
+}
+
 @mixin button-box($background: transparent) {
   @include button-reset;
 

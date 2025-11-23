@@ -59,7 +59,12 @@
   const apiAllZones = apiVerbena + "/zones";
   const apiBotToken = apiVerbena + "/bot-token";
 
-  const table = new RestTable<AnyRecord>(apiVerbena + "/zones/0/records", (item: AnyRecord) => `${item.id}`);
+  const table = new RestTable<AnyRecord>(
+    apiVerbena + "/zones/0/records",
+    (item: AnyRecord) => `${item.id}`,
+    null,
+    (item: AnyRecord) => (item.id ?? -255) < 0,
+  );
 
   let allZones: Zone[] = [];
   let currentZone: Zone | undefined;
@@ -122,7 +127,6 @@
     {
       name: "NS",
       headers: ["Subdomain", "Name Server", "TTL"],
-      locked: true,
       filter: isNsRecord,
       render: NsRow,
       create: NsCreate,
@@ -138,7 +142,6 @@
     {
       name: "MX",
       headers: ["Subdomain", "Preference", "Mail Server", "TTL"],
-      locked: false,
       filter: isMxRecord,
       render: MxRow,
       create: MxCreate,
@@ -155,7 +158,6 @@
     {
       name: "A/AAAA",
       headers: ["Hostname", "IP Address", "TTL"],
-      locked: false,
       filter: (t: AnyRecord) => isARecord(t) || isAaaaRecord(t),
       render: ARow,
       create: ACreate,
@@ -171,7 +173,6 @@
     {
       name: "CNAME",
       headers: ["Hostname", "Aliases to", "TTL"],
-      locked: false,
       filter: isCnameRecord,
       render: CnameRow,
       create: CnameCreate,
@@ -187,7 +188,6 @@
     {
       name: "TXT",
       headers: ["Hostname", "Value", "TTL"],
-      locked: false,
       filter: isTxtRecord,
       render: TxtRow,
       create: TxtCreate,
@@ -203,7 +203,6 @@
     {
       name: "SRV",
       headers: ["Name", "Priority", "Weight", "Port", "Target", "TTL"],
-      locked: false,
       filter: isSrvRecord,
       render: SrvRow,
       create: SrvCreate,
@@ -222,7 +221,6 @@
     {
       name: "CAA",
       headers: ["Name", "Tag", "Value", "TTL"],
-      locked: false,
       filter: isCaaRecord,
       render: CaaRow,
       create: CaaCreate,
@@ -240,7 +238,6 @@
     {
       name: "PTR",
       headers: ["Name", "Target", "TTL"],
-      locked: false,
       filter: isPtrRecord,
       render: PtrRow,
       create: PtrCreate,
@@ -328,7 +325,7 @@
         {/if}
       </svelte:fragment>
 
-      <svelte:component this={recordType.render} slot="row" let:value item={value} locked={recordType.locked} />
+      <svelte:component this={recordType.render} slot="row" let:value item={value} />
     </DomainTableView>
   {/each}
 {:else}

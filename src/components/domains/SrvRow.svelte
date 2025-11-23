@@ -49,6 +49,7 @@
   <td>
     <ActionMenu
       data={item}
+      locked={item.isLocked()}
       edit={() => {
         editItem = JSON.parse(JSON.stringify(item.data));
         editPopup = true;

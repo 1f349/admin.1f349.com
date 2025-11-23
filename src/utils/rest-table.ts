@@ -6,15 +6,22 @@ export class RestTable<T extends object> implements IPromiseLike<RestTable<T>> {
   apiUrl: string;
   keyFunc: (item: T) => string;
   keyUrlFunc: (item: T) => string;
+  lockedFunc: ((item: T) => boolean) | null;
   rows: Array<RestItem<T>>;
   private errorReason: string | null = null;
   private loading: boolean = false;
   private subs: Set<Subscriber<RestTable<T>>> = new Set();
 
-  constructor(apiUrl: string, keyFunc: (item: T) => string, keyUrlFunc: ((item: T) => string) | null = null) {
+  constructor(
+    apiUrl: string,
+    keyFunc: (item: T) => string,
+    keyUrlFunc: ((item: T) => string) | null = null,
+    lockedFunc: ((item: T) => boolean) | null = null,
+  ) {
     this.apiUrl = apiUrl;
     this.keyFunc = keyFunc;
     this.keyUrlFunc = keyUrlFunc ?? keyFunc;
+    this.lockedFunc = lockedFunc;
     this.rows = [];
   }
 
@@ -108,6 +115,11 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     let keyPath = "/" + this.table.keyUrlFunc(this.data);
     if (keyPath === "/") keyPath = "";
     return this.table.apiUrl + keyPath;
+  }
+
+  isLocked(): boolean {
+    if (this.table.lockedFunc == null) return false;
+    return this.table.lockedFunc(this.data);
   }
 
   isLoading(): boolean {
