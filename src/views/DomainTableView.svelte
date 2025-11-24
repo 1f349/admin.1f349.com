@@ -30,6 +30,7 @@
       .addItem(createItem)
       .then(() => {
         createPopup = false;
+        createItem = null;
       })
       .catch(x => {
         errorMessage = x;
