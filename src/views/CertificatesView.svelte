@@ -6,7 +6,7 @@
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
-  const table = new RestTable<Cert>(apiOrchid + "/owned", (item: Cert) => item.id.toString());
+  const table = new RestTable<Cert>(apiOrchid + "/certs", (item: Cert) => item.id.toString());
 
   interface Cert {
     id: number;

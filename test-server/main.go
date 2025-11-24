@@ -206,7 +206,7 @@ func apiServer(verify *mjwt.KeyStore) {
 		fmt.Printf("Would create database row: %#v\n", j)
 		json.NewEncoder(rw).Encode(j)
 	}))
-	r.Handle("/v1/orchid/owned", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
+	r.Handle("/v1/orchid/certs", hasPerm(verify, "orchid:cert", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		m := make([]map[string]any, 0, len(subdomains)*2)
 		for i := 0; i < len(subdomains); i++ {
 			u := subdomains[i] + "example.com"
