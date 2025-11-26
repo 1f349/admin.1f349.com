@@ -7,6 +7,7 @@
   import {RestItem, RestTable} from "../utils/rest-table";
   import DynamicListView from "../components/DynamicListView.svelte";
   import Address from "ipaddr.js";
+  import CountrySelect from "../components/CountrySelect.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -187,7 +188,9 @@
       </div>
       <div class="create-cert-column">
         <div>Country</div>
-        <div><input type="text" class="code-font" bind:value={createItem.subject.country} size={2} maxlength={2} /></div>
+        <div>
+          <CountrySelect class="code-font" bind:value={createItem.subject.country} id="countries-input" />
+        </div>
         <div>Organisation</div>
         <div><input type="text" class="code-font" bind:value={createItem.subject.org} size={Math.max(30, createItem.subject.org.length + 2)} /></div>
         <div>Organisation Unit</div>
