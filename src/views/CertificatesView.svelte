@@ -208,7 +208,7 @@
     <div class="create-cert-column-wrapper">
       <div class="create-cert-column">
         <div>Domains</div>
-        <DynamicListView bind:list={createItem.domains} parser={x => x} />
+        <DynamicListView bind:list={createItem.domains} parser={x => (x != "" ? x.trim() : null)} />
       </div>
       <div class="create-cert-column">
         <div>IP Addresses</div>
