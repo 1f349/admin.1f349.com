@@ -22,7 +22,15 @@
 </script>
 
 <div class="list-search">
-  <input type="text" bind:value={addValue} />
+  <input
+    type="text"
+    bind:value={addValue}
+    on:keydown={e => {
+      if (e.key === "Enter") {
+        addItem();
+      }
+    }}
+  />
   <button on:click={() => addItem()}>Add</button>
 </div>
 
