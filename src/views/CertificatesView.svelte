@@ -7,6 +7,7 @@
   import {RestItem, RestTable} from "../utils/rest-table";
   import DynamicListView from "../components/DynamicListView.svelte";
   import Address from "ipaddr.js";
+  import {getEmojiFlag, type TCountryCode} from "countries-list";
   import CountrySelect from "../components/CountrySelect.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
@@ -155,6 +156,10 @@
         createErrorMessage = x;
       });
   }
+
+  function parseCountryCode(x: string): x is TCountryCode {
+    return x.length === 2;
+  }
 </script>
 
 <div class="row">
@@ -188,8 +193,13 @@
       </div>
       <div class="create-cert-column">
         <div>Country</div>
-        <div>
+        <div class="country-row">
           <CountrySelect class="code-font" bind:value={createItem.subject.country} id="countries-input" />
+          <div class="country-flag">
+            {#if parseCountryCode(createItem.subject.country)}
+              {getEmojiFlag(createItem.subject.country)}
+            {/if}
+          </div>
         </div>
         <div>Organisation</div>
         <div><input type="text" class="code-font" bind:value={createItem.subject.org} size={Math.max(30, createItem.subject.org.length + 2)} /></div>
@@ -320,6 +330,22 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+  }
+
+  .country-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8px;
+
+    :global(input) {
+      flex-grow: 1;
+    }
+
+    .country-flag {
+      aspect-ratio: 1/1;
+      font-size: 200%;
     }
   }
 </style>
