@@ -295,7 +295,7 @@
 <style lang="scss">
   @import "../values.scss";
 
-  .branch-cell:last-child {
+  .branch-cell {
     display: grid;
     grid-template-columns: repeat(1, auto);
     justify-content: left;
