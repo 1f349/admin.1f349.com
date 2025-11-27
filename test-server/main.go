@@ -226,6 +226,7 @@ func apiServer(verify *mjwt.KeyStore) {
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
 				"domains":      us,
+				"addresses":    []string{"192.0.2.1", "2001:db8::1"},
 			})
 
 			u = subdomains[i] + "example.org"

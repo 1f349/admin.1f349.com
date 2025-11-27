@@ -245,7 +245,7 @@
     <th>Renewing</th>
     <th>Renew Failed</th>
     <th>Not After</th>
-    <th>Domains</th>
+    <th>Domains / IP Addresses</th>
   </tr>
 
   <svelte:fragment slot="rows" let:value>
@@ -275,6 +275,11 @@
             {#each value.data.domains as domain}
               <div>{domain}</div>
             {/each}
+            {#if value.data.addresses}
+              {#each value.data.addresses as address}
+                <div>{address}</div>
+              {/each}
+            {/if}
           </td>
         </tr>
       </PromiseLike>
