@@ -9,6 +9,7 @@
   import Address from "ipaddr.js";
   import {getEmojiFlag, type TCountryCode} from "countries-list";
   import CountrySelect from "../components/CountrySelect.svelte";
+  import ActionMenu from "../components/ActionMenu.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -246,6 +247,7 @@
     <th>Renew Failed</th>
     <th>Not After</th>
     <th>Domains / IP Addresses</th>
+    <th></th>
   </tr>
 
   <svelte:fragment slot="rows" let:value>
@@ -280,6 +282,9 @@
                 <div>{address}</div>
               {/each}
             {/if}
+          </td>
+          <td>
+            <ActionMenu data={item} locked={false} edit={null} remove={() => item.remove()} />
           </td>
         </tr>
       </PromiseLike>
