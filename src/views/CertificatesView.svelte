@@ -241,6 +241,7 @@
 <PromiseTable value={table}>
   <tr slot="headers">
     <th>ID</th>
+    <th>Name</th>
     <th>Auto Renew</th>
     <th>Active</th>
     <th>Renewing</th>
@@ -265,6 +266,7 @@
 
         <tr slot="ok" let:value class:cert-error={value.data.renew_failed} class="empty-row">
           <td>{value.data.id}</td>
+          <td>{value.data.name}</td>
           <td>{value.data.auto_renew}</td>
           <td>{value.data.active}</td>
           <td>{value.data.renewing}</td>
