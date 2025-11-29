@@ -421,4 +421,16 @@
       }
     }
   }
+
+  .manual-renew-button {
+    height: 100%;
+    display: flex;
+
+    button {
+      display: block;
+      height: 100%;
+
+      @include button-gold;
+    }
+  }
 </style>
