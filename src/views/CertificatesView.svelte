@@ -12,6 +12,8 @@
   import ActionMenu from "../components/ActionMenu.svelte";
   import RefreshCW from "../icons/RefreshCW.svelte";
   import RefreshCWOff from "../icons/RefreshCWOff.svelte";
+  import RefreshCWWDot from "../icons/RefreshCWWDot.svelte";
+  import Certificate from "../icons/Certificate.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -172,6 +174,17 @@
       return x;
     });
   }
+
+  function manualRenew(value: RestItem<Cert>) {
+    value.apiCall(
+      value.keyUrl() + "/renew",
+      {},
+      () => {
+        value.data.renewing = true;
+      },
+      {method: "POST"},
+    );
+  }
 </script>
 
 <div class="row">
@@ -309,6 +322,13 @@
             {/if}
           </td>
           <td>
+            {#if !value.data.auto_renew && !value.data.renewing}
+              <div class="manual-renew-button">
+                <button title="Manual Renew" on:click={() => manualRenew(value)}>
+                  <RefreshCWWDot />
+                </button>
+              </div>
+            {/if}
             <ActionMenu data={item} locked={false} edit={null} remove={() => item.remove()} />
           </td>
         </tr>
