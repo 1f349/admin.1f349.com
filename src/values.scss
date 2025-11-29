@@ -44,6 +44,18 @@ $icon-highlight: #10b981;
   color: $highlight;
 }
 
+@mixin button-green($square: true) {
+  @include button(#10b981, $square);
+}
+
+@mixin button-red($square: true) {
+  @include button(#ef4444, $square);
+}
+
+@mixin button-gold($square: true) {
+  @include button(#ffd700, $square);
+}
+
 @mixin button-highlight($highlight, $square: true) {
   @include button-reset;
 
@@ -62,19 +74,11 @@ $icon-highlight: #10b981;
   }
 }
 
-@mixin button-green($square: true) {
-  @include button(#10b981, $square);
-}
-
-@mixin button-red ($square: true) {
-  @include button(#ef4444, $square);
-}
-
 @mixin button-green-highlight($square: true) {
   @include button-highlight(#10b981, $square);
 }
 
-@mixin button-red-highlight ($square: true) {
+@mixin button-red-highlight($square: true) {
   @include button-highlight(#ef4444, $square);
 }
 
