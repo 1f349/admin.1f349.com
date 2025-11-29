@@ -28,6 +28,22 @@ $icon-highlight: #10b981;
   cursor: pointer;
 }
 
+@mixin button($highlight, $square: true) {
+  @include button-reset;
+
+  display: block;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 0;
+  width: 40px;
+
+  @if $square {
+    aspect-ratio: 1/1;
+  }
+
+  color: $highlight;
+}
+
 @mixin button-highlight($highlight, $square: true) {
   @include button-reset;
 
@@ -44,6 +60,14 @@ $icon-highlight: #10b981;
   &:hover {
     color: $highlight;
   }
+}
+
+@mixin button-green($square: true) {
+  @include button(#10b981, $square);
+}
+
+@mixin button-red ($square: true) {
+  @include button(#ef4444, $square);
 }
 
 @mixin button-green-highlight($square: true) {

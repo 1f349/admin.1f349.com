@@ -393,11 +393,11 @@
       height: 100%;
 
       &.auto-renew-enabled {
-        @include button-green-highlight;
+        @include button-green;
       }
 
       &:not(.auto-renew-enabled) {
-        @include button-red-highlight;
+        @include button-red;
       }
     }
   }
