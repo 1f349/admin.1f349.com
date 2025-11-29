@@ -130,22 +130,31 @@ export class RestItem<T extends object> implements IPromiseLike<RestItem<T>> {
     return this.errorReason;
   }
 
-  async update(data: T, options?: RequestInit): Promise<void> {
+  async patch(data: object, postUpdate: (x: T) => T, options?: RequestInit): Promise<void> {
     this.setLoading(true);
     if (!options)
       options = {
-        method: "PUT",
+        method: "PATCH",
         body: JSON.stringify(data),
       };
     try {
       const x = await LOGIN.clientRequest(this.keyUrl(), options);
       if (x.status !== 200) throw new Error("Unexpected status code: " + x.status);
-      this.data = data;
+      this.data = postUpdate(this.data);
       this.setLoading(false);
     } catch (err) {
       this.setErrorReason("Failed to update item " + this.key());
       this.setLoading(false);
     }
+  }
+
+  async update(data: T, options?: RequestInit): Promise<void> {
+    if (!options)
+      options = {
+        method: "PUT",
+        body: JSON.stringify(data),
+      };
+    this.patch(data, (_: T) => data, options);
   }
 
   async remove(options?: RequestInit): Promise<void> {
