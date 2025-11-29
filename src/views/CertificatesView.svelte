@@ -322,14 +322,16 @@
             {/if}
           </td>
           <td>
-            {#if !value.data.auto_renew && !value.data.renewing}
-              <div class="manual-renew-button">
-                <button title="Manual Renew" on:click={() => manualRenew(value)}>
-                  <RefreshCWWDot />
-                </button>
-              </div>
-            {/if}
-            <ActionMenu data={item} locked={false} edit={null} remove={() => item.remove()} />
+            <div class="action-row">
+              {#if !value.data.auto_renew && !value.data.renewing}
+                <div class="manual-renew-button">
+                  <button title="Manual Renew" on:click={() => manualRenew(value)}>
+                    <RefreshCWWDot />
+                  </button>
+                </div>
+              {/if}
+              <ActionMenu data={item} locked={false} edit={null} remove={() => item.remove()} />
+            </div>
           </td>
         </tr>
       </PromiseLike>
@@ -432,5 +434,10 @@
 
       @include button-gold;
     }
+  }
+
+  .action-row {
+    height: 100%;
+    display: flex;
   }
 </style>
