@@ -114,7 +114,7 @@
 
   function rowOrdering(rows: RestItem<Cert>[], domain: string): RestItem<Cert>[] {
     return rows
-      .filter(x => domainFilter(x.data.subject.common_name, domain) || x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b))
+      .filter(x => domainFilter(x.data.subject.common_name, domain) || x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false))
       .sort((a, b) => {
         // sort renew failed first
         if (a.data.renew_failed && b.data.renew_failed) return a.data.id - b.data.id;
