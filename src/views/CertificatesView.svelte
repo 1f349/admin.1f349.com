@@ -278,18 +278,20 @@
         <tr slot="ok" let:value class:cert-error={value.data.renew_failed} class="empty-row">
           <td>{value.data.id}</td>
           <td>{value.data.name}</td>
-          <td class="auto-renew-toggle">
-            <button
-              class:auto-renew-enabled={value.data.auto_renew}
-              title={"Auto Renew " + (value.data.auto_renew ? "Enabled" : "Disabled")}
-              on:click={() => setAutoRenewState(value, !value.data.auto_renew)}
-            >
-              {#if value.data.auto_renew}
-                <RefreshCW />
-              {:else}
-                <RefreshCWOff />
-              {/if}
-            </button>
+          <td>
+            <div class="auto-renew-toggle">
+              <button
+                class:auto-renew-enabled={value.data.auto_renew}
+                title={"Auto Renew " + (value.data.auto_renew ? "Enabled" : "Disabled")}
+                on:click={() => setAutoRenewState(value, !value.data.auto_renew)}
+              >
+                {#if value.data.auto_renew}
+                  <RefreshCW />
+                {:else}
+                  <RefreshCWOff />
+                {/if}
+              </button>
+            </div>
           </td>
           <td>{value.data.active}</td>
           <td>{value.data.renewing}</td>
