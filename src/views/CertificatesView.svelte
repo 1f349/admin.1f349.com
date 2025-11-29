@@ -10,6 +10,8 @@
   import {getEmojiFlag, type TCountryCode} from "countries-list";
   import CountrySelect from "../components/CountrySelect.svelte";
   import ActionMenu from "../components/ActionMenu.svelte";
+  import RefreshCW from "../icons/RefreshCW.svelte";
+  import RefreshCWOff from "../icons/RefreshCWOff.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -161,6 +163,13 @@
   function parseCountryCode(x: string): x is TCountryCode {
     return x.length === 2;
   }
+
+  function setAutoRenewState(value: RestItem<Cert>, autoRenew: boolean) {
+    value.patch({auto_renew: autoRenew}, (x: Cert) => {
+      x.auto_renew = autoRenew;
+      return x;
+    });
+  }
 </script>
 
 <div class="row">
@@ -267,7 +276,18 @@
         <tr slot="ok" let:value class:cert-error={value.data.renew_failed} class="empty-row">
           <td>{value.data.id}</td>
           <td>{value.data.name}</td>
-          <td>{value.data.auto_renew}</td>
+          <td
+            class="auto-renew-toggle"
+            class:auto-renew-enabled={value.data.auto_renew}
+            title={"Auto Renew " + (value.data.auto_renew ? "Enabled" : "Disabled")}
+            on:click={() => setAutoRenewState(value, !value.data.auto_renew)}
+          >
+            {#if value.data.auto_renew}
+              <RefreshCW />
+            {:else}
+              <RefreshCWOff />
+            {/if}
+          </td>
           <td>{value.data.active}</td>
           <td>{value.data.renewing}</td>
           <td>{value.data.renew_failed}</td>
@@ -358,6 +378,24 @@
     .country-flag {
       aspect-ratio: 1/1;
       font-size: 200%;
+    }
+  }
+
+  .auto-renew-toggle {
+    height: 100%;
+    display: flex;
+
+    button {
+      display: block;
+      height: 100%;
+
+      &.auto-renew-enabled {
+        @include button-green-highlight;
+      }
+
+      &:not(.auto-renew-enabled) {
+        @include button-red-highlight;
+      }
     }
   }
 </style>
