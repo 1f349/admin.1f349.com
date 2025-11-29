@@ -254,7 +254,6 @@
     <th>ID</th>
     <th>Name</th>
     <th>Auto Renew</th>
-    <th>Active</th>
     <th>Renewing</th>
     <th>Renew Failed</th>
     <th>Not After</th>
@@ -293,7 +292,6 @@
               </button>
             </div>
           </td>
-          <td>{value.data.active}</td>
           <td>{value.data.renewing}</td>
           <td>{value.data.renew_failed}</td>
           <td>
