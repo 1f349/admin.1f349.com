@@ -219,6 +219,7 @@ func apiServer(verify *mjwt.KeyStore) {
 			}
 			m = append(m, map[string]any{
 				"id":           i + 1,
+				"name":         fmt.Sprintf("Test Certificate %d", i+1),
 				"auto_renew":   true,
 				"active":       true,
 				"renewing":     false,
@@ -247,6 +248,7 @@ func apiServer(verify *mjwt.KeyStore) {
 			}
 			m = append(m, map[string]any{
 				"id":           i + 21,
+				"name":         fmt.Sprintf("Test Certificate %d", i+21),
 				"auto_renew":   false,
 				"active":       false,
 				"renewing":     false,
