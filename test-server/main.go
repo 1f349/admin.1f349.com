@@ -227,6 +227,14 @@ func apiServer(verify *mjwt.KeyStore) {
 				"updated_at":   "2023-11-08T07:32:08Z",
 				"domains":      us,
 				"addresses":    []string{"192.0.2.1", "2001:db8::1"},
+				"subject": map[string]any{
+					"common_name": "example.com",
+					"country":     "",
+					"org":         "",
+					"org_unit":    "",
+					"locality":    "",
+					"province":    "",
+				},
 			})
 
 			u = subdomains[i] + "example.org"
@@ -246,6 +254,15 @@ func apiServer(verify *mjwt.KeyStore) {
 				"not_after":    "2024-02-06T11:52:05Z",
 				"updated_at":   "2023-11-08T07:32:08Z",
 				"domains":      us,
+				"addresses":    []string{"192.0.2.100", "2001:db8:15::1"},
+				"subject": map[string]any{
+					"common_name": "example.org",
+					"country":     "",
+					"org":         "",
+					"org_unit":    "",
+					"locality":    "",
+					"province":    "",
+				},
 			})
 		}
 		json.NewEncoder(rw).Encode(m)
