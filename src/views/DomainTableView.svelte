@@ -30,7 +30,7 @@
       .addItem(createItem)
       .then(() => {
         createPopup = false;
-        createItem = null;
+        createItem = emptyRecord == null ? null : emptyRecord();
       })
       .catch(x => {
         errorMessage = x;
