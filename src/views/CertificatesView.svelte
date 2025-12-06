@@ -13,7 +13,6 @@
   import RefreshCW from "../icons/RefreshCW.svelte";
   import RefreshCWOff from "../icons/RefreshCWOff.svelte";
   import RefreshCWWDot from "../icons/RefreshCWWDot.svelte";
-  import Certificate from "../icons/Certificate.svelte";
 
   const apiOrchid = import.meta.env.VITE_API_ORCHID;
 
@@ -119,7 +118,8 @@
   function rowOrdering(rows: RestItem<Cert>[], domain: string): RestItem<Cert>[] {
     return rows
       .filter(
-        x => domainFilter(x.data.subject.common_name, domain) || x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false),
+        x =>
+          domainFilter(x.data.subject?.common_name ?? "", domain) || x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false),
       )
       .sort((a, b) => {
         // sort renew failed first
