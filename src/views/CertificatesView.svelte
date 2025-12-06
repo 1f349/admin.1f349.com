@@ -119,7 +119,8 @@
     return rows
       .filter(
         x =>
-          domainFilter(x.data.subject?.common_name ?? "", domain) || x.data.domains.map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false),
+          domainFilter(x.data.subject?.common_name ?? "", domain) ||
+          (x.data.domains ?? []).map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false),
       )
       .sort((a, b) => {
         // sort renew failed first
