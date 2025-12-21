@@ -316,6 +316,8 @@
             {#if value.data.renew_retry != null}
               <div>{new Date(value.data.renew_retry)}</div>
               <div>Retrying in {Math.round((new Date().getTime() - new Date(value.data.renew_retry).getTime()) / (1000 * 60 * 60))} hours</div>
+            {:else}
+              <div>Renew successful</div>
             {/if}
           </td>
           <td>
