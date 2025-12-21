@@ -218,16 +218,16 @@ func apiServer(verify *mjwt.KeyStore) {
 				us = append(us, "extra-subdomain."+u, "another-extra-subdomain."+u)
 			}
 			m = append(m, map[string]any{
-				"id":           i + 1,
-				"name":         fmt.Sprintf("Test Certificate %d", i+1),
-				"auto_renew":   true,
-				"active":       true,
-				"renewing":     false,
-				"renew_failed": false,
-				"not_after":    "2024-02-06T11:52:05Z",
-				"updated_at":   "2023-11-08T07:32:08Z",
-				"domains":      us,
-				"addresses":    []string{"192.0.2.1", "2001:db8::1"},
+				"id":          i + 1,
+				"name":        fmt.Sprintf("Test Certificate %d", i+1),
+				"auto_renew":  true,
+				"active":      true,
+				"renewing":    false,
+				"renew_retry": nil,
+				"not_after":   "2024-02-06T11:52:05Z",
+				"updated_at":  "2023-11-08T07:32:08Z",
+				"domains":     us,
+				"addresses":   []string{"192.0.2.1", "2001:db8::1"},
 				"subject": map[string]any{
 					"common_name": "example.com",
 					"country":     "",
@@ -247,16 +247,16 @@ func apiServer(verify *mjwt.KeyStore) {
 				us = append(us, "extra-subdomain."+u, "another-extra-subdomain."+u)
 			}
 			m = append(m, map[string]any{
-				"id":           i + 21,
-				"name":         fmt.Sprintf("Test Certificate %d", i+21),
-				"auto_renew":   false,
-				"active":       false,
-				"renewing":     false,
-				"renew_failed": false,
-				"not_after":    "2024-02-06T11:52:05Z",
-				"updated_at":   "2023-11-08T07:32:08Z",
-				"domains":      us,
-				"addresses":    []string{"192.0.2.100", "2001:db8:15::1"},
+				"id":          i + 21,
+				"name":        fmt.Sprintf("Test Certificate %d", i+21),
+				"auto_renew":  false,
+				"active":      false,
+				"renewing":    false,
+				"renew_retry": nil,
+				"not_after":   "2024-02-06T11:52:05Z",
+				"updated_at":  "2023-11-08T07:32:08Z",
+				"domains":     us,
+				"addresses":   []string{"192.0.2.100", "2001:db8:15::1"},
 				"subject": map[string]any{
 					"common_name": "example.org",
 					"country":     "",
