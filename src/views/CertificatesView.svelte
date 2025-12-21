@@ -25,7 +25,7 @@
     auto_renew: boolean;
     active: boolean;
     renewing: boolean;
-    renew_failed: boolean;
+    renew_retry: Date | null;
     not_after: Date;
     updated_at: Date;
     subject: Subject;
@@ -75,7 +75,7 @@
       auto_renew: options.auto_renew,
       active: true,
       renewing: false,
-      renew_failed: false,
+      renew_retry: null,
       not_after: new Date(),
       updated_at: new Date(),
       subject: options.subject,
@@ -123,10 +123,15 @@
           (x.data.domains ?? []).map(x => domainFilter(x, domain)).reduce((a, b) => a || b, false),
       )
       .sort((a, b) => {
-        // sort renew failed first
-        if (a.data.renew_failed && b.data.renew_failed) return a.data.id - b.data.id;
-        if (a.data.renew_failed) return -1;
-        if (b.data.renew_failed) return 1;
+        let aFailed = a.data.renew_retry != null;
+        let bFailed = b.data.renew_retry != null;
+
+        // if aFailed == bFailed then they should be sorted normally by id, so skip this block
+        if (aFailed != bFailed) {
+          // sort renew failed first
+          if (aFailed) return -1;
+          if (bFailed) return 1;
+        }
         return a.data.id - b.data.id;
       });
   }
@@ -269,7 +274,7 @@
     <th>Name</th>
     <th>Auto Renew</th>
     <th>Renewing</th>
-    <th>Renew Failed</th>
+    <th>Retry Renewal</th>
     <th>Not After</th>
     <th>Domains / IP Addresses</th>
     <th></th>
@@ -307,7 +312,12 @@
             </div>
           </td>
           <td>{value.data.renewing}</td>
-          <td>{value.data.renew_failed}</td>
+          <td>
+            {#if value.data.renew_retry != null}
+              <div>{new Date(value.data.renew_retry)}</div>
+              <div>Retrying in {Math.round((new Date().getTime() - new Date(value.data.renew_retry).getTime()) / (1000 * 60 * 60))} hours</div>
+            {/if}
+          </td>
           <td>
             <div>{value.data.not_after}</div>
             <div>{Math.round((new Date(value.data.not_after).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days until expiry</div>
