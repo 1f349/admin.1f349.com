@@ -293,7 +293,7 @@
           <td colspan="100">Error loading row for {item.data.id}: {reason}</td>
         </tr>
 
-        <tr slot="ok" let:value class:cert-error={value.data.renew_failed} class="empty-row">
+        <tr slot="ok" let:value class:cert-error={value.data.renew_retry != null} class="empty-row">
           <td>{value.data.id}</td>
           <td>{value.data.name}</td>
           <td>
