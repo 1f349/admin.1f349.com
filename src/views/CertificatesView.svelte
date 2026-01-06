@@ -191,6 +191,10 @@
       {method: "POST"},
     );
   }
+
+  function hasCertError(item: RestItem<Cert>): boolean {
+    return item.data.renew_retry != null && item.data.renew_retry.getTime() != 0;
+  }
 </script>
 
 <div class="row">
@@ -293,7 +297,7 @@
           <td colspan="100">Error loading row for {item.data.id}: {reason}</td>
         </tr>
 
-        <tr slot="ok" let:value class:cert-error={value.data.renew_retry != null} class="empty-row">
+        <tr slot="ok" let:value class:cert-error={hasCertError(value)} class="empty-row">
           <td>{value.data.id}</td>
           <td>{value.data.name}</td>
           <td>
@@ -313,8 +317,8 @@
           </td>
           <td>{value.data.renewing}</td>
           <td>
-            {#if value.data.renew_retry != null}
-              <div>{new Date(value.data.renew_retry)}</div>
+            {#if hasCertError(value) && value.data.renew_retry != null}
+              <div>{value.data.renew_retry}</div>
               <div>Retrying in {Math.round((new Date(value.data.renew_retry).getTime() - new Date().getTime()) / (1000 * 60 * 60))} hours</div>
             {:else}
               <div>Renew successful</div>
