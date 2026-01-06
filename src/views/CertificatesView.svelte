@@ -193,7 +193,8 @@
   }
 
   function hasCertError(item: RestItem<Cert>): boolean {
-    return item.data.renew_retry != null && item.data.renew_retry.getTime() != 0;
+    let time = item.data.renew_retry?.getTime();
+    return time != null && time != 0;
   }
 </script>
 
@@ -319,14 +320,14 @@
           <td>
             {#if hasCertError(value) && value.data.renew_retry != null}
               <div>{value.data.renew_retry}</div>
-              <div>Retrying in {Math.round((new Date(value.data.renew_retry).getTime() - new Date().getTime()) / (1000 * 60 * 60))} hours</div>
+              <div>Retrying in {Math.round((value.data.renew_retry.getTime() - new Date().getTime()) / (1000 * 60 * 60))} hours</div>
             {:else}
               <div>Renew successful</div>
             {/if}
           </td>
           <td>
             <div>{value.data.not_after}</div>
-            <div>{Math.round((new Date(value.data.not_after).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days until expiry</div>
+            <div>{Math.round((value.data.not_after.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days until expiry</div>
           </td>
           <td class="branch-cell">
             {#each value.data.domains as domain}
