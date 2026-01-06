@@ -252,7 +252,7 @@ func apiServer(verify *mjwt.KeyStore) {
 				"auto_renew":  false,
 				"active":      false,
 				"renewing":    false,
-				"renew_retry": nil,
+				"renew_retry": "2026-01-01T01:00:00Z",
 				"not_after":   "2024-02-06T11:52:05Z",
 				"updated_at":  "2023-11-08T07:32:08Z",
 				"domains":     us,
