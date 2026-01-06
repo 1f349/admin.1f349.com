@@ -193,8 +193,7 @@
   }
 
   function hasCertError(item: RestItem<Cert>): boolean {
-    let time = new Date(item.data.renew_retry)?.getTime();
-    return time != null && time != 0;
+    return item.data.renew_retry != null && new Date(item.data.renew_retry).getTime() != 0;
   }
 </script>
 
