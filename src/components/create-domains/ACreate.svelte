@@ -1,6 +1,7 @@
 <script lang="ts">
   import {DnsTypeA, DnsTypeAAAA, type AaaaValue, type ApiRecordFormat, type AValue} from "../../types/records";
   import {IPv4, IPv6, parse as parseAddr} from "ipaddr.js";
+  import TTLEditor from "../TTLEditor.svelte";
 
   export let editItem: ApiRecordFormat<AValue | AaaaValue>;
   export let editMode: boolean;
@@ -29,6 +30,9 @@
 {:else}
   <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
+
+<div>Time-To-Live</div>
+<TTLEditor bind:value={editItem.ttl} />
 
 <div>IP Address</div>
 <div><input type="text" class="code-font" bind:value size={Math.max(20, value.length + 2)} /></div>

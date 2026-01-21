@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {ApiRecordFormat, SrvValue} from "../../types/records";
+  import TTLEditor from "../TTLEditor.svelte";
 
   export let editItem: ApiRecordFormat<SrvValue>;
   export let editMode: boolean;
@@ -18,6 +19,8 @@
 {:else}
   <div><input type="text" class="code-font" bind:value={editItem.name} size={Math.max(20, editItem.name.length + 2)} /></div>
 {/if}
+<div>Time-To-Live</div>
+<TTLEditor bind:value={editItem.ttl} />
 <div>Priority</div>
 <div><input type="number" class="code-font" bind:value={editItem.value.priority} /></div>
 <div>Weight</div>
