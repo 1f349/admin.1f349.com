@@ -8,6 +8,10 @@
   let value: string = "";
 
   $: {
+    if (value == "") {
+      value = editItem.value.ip;
+    }
+
     try {
       let addr = parseAddr(value);
       if (addr instanceof IPv4) {
