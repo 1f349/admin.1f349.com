@@ -4,7 +4,7 @@
   const fiveMinutes = 60 * 5; // 300 seconds
   const oneHour = 60 * 60;
   const twoHours = oneHour * 2;
-  const oneDay = 60 * 60 * 24;
+  const oneDay = oneHour * 24;
   const twoDays = oneDay * 2;
   const oneWeek = oneDay * 7;
   const twoWeeks = oneWeek * 2;
