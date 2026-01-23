@@ -7,7 +7,6 @@
   const oneDay = oneHour * 24;
   const twoDays = oneDay * 2;
   const oneWeek = oneDay * 7;
-  const twoWeeks = oneWeek * 2;
 
   const ttlOptions = [
     {value: "default", name: "Default"},
@@ -18,7 +17,6 @@
     {value: oneDay, name: "One Day"},
     {value: twoDays, name: "Two Days"},
     {value: oneWeek, name: "One Week"},
-    {value: twoWeeks, name: "Two Weeks"},
   ];
 
   let currentPreset: string | number;
