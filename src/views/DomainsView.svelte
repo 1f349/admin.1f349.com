@@ -27,6 +27,7 @@
     type MxValue,
     type NsValue,
     type PtrValue,
+    type SoaValue,
     type SrvValue,
     type TxtValue,
   } from "../types/records";
@@ -54,6 +55,7 @@
   import PtrCreate from "../components/create-domains/PtrCreate.svelte";
   import download from "downloadjs";
   import {parseArpaToPrefix} from "../utils/arpa";
+  import SoaCreate from "../components/create-domains/SoaCreate.svelte";
 
   const apiVerbena = import.meta.env.VITE_API_VERBENA;
   const apiAllZones = apiVerbena + "/zones";
@@ -75,6 +77,20 @@
     let fJson = await f.json();
     let rows = fJson as Zone[];
     allZones = rows;
+  }
+
+  async function fetchSingleZone(id: number) {
+    let f = await LOGIN.clientRequest(apiAllZones + "/" + id, {method: "GET"});
+    if (f.status != 200) throw new Error("Unexpected status code: " + f.status);
+    let fJson = await f.json();
+    let row = fJson as Zone;
+    let newAllZones = allZones.map(x => {
+      if (x.id === row.id) {
+        return row;
+      }
+      return x;
+    });
+    allZones = newAllZones;
   }
 
   onMount(() => {
@@ -285,6 +301,46 @@
     let blob = await f.blob();
     download(blob, `${currentZone.name}.zone`);
   }
+
+  let editSoaItem: ApiRecordFormat<SoaValue>;
+  let editSoaPopup: boolean = false;
+  let editSoaErrorMessage: string | null = null;
+
+  $: if (currentZone) {
+    editSoaItem = {
+      name: currentZone.name,
+      type: "SOA",
+      ttl: 0,
+      value: {
+        ns: currentZone.nameservers[0] ?? "",
+        mbox: currentZone.admin,
+        serial: currentZone.serial,
+        refresh: currentZone.refresh,
+        retry: currentZone.retry,
+        expire: currentZone.expire,
+        minttl: currentZone.ttl,
+      },
+    };
+  }
+
+  async function editSoaRecord() {
+    if (editSoaItem == null) return;
+    if (!currentZone) return;
+
+    let zone = currentZone;
+    let item = {
+      refresh: editSoaItem.value.refresh,
+      retry: editSoaItem.value.retry,
+      expire: editSoaItem.value.expire,
+      ttl: editSoaItem.value.minttl,
+    };
+
+    let f = await LOGIN.clientRequest(apiAllZones + "/" + zone.id, {method: "PUT", body: JSON.stringify(item)});
+    if (f.status !== 200 && f.status !== 201) throw new Error("Unexpected status code: " + f.status);
+    await f.json();
+
+    await fetchSingleZone(zone.id);
+  }
 </script>
 
 {#if domainTitle}
@@ -310,6 +366,54 @@
 {/if}
 
 {#if currentZone}
+  <div class="row">
+    <h2>SOA Record</h2>
+
+    <button class="edit-soa-button" on:click={() => (editSoaPopup = true)}>Edit SOA Record</button>
+
+    <ActionPopup name="Edit SOA Record" bind:show={editSoaPopup} on:save={editSoaRecord}>
+      <SoaCreate editItem={editSoaItem} editMode={true} />
+
+      {#if editSoaErrorMessage}
+        <div>{editSoaErrorMessage}</div>
+      {/if}
+    </ActionPopup>
+  </div>
+  <table>
+    <tbody>
+      <tr>
+        <th>Zone</th>
+        <td>{currentZone.name}</td>
+      </tr>
+      <tr>
+        <th>Admin</th>
+        <td>{currentZone.admin}</td>
+      </tr>
+      {#if currentZone.nameservers?.length > 0}
+        <tr>
+          <th>Nameservers</th>
+          <td>{(currentZone.nameservers || []).join(", ")}</td>
+        </tr>
+      {/if}
+      <tr>
+        <th>Refresh</th>
+        <td>{currentZone.refresh}</td>
+      </tr>
+      <tr>
+        <th>Retry</th>
+        <td>{currentZone.retry}</td>
+      </tr>
+      <tr>
+        <th>Expire</th>
+        <td>{currentZone.expire}</td>
+      </tr>
+      <tr>
+        <th>Default Time-to-Live</th>
+        <td>{currentZone.ttl}</td>
+      </tr>
+    </tbody>
+  </table>
+
   {#each recordTypes as recordType}
     <DomainTableView recordName={recordType.name} table={$table} emptyRecord={recordType.empty} {rowOrdering} isTRecord={recordType.filter}>
       <tr slot="headers">
@@ -347,6 +451,17 @@
     .bot-token-button {
       @include button-green-box;
     }
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .edit-soa-button {
+    @include button-green-box;
   }
 
   .bot-token-selection {
