@@ -274,12 +274,21 @@ func apiServer(verify *mjwt.KeyStore) {
 	}))
 	r.Handle("/v1/verbena/zones", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
 		type Zone struct {
-			ID   int64  `json:"id"`
-			Name string `json:"name"`
+			ID          int64    `json:"id"`
+			Name        string   `json:"name"`
+			Serial      int64    `json:"serial"`
+			Admin       string   `json:"admin"`
+			Refresh     int64    `json:"refresh"`
+			Retry       int64    `json:"retry"`
+			Expire      int64    `json:"expire"`
+			Ttl         int64    `json:"ttl"`
+			Active      bool     `json:"active"`
+			Nameservers []string `json:"nameservers"`
 		}
+
 		json.NewEncoder(rw).Encode([]Zone{
-			{ID: 1, Name: "example.com"},
-			{ID: 2, Name: "example.org"},
+			{ID: 1, Name: "example.com", Serial: 20260101, Admin: "hostmaster.example.com", Refresh: 7200, Retry: 1800, Expire: 86400, Ttl: 600, Active: true, Nameservers: []string{"ns1.example.com", "ns2.example.com"}},
+			{ID: 2, Name: "example.org", Serial: 20260101, Admin: "hostmaster.example.org", Refresh: 7200, Retry: 1800, Expire: 86400, Ttl: 600, Active: true, Nameservers: []string{"ns1.example.org", "ns2.example.org"}},
 		})
 	}))
 	r.Handle("/v1/verbena/zones/0/records", hasPerm(verify, "verbena:domains", func(rw http.ResponseWriter, req *http.Request, b mjwt.BaseTypeClaims[auth.AccessTokenClaims]) {
