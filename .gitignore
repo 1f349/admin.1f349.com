@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 .vite/
 
 *.local
+
+test-server/test_server
+test-server/test_server.exe
