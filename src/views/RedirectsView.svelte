@@ -73,11 +73,11 @@
 
 <TargetManagementView apiUrl="{apiViolet}/redirect" bind:this={targetManagement}>
   <svelte:fragment slot="headers">
+    <th>Active</th>
     <th>Source</th>
     <th>Destination</th>
     <th>Flags</th>
     <th>Code</th>
-    <th>Active</th>
     <th>Option</th>
   </svelte:fragment>
   <RedirectRow slot="row" let:value {value} />

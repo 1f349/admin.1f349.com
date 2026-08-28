@@ -23,11 +23,11 @@
 </script>
 
 <tr>
+  <td><input type="checkbox" disabled checked={value.data.active} /></td>
   <td class="code-font"><a href="https://{value.data.src}" target="_blank">{value.data.src}</a></td>
   <td>{value.data.dst}</td>
   <td><Flags bind:value={value.data.flags} keys={redirectKeys} /></td>
   <td><RedirectCode bind:code={value.data.code} /></td>
-  <td><input type="checkbox" disabled checked={value.data.active} /></td>
   <td>
     <ActionMenu
       data={value}

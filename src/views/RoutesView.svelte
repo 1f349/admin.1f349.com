@@ -71,10 +71,10 @@
 
 <TargetManagementView apiUrl="{apiViolet}/route" bind:this={targetManagement}>
   <svelte:fragment slot="headers">
+    <th>Active</th>
     <th>Source</th>
     <th>Destination</th>
     <th>Flags</th>
-    <th>Active</th>
     <th>Option</th>
   </svelte:fragment>
   <RouteRow slot="row" let:value {value} />
